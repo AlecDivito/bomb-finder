@@ -130,13 +130,27 @@ export class IndexDbTable {
 
     async save() {
         return new Promise( async (resolve, reject) => {
+            const metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
+            if (!metaData) {
+                reject();
+            }
             if (!this.database) {
                 await this.connection();
             }
+            const save: any = {};
+            Object.keys(this)
+                .filter(key => metaData!.fields.includes(key))
+                .forEach(key => save[key] = (this as any)[key]);
+            // const record = {
+            //     [metaData!.primaryKey!]: save[metaData!.primaryKey!],
+            //     value: save
+            // };
+
+            console.log(save);
             const request = this.database!
-                .transaction([this.constructor.name], "readwrite")
+                .transaction(this.constructor.name, "readwrite")
                 .objectStore(this.constructor.name)
-                .put(this);
+                .put(save);
             request.onerror = (event) => {
                 reject();
             };
@@ -156,7 +170,7 @@ export class IndexDbTable {
                 reject();
                 return;
             }
-            const id: string = (<any>this)[key];
+            const id: string = (this as any)[key];
             const request = this.database!
                 .transaction([this.constructor.name], "readwrite")
                 .objectStore(this.constructor.name)
@@ -171,7 +185,7 @@ export class IndexDbTable {
     }
 
     private async connection() {
-        const request = await window.indexedDB.open(this.constructor.name);
+        const request = await window.indexedDB.open(window.location.hostname);
         
         request.onerror = (event) => {
             this.storageType = StorageOption.MEMORY;
@@ -188,14 +202,20 @@ export class IndexDbTable {
                 throw new Error("No table found");
             }
             // create the table
-            const objectStore = database!.createObjectStore(tableName /* , { keyPath: tableName } */);
+            const objectStore = database!.createObjectStore(tableName, {
+                keyPath: tableMetaData.primaryKey!,
+                autoIncrement: false
+            });
             
             // create the columns
             console.log(tableMetaData!.fields);
             console.log(tableMetaData);
             for (const field of tableMetaData!.fields) {
+                if (field === tableMetaData!.primaryKey) {
+                    continue;
+                }
                 objectStore.createIndex(field, field, {
-                    unique: field === tableMetaData!.primaryKey
+                    unique: false
                 });
             }
             // currently assuming everything went hunky dory
