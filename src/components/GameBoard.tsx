@@ -96,6 +96,11 @@ class GameBoard extends Component<Props, State> {
         const events = this.state.input.pollEvents(this.state.inputId!);
         this.state.game.update(elapsedTime);
 
+        if (this.state.game.isGameOver) {
+            window.cancelAnimationFrame(this.state.rafId!);
+            return;
+        }
+
         if (events !== null) {
             this.state.game.handleEvents(events);
             this.state.renderer.draw(this.context2D!, delta);

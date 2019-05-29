@@ -98,13 +98,24 @@ export default class BombFinder {
             );
             this.remainingPieces = counter;
             this.updateRemainingPiecesCount = false;
+            this.games.invisiblePieces = this.getRemainingAvailablePiece;
+            this.games.totalMoves++;
             this.games.save();
         }
         if (this.gameStatus === GameStatus.GAME_LOSE) {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
+            this.games.board = this.grid;
+            this.games.isComplete = true;
+            this.games.result = "lost";
+            this.games.save();
         }
         else if (this.remainingPieces === 0) {
             this.gameStatus = GameStatus.GAME_WON;
+            this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
+            this.games.board = this.grid;
+            this.games.isComplete = true;
+            this.games.result = "won";
+            this.games.save();
         }
     }
 
@@ -154,6 +165,7 @@ export default class BombFinder {
         this.gameStatus = GameStatus.GAME_PLAY;
         this.remainingPieces = this.getTotalAvailablePieces;
         this.grid = this.constructGrid();
+        this.games.board = this.grid;
     }
 
     private toggleCell(index: number) {
