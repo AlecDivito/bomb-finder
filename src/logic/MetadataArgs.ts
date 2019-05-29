@@ -2,7 +2,6 @@
 type TableMetaData = {
     table: string,
     primaryKey?: string,
-    version: number,
     fields: string[],
 };
 
@@ -28,12 +27,12 @@ export class MetaDataStorage {
         this.tableQueue = [];
     }
 
-    public addTable(table: string, version: number) {
+    public addTable(table: string) {
         const fields = this.tableQueue
             .filter(item => item.table === table)
             .map(item => item.field);
         const primaryKey = this.tableQueue.filter(item => item.primaryKey)[0].field;
-        const record = { table, version, fields, primaryKey };
+        const record = { table, fields, primaryKey };
         this.storage.push(record);
     }
 
@@ -129,13 +128,19 @@ export class IndexDbTable {
 
     async save() {
         return new Promise( async (resolve, reject) => {
-            const metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
-            if (!metaData) {
-                reject();
-            }
             if (!this.database) {
                 await this.connection();
             }
+            let metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
+            console.log(this.database);
+            if (!this.database!.objectStoreNames.contains(this.constructor.name)) {
+                // The database currently doesn't have our table in the database
+                // increment the version and reopen the database
+                await this.refreshDatabase();
+                metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
+            }
+            console.log(this.database);
+            console.log(metaData);
             const save: any = {};
             Object.keys(this)
                 .filter(key => metaData!.fields.includes(key))
@@ -183,8 +188,8 @@ export class IndexDbTable {
         })
     }
 
-    private async connection() {
-        const request = await window.indexedDB.open(window.location.hostname);
+    private async connection(version?: number) {
+        const request = await window.indexedDB.open(window.location.hostname, version);
         return new Promise((resolve, reject) => {
             request.onerror = (event) => {
                 this.storageType = StorageOption.MEMORY;
@@ -227,12 +232,21 @@ export class IndexDbTable {
                 resolve();
             }
         });
-    } 
+    }
+
+    private async refreshDatabase() {
+        if (!this.database) {
+            await this.connection();
+        }
+        const version = this.database!.version + 1;
+        this.database!.close();
+        await this.connection(version);
+    }
 }
 
-export function Table(version: number) {
+export function Table() {
     return function (target: Function) {
-        MetaDataStorage.getInstance().addTable(target.name, version);
+        MetaDataStorage.getInstance().addTable(target.name);
     }
 }
 

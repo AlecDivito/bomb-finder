@@ -1,7 +1,7 @@
 import { Table, IndexDbTable, Field } from "../logic/MetadataArgs";
 
 
-@Table(1)
+@Table()
 export default class Preferences extends IndexDbTable {
     
     @Field(true)

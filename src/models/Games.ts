@@ -2,7 +2,7 @@ import { Table, Field, IndexDbTable } from '../logic/MetadataArgs';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 
-@Table(1)
+@Table()
 export default class Games extends IndexDbTable {
     // Initial Game data
     @Field(true)
