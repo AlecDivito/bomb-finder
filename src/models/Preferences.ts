@@ -1,4 +1,4 @@
-import { Table, IndexDbTable, Field } from "../logic/MetadataArgs";
+import { Table, IndexDbTable, Field } from "../logic/MetaDataStorage";
 
 
 @Table()

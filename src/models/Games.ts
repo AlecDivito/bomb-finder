@@ -1,4 +1,4 @@
-import { Table, Field, IndexDbTable } from '../logic/MetadataArgs';
+import { Table, Field, IndexDbTable } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 
