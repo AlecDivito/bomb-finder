@@ -89,7 +89,6 @@ export class IndexDbTable {
         else {
             this.storageType = StorageOption.MEMORY;
         }
-        this.connection();
     }
 
     async getAll() {
@@ -186,45 +185,48 @@ export class IndexDbTable {
 
     private async connection() {
         const request = await window.indexedDB.open(window.location.hostname);
-        
-        request.onerror = (event) => {
-            this.storageType = StorageOption.MEMORY;
-        }
-        
-        request.onupgradeneeded = (event: any /* IDBVersionChangeEvent */) => {
-            // save the database
-            const database: IDBDatabase = event.target.result;
-            // create an object store for this database
-            const tableName = this.constructor.name;
-            const tableMetaData = MetaDataStorage.getInstance().getMetaData(tableName);
-            MetaDataStorage.getInstance().print();
-            if (tableMetaData === undefined) {
-                throw new Error("No table found");
+        return new Promise((resolve, reject) => {
+            request.onerror = (event) => {
+                this.storageType = StorageOption.MEMORY;
+                reject();
             }
-            // create the table
-            const objectStore = database!.createObjectStore(tableName, {
-                keyPath: tableMetaData.primaryKey!,
-                autoIncrement: false
-            });
-            
-            // create the columns
-            console.log(tableMetaData!.fields);
-            console.log(tableMetaData);
-            for (const field of tableMetaData!.fields) {
-                if (field === tableMetaData!.primaryKey) {
-                    continue;
-                }
-                objectStore.createIndex(field, field, {
-                    unique: false
-                });
-            }
-            // currently assuming everything went hunky dory
-            // if this exits successfully, trigger onsuccess callback
-        }
 
-        request.onsuccess = (event: any) => {
-            this.database = event.target.result;
-        }
+            request.onupgradeneeded = (event: any /* IDBVersionChangeEvent */) => {
+                // save the database
+                const database: IDBDatabase = event.target.result;
+                // create an object store for this database
+                const tableName = this.constructor.name;
+                const tableMetaData = MetaDataStorage.getInstance().getMetaData(tableName);
+                MetaDataStorage.getInstance().print();
+                if (tableMetaData === undefined) {
+                    throw new Error("No table found");
+                }
+                // create the table
+                const objectStore = database!.createObjectStore(tableName, {
+                    keyPath: tableMetaData.primaryKey!,
+                    autoIncrement: false
+                });
+
+                // create the columns
+                console.log(tableMetaData!.fields);
+                console.log(tableMetaData);
+                for (const field of tableMetaData!.fields) {
+                    if (field === tableMetaData!.primaryKey) {
+                        continue;
+                    }
+                    objectStore.createIndex(field, field, {
+                        unique: false
+                    });
+                }
+                // currently assuming everything went hunky dory
+                // if this exits successfully, trigger onsuccess callback
+            }
+
+            request.onsuccess = (event: any) => {
+                this.database = event.target.result;
+                resolve();
+            }
+        });
     } 
 }
 

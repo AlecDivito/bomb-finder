@@ -29,6 +29,10 @@ export default class Games extends IndexDbTable {
     public isComplete: boolean = false;
     @Field()
     public result: GameProgress;
+    @Field()
+    public finishedAt: Date = new Date();
+    @Field()
+    public createdAt: Date = new Date();
 
     constructor(
         id: string,

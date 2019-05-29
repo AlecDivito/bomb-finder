@@ -1,8 +1,14 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, RouteComponentProps } from "react-router-dom";
+import { GameDifficulty } from "../models/GameTypes";
 
+interface ParamProps {
+    game: GameDifficulty;
+}
 
-export default class GameWon extends Component {
+type Props = RouteComponentProps<ParamProps>;
+
+export default class GameWon extends Component<Props> {
 
     public render() {
         return (

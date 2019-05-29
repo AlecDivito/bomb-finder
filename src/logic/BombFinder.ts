@@ -107,6 +107,7 @@ export default class BombFinder {
             this.games.board = this.grid;
             this.games.isComplete = true;
             this.games.result = "lost";
+            this.games.finishedAt = new Date();
             this.games.save();
         }
         else if (this.remainingPieces === 0) {
@@ -115,6 +116,7 @@ export default class BombFinder {
             this.games.board = this.grid;
             this.games.isComplete = true;
             this.games.result = "won";
+            this.games.finishedAt = new Date();
             this.games.save();
         }
     }
