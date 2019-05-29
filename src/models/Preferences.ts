@@ -35,4 +35,20 @@ export default class Preferences extends IndexDbTable {
         this.timestamp = new Date();
         return await super.save();
     }
+
+    static CreatePreferences(preferences: Readonly<Preferences>) {
+        const p = new Preferences();
+        p.allowFlags = preferences.allowFlags;
+        p.soundVolume = preferences.soundVolume;
+        p.musicVolume = preferences.musicVolume;
+        p.showMilliseconds = preferences.showMilliseconds;
+        return p;
+    }
+
+    static async getPreferences() {
+        const p = new Preferences();
+        const newP = await p.getById(p.preferences);
+        return newP;
+    }
+
 }

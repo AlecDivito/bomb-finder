@@ -132,25 +132,17 @@ export class IndexDbTable {
                 await this.connection();
             }
             let metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
-            console.log(this.database);
             if (!this.database!.objectStoreNames.contains(this.constructor.name)) {
                 // The database currently doesn't have our table in the database
                 // increment the version and reopen the database
                 await this.refreshDatabase();
                 metaData = MetaDataStorage.getInstance().getMetaData(this.constructor.name);
             }
-            console.log(this.database);
-            console.log(metaData);
             const save: any = {};
             Object.keys(this)
                 .filter(key => metaData!.fields.includes(key))
                 .forEach(key => save[key] = (this as any)[key]);
-            // const record = {
-            //     [metaData!.primaryKey!]: save[metaData!.primaryKey!],
-            //     value: save
-            // };
 
-            console.log(save);
             const request = this.database!
                 .transaction(this.constructor.name, "readwrite")
                 .objectStore(this.constructor.name)
@@ -213,8 +205,6 @@ export class IndexDbTable {
                 });
 
                 // create the columns
-                console.log(tableMetaData!.fields);
-                console.log(tableMetaData);
                 for (const field of tableMetaData!.fields) {
                     if (field === tableMetaData!.primaryKey) {
                         continue;

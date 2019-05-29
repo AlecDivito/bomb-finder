@@ -5,26 +5,89 @@ interface Props {
 
 }
 
-interface State {
-    preferences: Preferences;
-}
+export default class Settings extends Component<Props, Preferences> {
 
-export default class Settings extends Component<Props, State> {
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            preferences: new Preferences()
-        };
+    async componentDidMount() {
+        const preferences = await Preferences.getPreferences();
+        this.setState(preferences);
     }
 
-    componentDidMount() {
-        this.state.preferences.save();
+    handleChange = (event: any) => {
+        const target = event.target;
+        let value;
+        if (target.type === "checkbox") {
+            value = target.checked;
+        }
+        else {
+            value = parseInt(target.value, 10);
+        }
+        const name = target.name;
+
+        this.setState({
+            [name]: value
+        } as Pick<Preferences, keyof Preferences>);
+    }
+
+    handleSubmit = (event: any) => {
+        event.preventDefault();
+        this.setState({
+            timestamp: new Date()
+        });
+        Preferences.CreatePreferences(this.state).save();
     }
 
     public render() {
+        if (!this.state) {
+            return null;
+        }
         return (
-            <h1>Settings!!!</h1>
+            <div>
+                <h1>Settings!!!</h1>
+                <form onSubmit={this.handleSubmit}>
+                    <h3>User preferences</h3>
+                    <p>
+                    <label>
+                        Allow Flags:
+                        <input type="checkbox"
+                            name="allowFlags"
+                            checked={this.state.allowFlags}
+                            onChange={this.handleChange} />
+                    </label>
+                    <br />
+                    <label>
+                        Sound Volume:
+                        <input type="range"
+                            name="soundVolume"
+                            value={this.state.soundVolume}
+                            onChange={this.handleChange} />
+                    </label>
+                    <br />
+                    <label>
+                        Music Volume:
+                        <input type="range"
+                            name="musicVolume"
+                            value={this.state.musicVolume}
+                            onChange={this.handleChange} />
+                    </label>
+                    <br />
+                    <label>
+                        Show Milliseconds:
+                        <input type="checkbox"
+                            name="showMilliseconds"
+                            checked={this.state.showMilliseconds}
+                            onChange={this.handleChange} />
+                    </label>
+                    <br />
+                    </p>
+                    <p>
+                        <input type="submit" value="Save Changes" onClick={this.handleSubmit} />
+                    </p>
+                </form>
+                <small>
+                    <strong>Last saved: </strong>
+                    <time>{this.state.timestamp.toLocaleString()}</time>
+                </small>
+            </div>
         );
     }
 }
