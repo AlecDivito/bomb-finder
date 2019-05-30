@@ -33,6 +33,7 @@ export default class BombFinder {
         this.height = games.height;
         this.bombs = games.bombs;
         this.games = games;
+        console.log(games);
         this.init();
     }
 
@@ -84,10 +85,13 @@ export default class BombFinder {
         this.init();
     }
 
-    public update(delta: number) {
+    public update(delta: number): boolean {
+        let pushUpdateToDom = false;
         if (this.gameStart && this.gameStatus === GameStatus.GAME_PLAY) {
-            this.time += delta / 1000;
-            this.games.time += delta / 1000;
+            const calcDelta = delta / 1000;
+            pushUpdateToDom = Math.floor(this.time) !== Math.floor(this.time + calcDelta);
+            this.time += calcDelta;
+            this.games.time += calcDelta;
         }
         if (this.updateRemainingPiecesCount) {
             let counter = this.getTotalAvailablePieces;
@@ -101,6 +105,7 @@ export default class BombFinder {
             this.games.invisiblePieces = this.getRemainingAvailablePiece;
             this.games.totalMoves++;
             this.games.save();
+            pushUpdateToDom = true;
         }
         if (this.gameStatus === GameStatus.GAME_LOSE) {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
@@ -109,6 +114,7 @@ export default class BombFinder {
             this.games.result = "lost";
             this.games.finishedAt = new Date();
             this.games.save();
+            pushUpdateToDom = true;
         }
         else if (this.remainingPieces === 0) {
             this.gameStatus = GameStatus.GAME_WON;
@@ -118,7 +124,9 @@ export default class BombFinder {
             this.games.result = "won";
             this.games.finishedAt = new Date();
             this.games.save();
+            pushUpdateToDom = true;
         }
+        return pushUpdateToDom;
     }
 
     public handleEvents(events: EventState) {

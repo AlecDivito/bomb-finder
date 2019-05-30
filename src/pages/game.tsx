@@ -19,19 +19,19 @@ interface State {
 
 export default class Game extends Component<Props, State> {
 
-    static state = {
+    state: Readonly<State> = {
         to404Page: false,
         toWonPage: false,
         ready: false,
     }
 
     async componentDidMount() {
-        const exists = Games.DoesGameExists(this.props.match.params.id);
+        const exists = await Games.DoesGameExists(this.props.match.params.id);
         if (exists) {
-            this.setState({ to404Page: true, ready: true });
+            this.setState({ to404Page: false, ready: true });
         }
         else {
-            this.setState({ to404Page: false, ready: true });
+            this.setState({ to404Page: true, ready: true });
         }
     }
 

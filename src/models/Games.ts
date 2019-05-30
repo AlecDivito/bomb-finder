@@ -1,6 +1,7 @@
 import { Table, Field, IndexDbTable } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
+import Game from '../pages/game';
 
 @Table()
 export default class Games extends IndexDbTable {
@@ -57,12 +58,33 @@ export default class Games extends IndexDbTable {
         return (this.width * this.height) - this.bombs;
     }
 
-    static async DoesGameExists(id: string) {
-
+    static async DoesGameExists(id: string): Promise<boolean> {
+        const games = new Games("", "easy", 0, 0, 0);
+        const result = await games.getById(id);
+        return result !== undefined;
     }
 
-    static async GetGame(id: string) {
-        
+    static async GetGame(id: string): Promise<Games> {
+        const games = new Games("", "easy", 0, 0, 0);
+        const result: any = await games.getById(id);
+        if (result === undefined) {
+            // TODO: better error message
+            throw new Error("Game does not exist, This shouldn't be called");
+        }
+        return this.CreateGame(result);
+    }
+
+    static CreateGame(game: Games): Games {
+        const games = new Games(game.id, game.difficulty, game.width, game.height, game.bombs);
+        games.time = game.time;
+        games.board = game.board;
+        games.totalMoves = game.totalMoves;
+        games.invisiblePieces = game.invisiblePieces;
+        games.isComplete = game.isComplete;
+        games.result = game.result;
+        games.finishedAt = game.finishedAt;
+        games.createdAt = game.createdAt;
+        return games;
     }
 
 }
