@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
-import { GameDifficulty } from "../models/GameTypes";
 
 interface ParamProps {
     id: string;

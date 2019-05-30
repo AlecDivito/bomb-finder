@@ -1,7 +1,7 @@
 import { Cell, CellState, CellValue, Visibility } from "../models/GameBoardTypes";
 import { EventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
-import { GameStatus, Point2d } from "../models/GameTypes";
+import { Point2d } from "../models/GameTypes";
 import Games from "../models/Games";
 
 export default class BombFinder {
@@ -9,14 +9,8 @@ export default class BombFinder {
     private games: Games;
 
     private grid: Cell[] = [];
-    private time: number = 0;
-    private gameStart: boolean = false;
     private updateRemainingPiecesCount: boolean = false;
     private remainingPieces: number = 0;
-    private gameStatus: GameStatus = GameStatus.GAME_PLAY;
-    private readonly width: number;
-    private readonly height: number;
-    private readonly bombs: number;
 
     // TODO: set the gaps and size dynamically
     //       we probably need to redo the way we pass in
@@ -25,24 +19,20 @@ export default class BombFinder {
     private readonly size: number = 75;
 
     private get area(): number {
-        return this.width * this.height;
+        return this.games.width * this.games.height;
     }
 
     constructor(games: Games) {
-        this.width = games.width;
-        this.height = games.height;
-        this.bombs = games.bombs;
         this.games = games;
-        console.log(games);
         this.init();
     }
 
     public get isGameOver() {
-        return this.gameStatus === GameStatus.GAME_LOSE;
+        return this.games.result === "lost" || this.games.result === "won";
     }
 
     public get isGameWon() {
-        return this.gameStatus === GameStatus.GAME_WON;
+        return this.games.result === "won";
     }
 
     public get getRemainingAvailablePiece() {
@@ -50,19 +40,19 @@ export default class BombFinder {
     }
 
     public get getTotalAvailablePieces() {
-        return this.area - this.bombs;
+        return this.area - this.games.bombs;
     }
 
     public get getTime() {
-        return Math.floor(this.time);
+        return Math.floor(this.games.time);
     }
 
     public get getHeight() {
-        return this.height;
+        return this.games.height;
     }
 
     public get getWidth() {
-        return this.width;
+        return this.games.width;
     }
 
     public get getGaps() {
@@ -78,7 +68,7 @@ export default class BombFinder {
     }
 
     public get numberOfBombs() {
-        return this.bombs;
+        return this.games.bombs;
     }
 
     public reset() {
@@ -86,9 +76,8 @@ export default class BombFinder {
     }
 
     public update(delta: number) {
-        if (this.gameStart && this.gameStatus === GameStatus.GAME_PLAY) {
+        if (this.games.gameHasStarted) {
             const calcDelta = delta / 1000;
-            this.time += calcDelta;
             this.games.time += calcDelta;
         }
         if (this.updateRemainingPiecesCount) {
@@ -104,7 +93,7 @@ export default class BombFinder {
             this.games.totalMoves++;
             this.games.save();
         }
-        if (this.gameStatus === GameStatus.GAME_LOSE) {
+        if (this.games.result === "lost") {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
             this.games.board = this.grid;
             this.games.isComplete = true;
@@ -113,7 +102,7 @@ export default class BombFinder {
             this.games.save();
         }
         else if (this.remainingPieces === 0) {
-            this.gameStatus = GameStatus.GAME_WON;
+            this.games.result = ("won");
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
             this.games.board = this.grid;
             this.games.isComplete = true;
@@ -124,7 +113,7 @@ export default class BombFinder {
     }
 
     public handleEvents(events: EventState) {
-        if (this.gameStatus !== GameStatus.GAME_PLAY) {
+        if (this.games.result !== "inprogress") {
             return;
         }
         if (events.mouse !== undefined) {
@@ -138,14 +127,14 @@ export default class BombFinder {
             }
         }
         if (events.mouseButton !== undefined) {
-            this.gameStart = true;
+            this.games.result = "inprogress";
             const point: Point2d = { x: events.mouseButton.localX, y: events.mouseButton.localY };
             const index = this.getIndexByPixel(point);
             if (index !== null && index < this.grid.length) {
                 if (events.mouseButton.left && this.grid[index].visibility === Visibility.INVISIBLE) {
                     this.grid[index].visibility = Visibility.VISIBLE;
                     if (this.grid[index].value === null || this.grid[index].value === undefined) {
-                        this.gameStatus = GameStatus.GAME_LOSE;
+                        this.games.result = "lost";
                     }
                     else {
                         if (this.grid[index].value === 0) {
@@ -164,9 +153,6 @@ export default class BombFinder {
 
 
     protected init() {
-        this.time = 0;
-        this.gameStart = false;
-        this.gameStatus = GameStatus.GAME_PLAY;
         this.remainingPieces = this.getTotalAvailablePieces;
         this.grid = this.constructGrid();
         this.games.board = this.grid;
@@ -206,7 +192,7 @@ export default class BombFinder {
     }
 
     private getIndex(row: number, col: number): number {
-        return (row * this.width) + col;
+        return (row * this.games.width) + col;
     }
 
     private constructGrid(): Cell[] {
@@ -218,7 +204,7 @@ export default class BombFinder {
         }
 
         // place the bombs
-        let bombCounter = this.bombs;
+        let bombCounter = this.games.bombs;
         while (bombCounter > 0) {
             const defaultCell: Cell = {
                 hover: false,
@@ -263,8 +249,8 @@ export default class BombFinder {
         if (index < 0 || index >= this.area) {
             return [];
         }
-        const row = Math.floor(index / this.width);
-        const col = index % this.width;
+        const row = Math.floor(index / this.games.width);
+        const col = index % this.games.width;
         const neighbors = [];
         for (let j = 0; j < 8; j++) {
             let tempRow = row;
@@ -292,8 +278,8 @@ export default class BombFinder {
                     break;
             }
             const tempIndex = this.getIndex(tempRow, tempCol);
-            if (tempRow >= 0 && tempRow < this.height && // check if the index is in the gird
-                tempCol >= 0 && tempCol < this.width) {
+            if (tempRow >= 0 && tempRow < this.games.height && // check if the index is in the gird
+                tempCol >= 0 && tempCol < this.games.width) {
                 neighbors.push(tempIndex);
             }
         }

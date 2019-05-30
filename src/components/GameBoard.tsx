@@ -36,7 +36,6 @@ class GameBoard extends Component<Props, State> {
     public async componentDidMount() {
         // create data
         const games = await Games.GetGame(this.props.id);
-        console.log(games);
         this.gameState = new BombFinder(games);
         this.renderer = new BombFinderRenderer(this.gameState);
         this.input = new InputController();
@@ -108,21 +107,20 @@ class GameBoard extends Component<Props, State> {
         const events = this.input!.pollEvents(this.state.inputId!);
         this.gameState!.update(elapsedTime);
 
-        if (this.gameState!.isGameOver) {
-            window.cancelAnimationFrame(this.state.rafId!);
-            return;
-        }
-
         if (events !== null) {
             this.gameState!.handleEvents(events);
             this.renderer!.draw(this.context2D!, delta);
         }
 
         // Initial draw call before any events
-        if (this.state.rafId === undefined) {
+        if (this.state.rafId === undefined || this.gameState!.isGameOver) {
             this.renderer!.draw(this.context2D!, delta);
         }
 
+        if (this.gameState!.isGameOver) {
+            window.cancelAnimationFrame(this.state.rafId!);
+            return;
+        }
 
         this.input!.flush();
 

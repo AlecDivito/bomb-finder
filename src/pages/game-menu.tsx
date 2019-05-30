@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import uuid from "../util/uuid";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";

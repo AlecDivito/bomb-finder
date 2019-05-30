@@ -6,8 +6,6 @@ export interface Point2d {
 export enum GameStatus {
     GAME_PAUSED,
     GAME_PLAY,
-    GAME_LOSE,
-    GAME_WON,
 }
 
 export type GameDifficulty = "easy" | "medium" | "hard" | "custom";

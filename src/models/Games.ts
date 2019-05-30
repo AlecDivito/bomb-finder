@@ -1,7 +1,6 @@
 import { Table, Field, IndexDbTable } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
-import Game from '../pages/game';
 
 @Table()
 export default class Games extends IndexDbTable {
@@ -56,6 +55,16 @@ export default class Games extends IndexDbTable {
 
     public get totalPieces() {
         return (this.width * this.height) - this.bombs;
+    }
+
+    public get gameHasStarted() {
+        return this.result === "inprogress";
+    }
+
+    public set setResult(result: GameProgress) {
+        if (this.result !== "lost" && this.result !== "won") {
+            this.result = result;
+        }
     }
 
     static async DoesGameExists(id: string): Promise<boolean> {
