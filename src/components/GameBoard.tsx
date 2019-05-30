@@ -3,7 +3,7 @@ import BombFinder from "../logic/BombFinder";
 import BombFinderRenderer from "../logic/BombFinderRenderer";
 import InputController from "../logic/InputController";
 import { Link } from 'react-router-dom';
-import { GameDifficulty, GameProgress } from '../models/GameTypes';
+import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
 
 interface Props {
@@ -13,7 +13,6 @@ interface Props {
 
 interface State {
     ready: boolean;
-    pushUpdate: boolean;
     lastFrame: number;
     rafId?: number;
     inputId?: number;
@@ -29,7 +28,6 @@ class GameBoard extends Component<Props, State> {
 
     state: Readonly<State> = {
         ready: false,
-        pushUpdate: false,
         lastFrame: 0,
         rafId: undefined,
         inputId: undefined,
@@ -61,14 +59,6 @@ class GameBoard extends Component<Props, State> {
         if (this.state.rafId) {
             window.cancelAnimationFrame(this.state.rafId!);
         }
-    }
-
-    public shouldComponentUpdate() {
-        if (this.state.pushUpdate) {
-            this.setState({ pushUpdate: false });
-            return true;
-        }
-        return false;
     }
 
     public tryAgain = () => {
@@ -116,7 +106,7 @@ class GameBoard extends Component<Props, State> {
         }
         const elapsedTime = delta - this.state.lastFrame;
         const events = this.input!.pollEvents(this.state.inputId!);
-        const pushUpdate = this.gameState!.update(elapsedTime);
+        this.gameState!.update(elapsedTime);
 
         if (this.gameState!.isGameOver) {
             window.cancelAnimationFrame(this.state.rafId!);
@@ -142,7 +132,6 @@ class GameBoard extends Component<Props, State> {
         }
 
         this.setState({
-            pushUpdate: pushUpdate,
             rafId: window.requestAnimationFrame(this.draw),
             lastFrame: delta
         });
