@@ -3,7 +3,7 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import { GameDifficulty } from "../models/GameTypes";
 
 interface ParamProps {
-    game: GameDifficulty;
+    id: string;
 }
 
 type Props = RouteComponentProps<ParamProps>;

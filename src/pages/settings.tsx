@@ -8,7 +8,7 @@ interface Props {
 export default class Settings extends Component<Props, Preferences> {
 
     async componentDidMount() {
-        const preferences = await Preferences.getPreferences();
+        const preferences = await Preferences.GetPreferences();
         this.setState(preferences);
     }
 

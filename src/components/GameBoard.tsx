@@ -3,15 +3,12 @@ import BombFinder from "../logic/BombFinder";
 import BombFinderRenderer from "../logic/BombFinderRenderer";
 import InputController from "../logic/InputController";
 import { Link } from 'react-router-dom';
-import { GameDifficulty } from '../models/GameTypes';
+import { GameDifficulty, GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
 
 interface Props {
     id: string;
-    difficulty: GameDifficulty;
-    width: number;
-    height: number;
-    bombs: number;
+    onGameFinished: (result: GameProgress) => void
 }
 
 interface State {
@@ -30,7 +27,7 @@ class GameBoard extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        const games = new Games(props.id, props.difficulty, props.width, props.height, props.bombs, []);
+        const games = new Games(props.id, props.difficulty, props.width, props.height, props.bombs);
         const gameState = new BombFinder(games);
         this.state = {
             lastFrame: 0,

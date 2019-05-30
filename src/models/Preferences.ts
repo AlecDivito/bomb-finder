@@ -45,7 +45,7 @@ export default class Preferences extends IndexDbTable {
         return p;
     }
 
-    static async getPreferences() {
+    static async GetPreferences() {
         const p = new Preferences();
         const newP = await p.getById(p.preferences);
         return newP;

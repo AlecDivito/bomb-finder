@@ -40,7 +40,6 @@ export default class Games extends IndexDbTable {
         width: number,
         height: number,
         bombs: number,
-        board: Cell[],
     ) {
         super();
         this.id = id;
@@ -49,16 +48,20 @@ export default class Games extends IndexDbTable {
         this.width = width;
         this.height = height;
         this.bombs = bombs;
-        this.board = board;
+        this.board = [];
         this.invisiblePieces = this.totalPieces;
-        this.result = "inprogress";
+        this.result = "created";
     }
 
     public get totalPieces() {
         return (this.width * this.height) - this.bombs;
     }
 
-    public update(delta: number) {
+    static async DoesGameExists(id: string) {
+
+    }
+
+    static async GetGame(id: string) {
         
     }
 

@@ -12,4 +12,5 @@ export enum GameStatus {
 
 export type GameDifficulty = "easy" | "medium" | "hard" | "custom";
 
-export type GameProgress = "inprogress" | "lost" | "won";
+export type GameProgress = "created" | "inprogress" | "lost" | "won";
+

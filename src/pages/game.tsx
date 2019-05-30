@@ -1,51 +1,58 @@
 import React, { Component } from 'react';
-import { GameDifficulty } from '../models/GameTypes';
+import { GameProgress } from '../models/GameTypes';
 import GameBoard from '../components/GameBoard';
-import { RouteComponentProps } from 'react-router';
-import uuid from '../util/uuid';
+import { RouteComponentProps, Redirect } from 'react-router';
+import Games from '../models/Games';
 
 interface ParamProps {
-    game: GameDifficulty;
+    id: string;
 }
 
 type Props = RouteComponentProps<ParamProps>;
 
 interface State {
-    width: number;
-    height: number;
-    bombs: number;
-    gameId: string;
+    // for when the game is done
+    to404Page: boolean;
+    toWonPage: boolean;
+    ready: boolean;
 }
 
 export default class Game extends Component<Props, State> {
 
-    constructor(props: Props) {
-        super(props);
-        switch (this.props.match.params.game) {
-            case "easy":
-                this.state = { width: 8, height: 8, bombs: 10, gameId: uuid() };
-                break;
-            case "medium":
-                this.state = { width: 16, height: 16, bombs: 40, gameId: uuid() };
-                break;
-            case "hard":
-                this.state = { width: 24, height: 24, bombs: 99, gameId: uuid() };
-                break;
-            case "custom": break;
-            default: // ID
-                break;
+    static state = {
+        to404Page: false,
+        toWonPage: false,
+        ready: false,
+    }
+
+    async componentDidMount() {
+        const exists = Games.DoesGameExists(this.props.match.params.id);
+        if (exists) {
+            this.setState({ to404Page: true, ready: true });
+        }
+        else {
+            this.setState({ to404Page: false, ready: true });
         }
     }
 
+    gameFinished = (result: GameProgress) => {
+        this.setState({ toWonPage: result === "won" });
+    }
+
     public render() {
-        console.log(this.state);
-        return (
-            <GameBoard
-                id={this.state.gameId}
-                difficulty={this.props.match.params.game}
-                width={this.state.width}
-                height={this.state.height}
-                bombs={this.state.bombs} />
-        );
+        if (this.state.toWonPage) {
+            return <Redirect to={`/game/${this.props.match.params.id}/game-won`} />
+        }
+        else if (this.state.to404Page) {
+            console.warn("Please implement me (404 page)");
+            return null;
+        }
+        else if (this.state.ready) {
+            return <GameBoard
+                id={this.props.match.params.id}
+                onGameFinished={this.gameFinished} />
+        } else {
+            return null;
+        }
     }
 }
