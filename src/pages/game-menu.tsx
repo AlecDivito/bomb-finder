@@ -21,6 +21,8 @@ type PrepareGame = {
     bombs: number,
 }
 
+// TODO: Add data to "Pieces Left" in Continue Playing section
+//       It should look like "Pieces Left: 16/54"
 export default class GameMenu extends Component<{}, State> {
 
     state: Readonly<State> = {
