@@ -5,6 +5,7 @@ import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
 import { Modal } from "../components/Modal";
+import CustomGameForm from "../components/CustomGameForm";
 
 interface State {
     loading: boolean;
@@ -12,6 +13,13 @@ interface State {
     gameId?: string;
     gameLocation?: string;
     unfinishedGames?: Games[];
+}
+
+type PrepareGame = {
+    difficulty: GameDifficulty,
+    width: number,
+    height: number,
+    bombs: number,
 }
 
 export default class GameMenu extends Component<{}, State> {
@@ -27,25 +35,32 @@ export default class GameMenu extends Component<{}, State> {
     }
 
     prepareDefaultGame = async (difficulty: GameDifficulty) => {
-        const gameId = uuid();
-        let game = undefined;
+        const prepare: PrepareGame = {
+            difficulty: "easy",
+            width: 8,
+            height: 8,
+            bombs: 10,
+        }
         switch (difficulty) {
             case "easy":
-                game = new Games(gameId, difficulty, 8, 8, 10);
+                this.prepareGame(prepare);
                 break;
             case "medium":
-                game = new Games(gameId, difficulty, 16, 16, 40);
+                prepare.width *= 2;
+                prepare.height *= 2;
+                prepare.bombs = 40;
+                this.prepareGame(prepare);
                 break;
             case "hard":
-                game = new Games(gameId, difficulty, 24, 24, 99);
+                prepare.width *= 24;
+                prepare.height *= 24;
+                prepare.bombs = 99;
+                this.prepareGame(prepare);
                 break;
             case "custom":
                 this.setState({ showModal: true });
                 return;
-            default: return;
         }
-        await game!.save();
-        this.setState({ gameId, gameLocation: `/game/${gameId}` });
     }
 
     loadOldGame = async (id: string) => {
@@ -62,11 +77,21 @@ export default class GameMenu extends Component<{}, State> {
     }
 
     closeModal = () => {
-        console.log('close');
+        this.setState({ showModal: false });
     }
 
-    createCustomGame = () => {
-        console.log('submit');
+    createCustomGame = async  (data: { width: number, height: number, bombs: number}) => {
+        this.setState({ showModal: false });
+        const prepare: PrepareGame = { ...{difficulty: "custom" }, ...data };
+        this.prepareGame(prepare);
+    }
+
+    prepareGame = async (prepared: PrepareGame) => {
+        const gameId = uuid();
+        let game = new Games(gameId, prepared.difficulty,
+            prepared.width, prepared.height, prepared.bombs);
+        await game.save();
+        this.setState({ gameId, gameLocation: `/game/${gameId}` });
     }
 
     public render() {
@@ -111,15 +136,12 @@ export default class GameMenu extends Component<{}, State> {
                     }
                 </ul>
 
-                <Modal
-                    header="Custom Game Wizard"
+                <CustomGameForm
                     show={this.state.showModal}
                     close={this.closeModal}
-                    submit={this.createCustomGame}>
-                    Lets make a custom Game :)    
-                </Modal>
+                    submit={this.createCustomGame} />
             </div>
         );
     }
-    
 }
+

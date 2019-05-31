@@ -21,9 +21,7 @@ export const Modal: React.FC<Props> = ({ show, header, close, submit, children})
                 <span className="modal__header--close" onClick={close}></span>
             </div>
             <div className="modal__body">
-                <p>
-                    {children}
-                </p>
+                {children}
             </div>
             <div className="modal__footer">
                 <button className="modal__footer--close" onClick={close}>Close</button>
