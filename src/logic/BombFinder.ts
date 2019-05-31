@@ -113,7 +113,7 @@ export default class BombFinder {
     }
 
     public handleEvents(events: EventState) {
-        if (this.games.result !== "inprogress") {
+        if (this.games.result !== "inprogress" && this.games.result !== "created") {
             return;
         }
         if (events.mouse !== undefined) {

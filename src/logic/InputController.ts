@@ -49,7 +49,7 @@ export default class InputController {
      * @returns {Point2d | null} returns mouses new position or null if the 
      *      mouse hasn't moved since last checked
      */
-    public pollEvents(id: number): EventState | null {
+    public pollEvents(id: number): EventState {
         if (this.state.mouse !== undefined) {
             this.state.mouse.localX = (this.state.mouse.pageX -
                 this.listeners[id].element.offsetLeft) + window.scrollX;

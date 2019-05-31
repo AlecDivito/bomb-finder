@@ -83,6 +83,15 @@ export default class Games extends IndexDbTable {
         return this.CreateGame(result);
     }
 
+    static async GetUnfinishedGames(): Promise<Games[]> {
+        const games = new Games("", "easy", 0, 0, 0);
+        const data = await games.getAll(
+            (game: Games) => game.result === "created" || game.result === "inprogress"
+        );
+        return data;
+    }
+
+
     static CreateGame(game: Games): Games {
         const games = new Games(game.id, game.difficulty, game.width, game.height, game.bombs);
         games.time = game.time;

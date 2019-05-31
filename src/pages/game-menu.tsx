@@ -3,13 +3,25 @@ import { Redirect } from "react-router-dom";
 import uuid from "../util/uuid";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
+import Loading from "../components/Loading";
 
 interface State {
+    loading: boolean;
     gameId?: string;
     gameLocation?: string;
+    unfinishedGames?: Games[];
 }
 
 export default class GameMenu extends Component<{}, State> {
+
+    state: Readonly<State> = {
+        loading: true
+    };
+
+    async componentDidMount() {
+        const unfinishedGames = await Games.GetUnfinishedGames();
+        this.setState({ loading: false, unfinishedGames });
+    }
 
     prepareDefaultGame = async (difficulty: GameDifficulty) => {
         const gameId = uuid();
@@ -27,12 +39,23 @@ export default class GameMenu extends Component<{}, State> {
             case "custom":
                 console.warn("please implement me (custom)");
                 return;
-            default: // ID
-                console.warn("Please Implement me (Default)")
-                return;
+            default: return;
         }
         await game!.save();
         this.setState({ gameId, gameLocation: `/game/${gameId}` });
+    }
+
+    loadOldGame = async (id: string) => {
+        if (!this.state.unfinishedGames) {
+            // TODO: log message that games aren't ready yet
+            return;
+        }
+        const game = this.state.unfinishedGames!.find(g => g.id === id);
+        if (!game) {
+            // TODO: log message that game doesn't exist
+            return;
+        }
+        this.setState({ gameId: id, gameLocation: `/game/${id}` });
     }
 
     public render() {
@@ -55,11 +78,29 @@ export default class GameMenu extends Component<{}, State> {
                     <li>
                         <button onClick={() => this.prepareDefaultGame("custom")}>Custom</button>
                     </li>
-                    <li>
-                        Not Complete
-                    </li>
+                </ul>
+                <h3>Continue Playing</h3>
+                <ul>
+                    {
+                        (this.state.loading)
+                        ? <Loading />
+                        : this.state.unfinishedGames!.map(g =>
+                            <li key={g.id} onClick={() => this.loadOldGame(g.id)}>
+                                {g.result} - {g.difficulty} - <time>{g.createdAt.toLocaleString()}</time> <br />
+                                <small>
+                                    <strong>Bombs: </strong>{g.bombs}<br />
+                                    <strong>Width: </strong>{g.width}<br />
+                                    <strong>Height: </strong>{g.height}<br />
+                                    <strong>Pieces Left: </strong>{g.invisiblePieces}<br />
+                                    <strong>Time: </strong>{g.time}<br />
+                                    <strong>Total Moves:</strong>{g.totalMoves}<br />
+                                </small>
+                            </li>
+                        )
+                    }
                 </ul>
             </div>
         );
     }
+    
 }

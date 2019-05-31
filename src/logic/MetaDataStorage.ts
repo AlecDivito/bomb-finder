@@ -90,20 +90,31 @@ export class IndexDbTable {
         }
     }
 
-    async getAll() {
-        return new Promise(async (resolve, reject) => {
+    async getAll<T>( filter?: (record: T) => boolean ): Promise<T[]> {
+        const data: any = [];
+        return await new Promise(async (resolve, reject) => {
             if (!this.database) {
                 await this.connection();
             }
             const request = this.database!
                 .transaction([this.constructor.name], "readonly")
                 .objectStore(this.constructor.name)
-                .getAll();
+                .openCursor();
+
             request.onerror = (event) => {
                 reject();
             };
-            request.onsuccess = (event) => {
-                resolve(request.result);
+            request.onsuccess = (event: Event) => {
+                let cursor = (event.target as IDBRequest).result;
+                if (cursor) {
+                    if (filter && filter(cursor.value)) {
+                        data.push(cursor.value);
+                    }
+                    cursor.continue();
+                }
+                if (!cursor) {
+                    resolve(data);
+                }
             };
         });
     }

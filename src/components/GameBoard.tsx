@@ -106,24 +106,24 @@ class GameBoard extends Component<Props, State> {
         const elapsedTime = delta - this.state.lastFrame;
         const events = this.input!.pollEvents(this.state.inputId!);
         this.gameState!.update(elapsedTime);
-
-        if (events !== null) {
+        
+        if (events.mouse || events.mouseButton) {
             this.gameState!.handleEvents(events);
             this.renderer!.draw(this.context2D!, delta);
         }
-
+        
         // Initial draw call before any events
         if (this.state.rafId === undefined || this.gameState!.isGameOver) {
             this.renderer!.draw(this.context2D!, delta);
         }
-
+        
         if (this.gameState!.isGameOver) {
             window.cancelAnimationFrame(this.state.rafId!);
             return;
         }
-
+        
         this.input!.flush();
-
+        
         if (this.gameState!.isGameWon) {
             this.props.onGameFinished("won")
             return;
