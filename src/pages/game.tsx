@@ -14,6 +14,7 @@ interface State {
     // for when the game is done
     to404Page: boolean;
     toWonPage: boolean;
+    redirecting: boolean;
     ready: boolean;
 }
 
@@ -22,6 +23,7 @@ export default class Game extends Component<Props, State> {
     state: Readonly<State> = {
         to404Page: false,
         toWonPage: false,
+        redirecting: false,
         ready: false,
     }
 
@@ -36,7 +38,6 @@ export default class Game extends Component<Props, State> {
     }
 
     gameFinished = (result: GameProgress) => {
-        console.log(result);
         this.setState({ toWonPage: result === "won" });
     }
 

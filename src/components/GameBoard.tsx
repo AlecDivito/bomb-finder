@@ -5,7 +5,6 @@ import InputController from "../logic/InputController";
 import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
-import { string } from 'prop-types';
 import uuid from '../util/uuid';
 
 interface Props {
@@ -37,14 +36,7 @@ class GameBoard extends Component<Props, State> {
         inputId: undefined,
     }
 
-    public componentWillUpdate() {
-        if (this.state.newGameId) {
-            return false;
-        }
-        return true;
-    }
-
-    public componentDidUpdate(prevProps: Props, prevState: State, snapshot: any) {
+    public componentDidUpdate(prevProps: Props, prevState: State) {
         if (prevState.newGameId && prevProps.id !== prevState.newGameId) {
             // new game has started without unmounting the component
             this.setState({
@@ -60,17 +52,19 @@ class GameBoard extends Component<Props, State> {
     }
 
     public async componentDidMount() {
-        console.log('mounting');
         this.createGame();
     }
 
     public componentWillUnmount() {
-        console.log("unmount")
         this.destroyGame();
     }
 
     public async createGame() {
         const games = await Games.GetGame(this.props.id);
+        if (games.result === "won") {
+            this.props.onGameFinished(games.result);
+            return;
+        }
         this.gameState = new BombFinder(games);
         this.renderer = new BombFinderRenderer(this.gameState);
         this.input = new InputController();
@@ -87,7 +81,7 @@ class GameBoard extends Component<Props, State> {
     }
 
     public destroyGame() {
-        if (this.state.ready) {
+        if (this.state.ready && this.state.inputId) {
             this.input!.stop(this.state.inputId!);
         }
         if (this.state.rafId) {

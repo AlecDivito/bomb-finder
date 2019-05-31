@@ -27,8 +27,8 @@ const App: React.FC = () => {
           <Route path="/stats" component={Stats} />
 
           {/* This one is special */}
-          <Route path="/game/:id" component={Game} />
           <Route path="/game/:id/game-won" component={GameWon} />
+          <Route path="/game/:id" component={Game} />
         </Switch>
       </Suspense>
     </BrowserRouter>
