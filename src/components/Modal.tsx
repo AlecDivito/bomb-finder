@@ -8,6 +8,8 @@ type Props = {
     submit: () => void;
 }
 
+// check out portals
+// https://reactjs.org/docs/portals.html
 export const Modal: React.FC<Props> = ({ show, header, close, submit, children}) => {
     return (
         <div className="modal"

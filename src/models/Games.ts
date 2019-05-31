@@ -1,6 +1,7 @@
 import { Table, Field, IndexDbTable } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
+import { Statistics } from './Types';
 
 @Table()
 export default class Games extends IndexDbTable {
@@ -97,6 +98,52 @@ export default class Games extends IndexDbTable {
             (game: Games) => game.result === "created" || game.result === "inprogress"
         );
         return data;
+    }
+
+    static async GetGameStatistics(): Promise<Statistics> {
+        const game = new Games("", "easy", 0, 0, 0);
+        const games = await game.getAll((game: Games) => true);
+        const statistics = {
+            gamesPlayed: 0,
+            wins: 0,
+            losses: 0,
+            incomplete: 0,
+            averageNumberOfMovesWin: 0,
+            averageNumberOfMovesLoss: 0,
+            averageNumberOfMovesTotal: 0,
+            averageTimeTakenLoss: 0,
+            averageTimeTakenWin: 0,
+            averageTimeTakenTotal: 0,
+            averageNumberOfInvisiblePieces: 0,
+        };
+        games.forEach((g) => {
+            statistics.gamesPlayed++;
+            if (g.result === "won") {
+                statistics.wins++;
+                statistics.averageNumberOfMovesWin += g.totalMoves;
+                statistics.averageTimeTakenWin += g.time;
+            } else if (g.result === "lost") {
+                statistics.losses++;
+                statistics.averageNumberOfInvisiblePieces += g.invisiblePieces;
+                statistics.averageNumberOfMovesLoss += g.totalMoves;
+                statistics.averageTimeTakenLoss += g.time;
+            } else {
+                statistics.incomplete++;
+            }
+        });
+        statistics.averageTimeTakenTotal = (statistics.averageTimeTakenLoss +
+            statistics.averageTimeTakenWin) / (statistics.wins + statistics.losses);
+        statistics.averageNumberOfMovesTotal = (statistics.averageNumberOfMovesWin +
+            statistics.averageNumberOfMovesLoss) / (statistics.wins + statistics.losses);
+
+        statistics.averageNumberOfInvisiblePieces /= statistics.losses;
+        statistics.averageNumberOfMovesLoss /= statistics.losses;
+        statistics.averageTimeTakenLoss /= statistics.losses;
+
+        statistics.averageNumberOfMovesWin /= statistics.wins;
+        statistics.averageTimeTakenWin /= statistics.wins;
+
+        return statistics;
     }
 
 

@@ -5,6 +5,8 @@ interface Listener {
     listeningTo: Array<keyof HTMLElementEventMap>;
 }
 
+// why not use
+// https://reactjs.org/docs/events.html#pointer-events
 export default class InputController {
 
     private listeners: { [key: number]: Listener } = {};

@@ -92,7 +92,7 @@ export class IndexDbTable {
 
     async getAll<T>( filter?: (record: T) => boolean ): Promise<T[]> {
         const data: any = [];
-        return await new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!this.database) {
                 await this.connection();
             }

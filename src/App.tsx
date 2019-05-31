@@ -27,6 +27,7 @@ const App: React.FC = () => {
           <Route path="/stats" component={Stats} />
 
           {/* This one is special */}
+          {/* https://stackoverflow.com/questions/41474134/nested-routes-with-react-router-v4-v5 */}
           <Route path="/game/:id/game-won" component={GameWon} />
           <Route path="/game/:id" component={Game} />
         </Switch>
