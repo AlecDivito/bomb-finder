@@ -4,7 +4,6 @@ import uuid from "../util/uuid";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
-import { Modal } from "../components/Modal";
 import CustomGameForm from "../components/CustomGameForm";
 
 interface State {

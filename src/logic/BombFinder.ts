@@ -71,8 +71,8 @@ export default class BombFinder {
         return this.games.bombs;
     }
 
-    public reset() {
-        this.init();
+    public async reset(newId: string) {
+        return await this.games.reset(newId);
     }
 
     public update(delta: number) {

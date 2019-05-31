@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import BombFinder from "../logic/BombFinder";
 import BombFinderRenderer from "../logic/BombFinderRenderer";
 import InputController from "../logic/InputController";
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
+import { string } from 'prop-types';
+import uuid from '../util/uuid';
 
 interface Props {
     id: string;
@@ -14,6 +16,7 @@ interface Props {
 interface State {
     ready: boolean;
     lastFrame: number;
+    newGameId?: string;
     rafId?: number;
     inputId?: number;
 }
@@ -29,12 +32,44 @@ class GameBoard extends Component<Props, State> {
     state: Readonly<State> = {
         ready: false,
         lastFrame: 0,
+        newGameId: undefined,
         rafId: undefined,
         inputId: undefined,
     }
 
+    public componentWillUpdate() {
+        if (this.state.newGameId) {
+            return false;
+        }
+        return true;
+    }
+
+    public componentDidUpdate(prevProps: Props, prevState: State, snapshot: any) {
+        if (prevState.newGameId && prevProps.id !== prevState.newGameId) {
+            // new game has started without unmounting the component
+            this.setState({
+                ready: false,
+                lastFrame: 0,
+                newGameId: undefined,
+                rafId: undefined,
+                inputId: undefined,
+            });
+            this.destroyGame();
+            this.createGame();
+        }
+    }
+
     public async componentDidMount() {
-        // create data
+        console.log('mounting');
+        this.createGame();
+    }
+
+    public componentWillUnmount() {
+        console.log("unmount")
+        this.destroyGame();
+    }
+
+    public async createGame() {
         const games = await Games.GetGame(this.props.id);
         this.gameState = new BombFinder(games);
         this.renderer = new BombFinderRenderer(this.gameState);
@@ -51,7 +86,7 @@ class GameBoard extends Component<Props, State> {
         this.draw(0);
     }
 
-    public componentWillUnmount() {
+    public destroyGame() {
         if (this.state.ready) {
             this.input!.stop(this.state.inputId!);
         }
@@ -60,13 +95,19 @@ class GameBoard extends Component<Props, State> {
         }
     }
 
-    public tryAgain = () => {
-        if (this.state.ready) {
-            this.gameState!.reset();
+    public tryAgain = async () => {
+        if (this.state.ready && !this.state.newGameId) {
+            const newGameId = uuid();
+            await this.gameState!.reset(newGameId);
+            this.setState({ newGameId });
         }
     }
 
     public render() {
+        if (this.state.newGameId) {
+            const route = `/game/${this.state.newGameId}`;
+            return <Redirect to={route} />;
+        }
         return (
             <div className="board__container">
                 {
@@ -117,15 +158,15 @@ class GameBoard extends Component<Props, State> {
             this.renderer!.draw(this.context2D!, delta);
         }
         
-        if (this.gameState!.isGameOver) {
-            window.cancelAnimationFrame(this.state.rafId!);
-            return;
-        }
-        
         this.input!.flush();
         
         if (this.gameState!.isGameWon) {
             this.props.onGameFinished("won")
+        }
+
+        if (this.gameState!.isGameOver) {
+            window.cancelAnimationFrame(this.state.rafId!);
+            this.setState({ lastFrame: delta });
             return;
         }
 

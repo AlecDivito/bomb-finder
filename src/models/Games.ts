@@ -67,6 +67,14 @@ export default class Games extends IndexDbTable {
         }
     }
 
+    public async reset(newId: string): Promise<Games> {
+        await this.save();
+        const game = new Games(newId, this.difficulty, this.width,
+            this.height, this.bombs);
+        await game.save();
+        return game;
+    }
+
     static async DoesGameExists(id: string): Promise<boolean> {
         const games = new Games("", "easy", 0, 0, 0);
         const result = await games.getById(id);

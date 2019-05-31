@@ -36,11 +36,13 @@ export default class Game extends Component<Props, State> {
     }
 
     gameFinished = (result: GameProgress) => {
+        console.log(result);
         this.setState({ toWonPage: result === "won" });
     }
 
     public render() {
         if (this.state.toWonPage) {
+            console.log('redict');
             return <Redirect to={`/game/${this.props.match.params.id}/game-won`} />
         }
         else if (this.state.to404Page) {

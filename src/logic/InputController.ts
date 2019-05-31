@@ -51,16 +51,12 @@ export default class InputController {
      */
     public pollEvents(id: number): EventState {
         if (this.state.mouse !== undefined) {
-            this.state.mouse.localX = (this.state.mouse.pageX -
-                this.listeners[id].element.offsetLeft) + window.scrollX;
-            this.state.mouse.localY = (this.state.mouse.pageY -
-                this.listeners[id].element.offsetTop) + window.scrollY;
+            this.state.mouse.localX = (this.state.mouse.pageX - this.listeners[id].element.offsetLeft);
+            this.state.mouse.localY = (this.state.mouse.pageY - this.listeners[id].element.offsetTop);
         }
         if (this.state.mouseButton !== undefined) {
-            this.state.mouseButton.localX = (this.state.mouseButton.localX -
-                this.listeners[id].element.offsetLeft) + window.scrollX;
-            this.state.mouseButton.localY = (this.state.mouseButton.localY -
-                this.listeners[id].element.offsetTop) + window.scrollY;
+            this.state.mouseButton.localX = (this.state.mouseButton.localX - this.listeners[id].element.offsetLeft)
+            this.state.mouseButton.localY = (this.state.mouseButton.localY - this.listeners[id].element.offsetTop)
         }
         return this.state;
     }
