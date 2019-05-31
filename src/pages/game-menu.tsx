@@ -4,9 +4,11 @@ import uuid from "../util/uuid";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
+import { Modal } from "../components/Modal";
 
 interface State {
     loading: boolean;
+    showModal: boolean;
     gameId?: string;
     gameLocation?: string;
     unfinishedGames?: Games[];
@@ -15,7 +17,8 @@ interface State {
 export default class GameMenu extends Component<{}, State> {
 
     state: Readonly<State> = {
-        loading: true
+        loading: true,
+        showModal: false,
     };
 
     async componentDidMount() {
@@ -37,7 +40,7 @@ export default class GameMenu extends Component<{}, State> {
                 game = new Games(gameId, difficulty, 24, 24, 99);
                 break;
             case "custom":
-                console.warn("please implement me (custom)");
+                this.setState({ showModal: true });
                 return;
             default: return;
         }
@@ -56,6 +59,14 @@ export default class GameMenu extends Component<{}, State> {
             return;
         }
         this.setState({ gameId: id, gameLocation: `/game/${id}` });
+    }
+
+    closeModal = () => {
+        console.log('close');
+    }
+
+    createCustomGame = () => {
+        console.log('submit');
     }
 
     public render() {
@@ -99,6 +110,14 @@ export default class GameMenu extends Component<{}, State> {
                         )
                     }
                 </ul>
+
+                <Modal
+                    header="Custom Game Wizard"
+                    show={this.state.showModal}
+                    close={this.closeModal}
+                    submit={this.createCustomGame}>
+                    Lets make a custom Game :)    
+                </Modal>
             </div>
         );
     }
