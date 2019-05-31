@@ -154,13 +154,13 @@ class GameBoard extends Component<Props, State> {
         
         this.input!.flush();
         
-        if (this.gameState!.isGameWon) {
-            this.props.onGameFinished("won")
-        }
-
+        
         if (this.gameState!.isGameOver) {
             window.cancelAnimationFrame(this.state.rafId!);
             this.setState({ lastFrame: delta });
+            if (this.gameState!.isGameWon) {
+                this.props.onGameFinished("won");
+            }
             return;
         }
 
