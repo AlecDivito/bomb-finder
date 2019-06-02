@@ -1,0 +1,63 @@
+.form-input {
+    position: relative;
+    margin-bottom: .5em;
+    width: 100%;
+}
+
+.form-input input:focus:not([type="checkbox"]) {
+    outline: none;
+    box-shadow: insert 0 -.25em .5em lighten(#06f, 45%);
+}
+
+.form-input input:not([type="checkbox"]) {
+    margin-top: 5px;
+    padding: 6px 15px;
+    border: 1px solid #FFF;
+    border-radius: 16px;
+    line-height: 20px;
+    font-size: 14px;
+    background-color:#333;
+    color: #FFF;
+    width: 100%;
+    height: 3.5rem;
+    box-sizing: border-box;
+}
+
+.form-input label {
+    position: absolute;
+    top: 20px;
+    left: 17px;
+    padding: 0 2px;
+    line-height: 24px;
+    font-size: 18px;
+    letter-spacing: .125em;
+    color: #FFF;
+    background-color: #333;
+    pointer-events: none;
+    transform-origin: left center;
+    transform: translateY(0) scale(1);
+    text-transform: capitalize;
+}
+
+/* label > input:not([type="checkbox"]) {
+    width: 100%;
+    position: relative;
+
+}
+
+input[type="checkbox"] {
+    
+} */
+
+.form-input label, .form-input input {
+    display: inline-block;
+    transition: transform 150ms;
+}
+
+.form-input.data label, .form-input.focus label {
+    transform:translateY(-25px) scale(0.75);
+}
+  
+.form-input.data label {
+    color: #999;
+}
