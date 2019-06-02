@@ -26,11 +26,21 @@
     flex: 1;
     text-align: center;
     list-style-type: none;
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
 }
 
 .home__list__item {
     font-size: 2rem;
-    /* margin: 1rem 0; */
+    margin: 1rem 0;
     text-transform: uppercase;
+    border: 1px solid #FFFFFF;
+    border-radius: 5px;
+}
+
+.home__list__item > a {
+    display: block;
+    width: 100%;
 }
