@@ -38,7 +38,7 @@ export default class HowToPlay extends Component {
                     Right click to toggle an invisible cell
                 </p>
                 <p>
-                    Left click to flag an invisible cell
+                    Left click to flag aboutan invisible cell
                 </p>
             </React.Fragment>
         );

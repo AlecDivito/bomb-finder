@@ -1,0 +1,29 @@
+body, html {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #333;
+}
+
+* {
+    font-family: "Arial Black", Gadget, sans-serif;
+    color: #FFFFFF;
+}
+
+ul {
+    margin: 0;
+    height: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+#root {
+    margin: 0px 16px;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+#page {
+}
