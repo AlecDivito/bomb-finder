@@ -3,6 +3,14 @@
 }
 
 /**
+ * Shared
+ */
+.menu--title {
+    text-transform: capitalize;
+    text-align: center;
+}
+
+/**
  * New Menu (for all the new options)
  */
 .menu__new {
@@ -13,6 +21,17 @@
 .menu__new__item {
     width: calc(50% - .5rem);
     margin-bottom: 1rem;
+    text-align: center;
+}
+
+.menu__new__item > img {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.menu__new__item > :last-child {
+    margin-bottom: 2rem;
 }
 
 .menu__new__item:nth-child(odd) {
@@ -33,3 +52,17 @@
     width: 100%;
 }
 
+.menu__continue__details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.menu__continue__details--left {
+
+}
+
+.menu__continue__details--right {
+
+}

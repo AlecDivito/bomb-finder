@@ -6,6 +6,8 @@ import Games from "../models/Games";
 import Loading from "../components/Loading";
 import "./game-menu.css"
 import Box from "../components/Box";
+import plus from "../assets/plus.svg";
+import RandInRange from "../util/Random";
 
 interface State {
     loading: boolean;
@@ -31,12 +33,12 @@ const configData: PrepareGame[] = [
     },
     {
         difficulty: "medium",
-        width: 8,
-        height: 8,
+        width: 16,
+        height: 16,
         bombs: 40,
     },
     {
-        difficulty: "medium",
+        difficulty: "hard",
         width: 24,
         height: 24,
         bombs: 99,
@@ -53,37 +55,16 @@ export default class GameMenu extends Component<{}, State> {
     };
 
     async componentDidMount() {
-        const unfinishedGames = await Games.GetUnfinishedGames();
+        let unfinishedGames = await Games.GetUnfinishedGames();
+        unfinishedGames = unfinishedGames.sort((a, b) => (a.invisiblePieces > b.invisiblePieces) ? 1 : -1);
         this.setState({ loading: false, unfinishedGames });
     }
 
-    prepareDefaultGame = async (difficulty: GameDifficulty) => {
-        const prepare: PrepareGame = {
-            difficulty: "easy",
-            width: 8,
-            height: 8,
-            bombs: 10,
+    prepareDefaultGame = async (prepare: PrepareGame | string) => {
+        if (typeof(prepare) === "object") {
+            this.prepareGame(prepare);
         }
-        switch (difficulty) {
-            case "easy":
-                this.prepareGame(prepare);
-                break;
-            case "medium":
-                prepare.width *= 2;
-                prepare.height *= 2;
-                prepare.bombs = 40;
-                this.prepareGame(prepare);
-                break;
-            case "hard":
-                prepare.width *= 3;
-                prepare.height *= 3;
-                prepare.bombs = 99;
-                this.prepareGame(prepare);
-                break;
-            case "custom":
-                this.setState({ showModal: true });
-                return;
-        }
+        this.setState({ showModal: true });
     }
 
     loadOldGame = async (id: string) => {
@@ -124,19 +105,21 @@ export default class GameMenu extends Component<{}, State> {
         const { loading, unfinishedGames } = this.state;
         return (
             <div className="menu">
+                <h3>New Game</h3>
                 <div className="menu__new">
                     {configData.map(g => 
-                        <Box className="menu__new__item"
-                            onClick={() => this.prepareDefaultGame("easy")}>
-                            <h3>{g.difficulty}</h3>
+                        <Box degree={g.bombs + 170} className="menu__new__item"
+                            onClick={() => this.prepareDefaultGame(g)}>
+                            <h2 className="menu--title">{g.difficulty}</h2>
                             <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
                             <p><small><strong>Width: </strong>{g.width}</small></p>
                             <p><small><strong>Height: </strong>{g.height}</small></p>
                         </Box>
                     )}
-                    <Box className="menu__new__item"
+                    <Box degree={RandInRange(0, 360)} className="menu__new__item"
                         onClick={() => this.prepareDefaultGame("custom")}>
-                        Custom
+                        <h2>Custom</h2>
+                        <img src={plus} alt="Add custom game" />
                     </Box>
                 </div>
                 {
@@ -148,17 +131,23 @@ export default class GameMenu extends Component<{}, State> {
                         <h3>Continue Playing</h3>
                         <div className="menu__continue">
                             {unfinishedGames!.map(g =>
-                                <Box className="menu__continue__item"
+                                <Box degree={((((g.width * g.height) - g.bombs) - g.invisiblePieces) / (g.width * g.height) - g.bombs) * 360}
+                                    className="menu__continue__item"
                                     onClick={() => this.loadOldGame(g.id)}>
-                                    {g.result} - {g.difficulty} - <time>{g.createdAt.toLocaleString()}</time> <br />
-                                    <small>
-                                        <strong>Bombs: </strong>{g.bombs}<br />
-                                        <strong>Width: </strong>{g.width}<br />
-                                        <strong>Height: </strong>{g.height}<br />
-                                        <strong>Pieces Left: </strong>{g.invisiblePieces}<br />
-                                        <strong>Time: </strong>{g.time}<br />
-                                        <strong>Total Moves:</strong>{g.totalMoves}<br />
-                                    </small>
+                                    <h2 className="menu--title">{g.difficulty}</h2>
+                                    <div className="menu__continue__details">
+                                        <div className="menu__continue__details--left">
+                                            <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
+                                            <p><small><strong>Width: </strong>{g.width}</small></p>
+                                            <p><small><strong>Height: </strong>{g.height}</small></p>
+                                        </div>
+                                        <div className="menu__continue__details--right">
+                                            {/* <p><small><strong>Start: </strong>{g.createdAt.toDateString()}</small></p> */}
+                                            <p><small><strong>Pieces Left: </strong>{g.invisiblePieces}</small></p>
+                                            <p><small><strong>Moves: </strong>{g.totalMoves}</small></p>
+                                            <p><small><strong>Time: </strong>{Math.floor(g.time)}s</small></p>
+                                        </div>
+                                    </div>
                                 </Box>
                             )}
                         </div>
