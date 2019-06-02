@@ -4,9 +4,9 @@ import "./Header.css"
 import back from "../assets/arrow-left.svg";
 
 const Header: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
-    console.log(props);
+    // TODO: Check style if we need to render a hidden element or just null
     if (props.location.pathname === "/") {
-        return null;
+        return <div className="header--hidden">BombFinder</div>;
     }
     return (
         <header className="header">

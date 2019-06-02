@@ -20,7 +20,7 @@ const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Header />
-            <div className="page">
+            <div id="page">
                 <Suspense fallback={<Loading />}>
                     <Switch>
                         <Route exact path="/" component={Home} />

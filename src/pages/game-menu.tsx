@@ -4,7 +4,8 @@ import uuid from "../util/uuid";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
-import CustomGameForm from "../components/CustomGameForm";
+import "./game-menu.css"
+import Box from "../components/Box";
 
 interface State {
     loading: boolean;
@@ -20,6 +21,27 @@ type PrepareGame = {
     height: number,
     bombs: number,
 }
+
+const configData: PrepareGame[] = [
+    {
+        difficulty: "easy",
+        width: 8,
+        height: 8,
+        bombs: 10,
+    },
+    {
+        difficulty: "medium",
+        width: 8,
+        height: 8,
+        bombs: 40,
+    },
+    {
+        difficulty: "medium",
+        width: 24,
+        height: 24,
+        bombs: 99,
+    }
+];
 
 // TODO: Add data to "Pieces Left" in Continue Playing section
 //       It should look like "Pieces Left: 16/54"
@@ -53,8 +75,8 @@ export default class GameMenu extends Component<{}, State> {
                 this.prepareGame(prepare);
                 break;
             case "hard":
-                prepare.width *= 24;
-                prepare.height *= 24;
+                prepare.width *= 3;
+                prepare.height *= 3;
                 prepare.bombs = 99;
                 this.prepareGame(prepare);
                 break;
@@ -99,48 +121,55 @@ export default class GameMenu extends Component<{}, State> {
         if (this.state && this.state.gameId && this.state.gameLocation) {
             return <Redirect to={this.state.gameLocation} />
         }
+        const { loading, unfinishedGames } = this.state;
         return (
-            <div>
-                <h1>GameMenu!!!</h1>
-                <ul>
-                    <li>
-                        <button onClick={() => this.prepareDefaultGame("easy")}>Easy</button>
-                    </li>
-                    <li>
-                        <button onClick={() => this.prepareDefaultGame("medium")}>Medium</button>
-                    </li>
-                    <li>
-                        <button onClick={() => this.prepareDefaultGame("hard")}>Hard</button>
-                    </li>
-                    <li>
-                        <button onClick={() => this.prepareDefaultGame("custom")}>Custom</button>
-                    </li>
-                </ul>
-                <h3>Continue Playing</h3>
-                <ul>
-                    {
-                        (this.state.loading)
-                        ? <Loading />
-                        : this.state.unfinishedGames!.map(g =>
-                            <li key={g.id} onClick={() => this.loadOldGame(g.id)}>
-                                {g.result} - {g.difficulty} - <time>{g.createdAt.toLocaleString()}</time> <br />
-                                <small>
-                                    <strong>Bombs: </strong>{g.bombs}<br />
-                                    <strong>Width: </strong>{g.width}<br />
-                                    <strong>Height: </strong>{g.height}<br />
-                                    <strong>Pieces Left: </strong>{g.invisiblePieces}<br />
-                                    <strong>Time: </strong>{g.time}<br />
-                                    <strong>Total Moves:</strong>{g.totalMoves}<br />
-                                </small>
-                            </li>
-                        )
-                    }
-                </ul>
+            <div className="menu">
+                <div className="menu__new">
+                    {configData.map(g => 
+                        <Box className="menu__new__item"
+                            onClick={() => this.prepareDefaultGame("easy")}>
+                            <h3>{g.difficulty}</h3>
+                            <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
+                            <p><small><strong>Width: </strong>{g.width}</small></p>
+                            <p><small><strong>Height: </strong>{g.height}</small></p>
+                        </Box>
+                    )}
+                    <Box className="menu__new__item"
+                        onClick={() => this.prepareDefaultGame("custom")}>
+                        Custom
+                    </Box>
+                </div>
+                {
+                    (loading) ? <Loading /> : null
+                }
+                {
+                    (unfinishedGames && unfinishedGames.length !== 0)
+                    ? <React.Fragment>
+                        <h3>Continue Playing</h3>
+                        <div className="menu__continue">
+                            {unfinishedGames!.map(g =>
+                                <Box className="menu__continue__item"
+                                    onClick={() => this.loadOldGame(g.id)}>
+                                    {g.result} - {g.difficulty} - <time>{g.createdAt.toLocaleString()}</time> <br />
+                                    <small>
+                                        <strong>Bombs: </strong>{g.bombs}<br />
+                                        <strong>Width: </strong>{g.width}<br />
+                                        <strong>Height: </strong>{g.height}<br />
+                                        <strong>Pieces Left: </strong>{g.invisiblePieces}<br />
+                                        <strong>Time: </strong>{g.time}<br />
+                                        <strong>Total Moves:</strong>{g.totalMoves}<br />
+                                    </small>
+                                </Box>
+                            )}
+                        </div>
+                    </React.Fragment>
+                    : null
+                }
 
-                <CustomGameForm
+                {/* <CustomGameForm
                     show={this.state.showModal}
                     close={this.closeModal}
-                    submit={this.createCustomGame} />
+                    submit={this.createCustomGame} /> */}
             </div>
         );
     }

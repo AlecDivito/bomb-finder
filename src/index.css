@@ -26,8 +26,15 @@ ul {
     margin: 0px 16px;
     height: 100%;
     display: grid;
-    grid-template-rows: 1fr auto;
+    grid-gap: 0px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 100%;
+    grid-template-areas: 
+        "header"
+        "content"
+        "footer"
 }
 
 #page {
+    grid-area: content;
 }

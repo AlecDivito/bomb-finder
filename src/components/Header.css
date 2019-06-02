@@ -1,9 +1,16 @@
 .header {
+    grid-area: header;
     border-bottom: 1px solid #FFFFFF;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
+}
+
+.header--hidden {
+    height: 0;
+    grid-area: header;
+    opacity: 0;
 }
 
 .header > h3 {
