@@ -62,10 +62,10 @@ export default class BombFinderRenderer {
 
             switch (cell.visibility) {
                 case Visibility.INVISIBLE:
-                    ctx.fillStyle = (cell.hover) ? "#A1A1A1" : "#FFFFFF";
+                    ctx.fillStyle = (cell.hover) ? "#0000FF" : "#FFFFFF";
                     break;
                 case Visibility.MARKED:
-                    ctx.fillStyle = "#959595";
+                    ctx.fillStyle = "#FF0000";
                     break;
                 case Visibility.VISIBLE:
                     ctx.fillStyle = "#CCCCCC";

@@ -1,4 +1,5 @@
-import { EventState } from "../models/EventTypes";
+import { SimpleEventState } from "../models/EventTypes";
+import { Point2d } from "../models/GameTypes";
 
 interface Listener {
     element: HTMLElement;
@@ -10,12 +11,13 @@ interface Listener {
 export default class InputController {
 
     private listeners: { [key: number]: Listener } = {};
+    private timer: number = 0;
+    private touchTimer: number = 0;
+    private touchThreshold: number = 300;
+    private touchPoint?: Point2d;
     private idCounter: number = 0;
 
-    private state: EventState = {
-        mouse: undefined,
-        mouseButton: undefined,
-    };
+    private state?: SimpleEventState;
 
     /**
      * Place event listeners on a html element
@@ -34,7 +36,9 @@ export default class InputController {
 
         events.forEach((event) => {
             const pointer = this.getFunctionPointer(event);
-            this.listeners[id].element.addEventListener(event, pointer as any);
+            this.listeners[id].element.addEventListener(event, pointer as any, {
+                passive: event !== "contextmenu"
+            });
             this.listeners[id].listeningTo.push(event);
         });
 
@@ -51,14 +55,10 @@ export default class InputController {
      * @returns {Point2d | null} returns mouses new position or null if the 
      *      mouse hasn't moved since last checked
      */
-    public pollEvents(id: number): EventState {
-        if (this.state.mouse !== undefined) {
-            this.state.mouse.localX = (this.state.mouse.pageX - this.listeners[id].element.offsetLeft);
-            this.state.mouse.localY = (this.state.mouse.pageY - this.listeners[id].element.offsetTop);
-        }
-        if (this.state.mouseButton !== undefined) {
-            this.state.mouseButton.localX = (this.state.mouseButton.localX - this.listeners[id].element.offsetLeft)
-            this.state.mouseButton.localY = (this.state.mouseButton.localY - this.listeners[id].element.offsetTop)
+    public pollEvents(id: number): SimpleEventState | undefined {
+        if (this.state) {
+            this.state.pos.x -= this.listeners[id].element.offsetLeft;
+            this.state.pos.y -= this.listeners[id].element.offsetTop;
         }
         return this.state;
     }
@@ -68,8 +68,7 @@ export default class InputController {
      * @returns {void} 
      */
     public flush() {
-        this.state.mouse = undefined;
-        this.state.mouseButton = undefined;
+        this.state = undefined;
     }
 
     public stop(id: number): boolean {
@@ -87,63 +86,78 @@ export default class InputController {
 
     private getFunctionPointer(eventType: keyof HTMLElementEventMap) {
         switch (eventType) {
-            case "mousemove": return this.mouseMoveEvent;
-            case "mousedown": return this.mouseDownEvent;
-            case "mouseup": return this.mouseUpEvent;
+            case "mousemove": return this.mouseEvent;
+            case "mousedown": return this.mouseEvent;
+            case "mouseup": return this.mouseEvent;
             case "contextmenu": return this.stopContextMenu;
+            case "touchstart": return this.touchEvent;
+            case "touchmove": return this.touchEvent;
+            case "touchend": return this.touchEvent;
         }
     }
 
-    private mouseMoveEvent = (event: MouseEvent) => {
-        this.state.mouse = {
-            pageX: event.pageX,
-            pageY: event.pageY,
-            localX: 0,
-            localY: 0,
-        };
-    }
-
-    private mouseDownEvent = (event: MouseEvent) => {
-        event.preventDefault();
-        this.state.mouseButton = {
-            left: false,
-            middle: false,
-            right: false,
-            localX: event.pageX,
-            localY: event.pageY,
-        };
-        switch (event.buttons) {
-            case 0: this.state.mouseButton = undefined; break;
-            case 1: this.state.mouseButton.left = true; break;
-            case 2: this.state.mouseButton.right = true; break;
-            case 3:
-                this.state.mouseButton.left = true;
-                this.state.mouseButton.right = true;
-                break;
-            case 4: this.state.mouseButton.middle = true; break;
-            case 5:
-                this.state.mouseButton.middle = true;
-                this.state.mouseButton.left = true;
-                break;
-            case 6:
-                this.state.mouseButton.middle = true;
-                this.state.mouseButton.right = true;
-                break;
-            case 7:
-                this.state.mouseButton.middle = true;
-                this.state.mouseButton.right = true;
-                this.state.mouseButton.left = true;
-                break;
+    private mouseEvent = (event: MouseEvent) => {
+        if (this.touchPoint) { // this means touch is active
+            return;
         }
-    }
-
-    private mouseUpEvent = (event: MouseEvent) => {
-        event.preventDefault();
+        if (this.state && this.state.events.includes("touch")) {
+            return;
+        }
+        console.log(this.state, event);
+        if (this.state) {
+            this.state.events.push(event.type as any);
+            return;
+        }
+        this.state = {
+            leftClick: [1, 3, 5, 7].includes(event.buttons),
+            middleClick: [4, 5, 6, 7].includes(event.buttons),
+            rightClick: [2, 3, 6, 7].includes(event.buttons),
+            pos: {
+                x: event.pageX,
+                y: event.pageY,
+            },
+            events: [event.type as any]
+        };
     }
 
     private stopContextMenu = (event: any) => {
         event.preventDefault();
+        event.stopPropagation();
         return false;
+    }
+
+    private touchEvent = (event: TouchEvent) => {
+        console.log(event.type);
+        if (event.type === "touchstart") {
+            if (this.touchTimer === 0) {
+                this.timer = Date.now();
+            }
+            this.touchPoint = {
+                x: event.targetTouches[0].pageX,
+                y: event.targetTouches[0].pageY,
+            };
+            return;
+        }
+
+        if (event.type === "touchmove") {
+            this.touchPoint = undefined;
+            return;
+        }
+
+        if (event.type === "touchend" && this.touchPoint) {
+            const delta = Date.now() - this.timer;
+            this.timer = Date.now();
+            this.touchTimer += delta;
+            this.state = {
+                leftClick: this.touchTimer < this.touchThreshold,
+                middleClick: false,
+                rightClick: this.touchTimer > this.touchThreshold,
+                pos: this.touchPoint!,
+                events: ["touch"]
+            }
+            this.touchPoint = undefined;
+            this.touchTimer = 0;
+        }
     }
 
     private uniqueId() {

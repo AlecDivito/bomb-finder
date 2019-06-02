@@ -6,6 +6,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
 import uuid from '../util/uuid';
+import './GameBoard.css';
 
 interface Props {
     id: string;
@@ -74,7 +75,8 @@ class GameBoard extends Component<Props, State> {
         this.canvas = document.getElementById("board") as HTMLCanvasElement;
         this.context2D = this.canvas.getContext("2d")!;
         this.setState({
-            inputId: this.input.start(this.canvas!, ["mousemove", "mousedown", "contextmenu"])
+            inputId: this.input.start(this.canvas!, ["mousemove", "mousedown",
+                "contextmenu", "touchstart", "touchmove", "touchend"])
         });
         this.init();
         this.draw(0);
@@ -142,7 +144,7 @@ class GameBoard extends Component<Props, State> {
         const events = this.input!.pollEvents(this.state.inputId!);
         this.gameState!.update(elapsedTime);
         
-        if (events.mouse || events.mouseButton) {
+        if (events) {
             this.gameState!.handleEvents(events);
             this.renderer!.draw(this.context2D!, delta);
         }

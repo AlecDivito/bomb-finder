@@ -1,5 +1,5 @@
 import { Cell, CellState, CellValue, Visibility } from "../models/GameBoardTypes";
-import { EventState } from "../models/EventTypes";
+import { EventState, SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d } from "../models/GameTypes";
 import Games from "../models/Games";
@@ -112,26 +112,27 @@ export default class BombFinder {
         }
     }
 
-    public handleEvents(events: EventState) {
+    public handleEvents(events?: SimpleEventState) {
         if (this.games.result !== "inprogress" && this.games.result !== "created") {
             return;
         }
-        if (events.mouse !== undefined) {
+        if (!events) {
+            return;
+        }
+        if (events.events.includes("mousemove")) {
             this.grid.forEach((cell) => {
                 cell.hover = false;
             });
-            const point: Point2d = { x: events.mouse.localX, y: events.mouse.localY };
-            const index = this.getIndexByPixel(point);
+            const index = this.getIndexByPixel(events.pos);
             if (index !== null && index < this.grid.length) {
                 this.grid[index].hover = true;
             }
         }
-        if (events.mouseButton !== undefined) {
+        if (events.events.includes("mousedown") || events.events.includes("touch")) {
             this.games.result = "inprogress";
-            const point: Point2d = { x: events.mouseButton.localX, y: events.mouseButton.localY };
-            const index = this.getIndexByPixel(point);
+            const index = this.getIndexByPixel(events.pos);
             if (index !== null && index < this.grid.length) {
-                if (events.mouseButton.left && this.grid[index].visibility === Visibility.INVISIBLE) {
+                if (events.leftClick && this.grid[index].visibility === Visibility.INVISIBLE) {
                     this.grid[index].visibility = Visibility.VISIBLE;
                     if (this.grid[index].value === null || this.grid[index].value === undefined) {
                         this.games.result = "lost";
@@ -142,20 +143,32 @@ export default class BombFinder {
                         }
                         this.updateRemainingPiecesCount = true;
                     }
-                } else if (events.mouseButton.right && this.grid[index].visibility !== Visibility.MARKED) {
+                } else if (events.rightClick && this.grid[index].visibility !== Visibility.MARKED) {
                     this.grid[index].visibility = Visibility.MARKED;
-                } else if (events.mouseButton.right && this.grid[index].visibility === Visibility.MARKED) {
+                } else if (events.rightClick && this.grid[index].visibility === Visibility.MARKED) {
                     this.grid[index].visibility = Visibility.INVISIBLE;
                 }
             }
+        }
+        if (this.games.result === "lost") {
+            this.grid.forEach((cell) => {
+                if (cell.value === null) {
+                    cell.visibility = Visibility.VISIBLE
+                }
+            });
         }
     }
 
 
     protected init() {
         this.remainingPieces = this.getTotalAvailablePieces;
-        this.grid = this.constructGrid();
-        this.games.board = this.grid;
+        if (this.games.board.length === 0) {
+            this.grid = this.constructGrid();
+            this.games.board = this.grid;
+        }
+        else {
+            this.grid = this.games.board;
+        }
     }
 
     private toggleCell(index: number) {

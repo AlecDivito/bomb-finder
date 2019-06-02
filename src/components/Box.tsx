@@ -6,9 +6,9 @@ interface Props {
     className: string;
 }
 
-const Box: React.FC<Props> = (props) => {
-    const classes = `box ${props.className}`;
-    return <div className={classes}>{props.children}</div>
+const Box: React.FC<Props> = ({onClick, className, children}) => {
+    const classes = `box ${className}`;
+    return <div onClick={onClick} className={classes}>{children}</div>
 }
 
 export default Box;
