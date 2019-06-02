@@ -1,7 +1,11 @@
-.footer {
-    border-top: 1px solid #FFFFFF;
+.header {
+    border-bottom: 1px solid #FFFFFF;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
+}
+
+.header > h3 {
+    margin: 0;
 }

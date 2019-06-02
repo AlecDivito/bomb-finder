@@ -5,6 +5,7 @@ import Loading from './components/Loading';
 
 import Home from './pages/home';
 import Footer from './components/Footer';
+import Header from './components/Header';
 const About = lazy( () => import('./pages/about'));
 const GameMenu = lazy( () => import('./pages/game-menu'));
 const HowToPlay = lazy( () => import('./pages/how-to-play'));
@@ -18,6 +19,7 @@ const Stats = lazy( () => import('./pages/stats'));
 const App: React.FC = () => {
     return (
         <BrowserRouter>
+            <Header />
             <div className="page">
                 <Suspense fallback={<Loading />}>
                     <Switch>
