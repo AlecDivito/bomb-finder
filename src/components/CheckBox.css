@@ -1,0 +1,89 @@
+.checkbox {
+    margin: .5rem 0;
+    position: relative;
+    display: inline-block;
+    color: #aaa;
+    font-size: 16px;
+}
+
+/* Checkbox input[type="checkbox"] */
+.checkbox > input[type="checkbox"][type="checkbox"] {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    position: absolute;
+    left: -10px;
+    top: -8px;
+    display: block;
+    margin: 0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: #aaa;
+    box-shadow: none;
+    outline: none;
+    opacity: 0;
+    transform: scale(1);
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+/* text span */
+.checkbox > span {
+    display: inline-block;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Checkbox Box */
+.checkbox > span::before {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    margin: 3px 11px 3px 1px;
+    border: solid 2px; /* Safari */
+    border-color: #FFF;
+    border-radius: 2px;
+    width: 2.2rem;
+    height: 2.2rem;
+    vertical-align: top;
+    transition: border-color 0.2s, background-color 0.2s;
+    vertical-align: middle;
+}
+
+/* CheckBox Check mark*/
+.checkbox > span::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 7px;
+    left: 4px;
+    width: 22px;
+    height: 10px;
+    border: solid 3px transparent;
+    border-right: none;
+    border-top: none;
+    transform: translate(3px, 4px) rotate(-45deg);
+}
+
+/* Checked, Indeterminate */
+.checkbox > input[type="checkbox"]:checked,
+.checkbox > input[type="checkbox"]:indeterminate {
+    background-color: rgb(33, 150, 243);
+}
+
+.checkbox > input[type="checkbox"]:checked + span::before,
+.checkbox > input[type="checkbox"]:indeterminate + span::before {
+    border-color: rgb(33, 150, 243);
+    background-color: rgb(33, 150, 243);
+}
+
+.checkbox > input[type="checkbox"]:checked + span::after,
+.checkbox > input[type="checkbox"]:indeterminate + span::after {
+    border-color: rgb(255, 255, 255);
+}
+
+.checkbox > input[type="checkbox"]:indeterminate + span::after {
+    border-left: none;
+    transform: translate(4px, 3px);
+}
