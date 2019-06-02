@@ -6,6 +6,7 @@ import Loading from './components/Loading';
 import Home from './pages/home';
 import Footer from './components/Footer';
 import Header from './components/Header';
+const CustomGameForm = lazy( () => import('./pages/custom-game'));
 const About = lazy( () => import('./pages/about'));
 const GameMenu = lazy( () => import('./pages/game-menu'));
 const HowToPlay = lazy( () => import('./pages/how-to-play'));
@@ -25,7 +26,8 @@ const App: React.FC = () => {
                     <Switch>
                         <Route exact path="/" component={Home} />
                         <Route path="/about" component={About} />
-                        <Route path="/play" component={GameMenu} />
+                        <Route path="/menu/custom" component={CustomGameForm} />
+                        <Route path="/menu" component={GameMenu} />
                         <Route path="/how-to-play" component={HowToPlay} />
                         <Route path="/settings" component={Settings} />
                         <Route path="/stats" component={Stats} />

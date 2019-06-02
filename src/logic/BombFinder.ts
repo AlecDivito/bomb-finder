@@ -1,5 +1,5 @@
 import { Cell, CellState, CellValue, Visibility } from "../models/GameBoardTypes";
-import { EventState, SimpleEventState } from "../models/EventTypes";
+import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d } from "../models/GameTypes";
 import Games from "../models/Games";

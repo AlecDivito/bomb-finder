@@ -10,7 +10,7 @@ export default class Home extends Component {
                     <h1 className="home__header--center">Bomb Finder!</h1>
                 </div>
                 <ul className="home__list">
-                    <li className="home__list__item"><Link to="/play">NEW GAME</Link></li>
+                    <li className="home__list__item"><Link to="/menu">NEW GAME</Link></li>
                     <li className="home__list__item"><Link to="/stats">STATISTICS</Link></li>
                     <li className="home__list__item"><Link to="/about">ABOUT</Link></li>
                 </ul>

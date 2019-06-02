@@ -24,7 +24,7 @@
     text-align: center;
 }
 
-.menu__new__item > img {
+.menu__new__item img {
     margin-left: auto;
     margin-right: auto;
     width: 50%;
@@ -57,12 +57,5 @@
     flex-direction: row;
     justify-content: space-around;
     text-align: center;
-}
-
-.menu__continue__details--left {
-
-}
-
-.menu__continue__details--right {
-
+    margin-bottom: 1rem;
 }

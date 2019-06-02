@@ -1,17 +1,16 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
-import uuid from "../util/uuid";
+import { Redirect, Link } from "react-router-dom";
 import { GameDifficulty } from "../models/GameTypes";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
-import "./game-menu.css"
 import Box from "../components/Box";
 import plus from "../assets/plus.svg";
 import RandInRange from "../util/Random";
+import uuid from "../util/uuid";
+import "./game-menu.css"
 
 interface State {
     loading: boolean;
-    showModal: boolean;
     gameId?: string;
     gameLocation?: string;
     unfinishedGames?: Games[];
@@ -51,7 +50,6 @@ export default class GameMenu extends Component<{}, State> {
 
     state: Readonly<State> = {
         loading: true,
-        showModal: false,
     };
 
     async componentDidMount() {
@@ -64,7 +62,6 @@ export default class GameMenu extends Component<{}, State> {
         if (typeof(prepare) === "object") {
             this.prepareGame(prepare);
         }
-        this.setState({ showModal: true });
     }
 
     loadOldGame = async (id: string) => {
@@ -80,12 +77,7 @@ export default class GameMenu extends Component<{}, State> {
         this.setState({ gameId: id, gameLocation: `/game/${id}` });
     }
 
-    closeModal = () => {
-        this.setState({ showModal: false });
-    }
-
     createCustomGame = async  (data: { width: number, height: number, bombs: number}) => {
-        this.setState({ showModal: false });
         const prepare: PrepareGame = { ...{difficulty: "custom" }, ...data };
         this.prepareGame(prepare);
     }
@@ -108,7 +100,7 @@ export default class GameMenu extends Component<{}, State> {
                 <h3>New Game</h3>
                 <div className="menu__new">
                     {configData.map(g => 
-                        <Box degree={g.bombs + 170} className="menu__new__item"
+                        <Box key={g.difficulty} degree={g.bombs + 170} className="menu__new__item"
                             onClick={() => this.prepareDefaultGame(g)}>
                             <h2 className="menu--title">{g.difficulty}</h2>
                             <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
@@ -116,11 +108,13 @@ export default class GameMenu extends Component<{}, State> {
                             <p><small><strong>Height: </strong>{g.height}</small></p>
                         </Box>
                     )}
-                    <Box degree={RandInRange(0, 360)} className="menu__new__item"
-                        onClick={() => this.prepareDefaultGame("custom")}>
-                        <h2>Custom</h2>
-                        <img src={plus} alt="Add custom game" />
-                    </Box>
+                        <Box degree={RandInRange(0, 360)} className="menu__new__item"
+                            onClick={() => this.prepareDefaultGame("custom")}>
+                    <Link to="/menu/custom">
+                            <h2>Custom</h2>
+                            <img src={plus} alt="Add custom game" />
+                    </Link>
+                        </Box>
                 </div>
                 {
                     (loading) ? <Loading /> : null
@@ -131,17 +125,18 @@ export default class GameMenu extends Component<{}, State> {
                         <h3>Continue Playing</h3>
                         <div className="menu__continue">
                             {unfinishedGames!.map(g =>
-                                <Box degree={((((g.width * g.height) - g.bombs) - g.invisiblePieces) / (g.width * g.height) - g.bombs) * 360}
+                                <Box key={g.id}
+                                    degree={((((g.width * g.height) - g.bombs) - g.invisiblePieces) / (g.width * g.height) - g.bombs) * 360}
                                     className="menu__continue__item"
                                     onClick={() => this.loadOldGame(g.id)}>
                                     <h2 className="menu--title">{g.difficulty}</h2>
                                     <div className="menu__continue__details">
-                                        <div className="menu__continue__details--left">
+                                        <div>
                                             <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
                                             <p><small><strong>Width: </strong>{g.width}</small></p>
                                             <p><small><strong>Height: </strong>{g.height}</small></p>
                                         </div>
-                                        <div className="menu__continue__details--right">
+                                        <div>
                                             {/* <p><small><strong>Start: </strong>{g.createdAt.toDateString()}</small></p> */}
                                             <p><small><strong>Pieces Left: </strong>{g.invisiblePieces}</small></p>
                                             <p><small><strong>Moves: </strong>{g.totalMoves}</small></p>
@@ -154,11 +149,6 @@ export default class GameMenu extends Component<{}, State> {
                     </React.Fragment>
                     : null
                 }
-
-                {/* <CustomGameForm
-                    show={this.state.showModal}
-                    close={this.closeModal}
-                    submit={this.createCustomGame} /> */}
             </div>
         );
     }
