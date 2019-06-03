@@ -1,6 +1,7 @@
 .header {
     grid-area: header;
     border-bottom: 1px solid #FFFFFF;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -11,6 +12,10 @@
     height: 0;
     grid-area: header;
     opacity: 0;
+}
+
+.header__link {
+    height: 24px;
 }
 
 .header > h3 {
