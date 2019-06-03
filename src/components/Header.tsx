@@ -9,8 +9,6 @@ const Header: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
     if (props.location.pathname === "/") {
         return <div className="header--hidden">BombFinder</div>;
     }
-    console.log(props);
-    const paths = props.location.pathname.split("/");
     return (
         <header className="header">
             <div className="header__link" 
