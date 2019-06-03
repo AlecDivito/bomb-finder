@@ -38,13 +38,14 @@ export default class Input extends React.Component<Props, State> {
     render() {
         const { type, name, value, onChange } = this.props;
         const { focus } = this.state;
-        const className = `form-input ${(focus) ? "focus" : ""}`
+        const className = `form-input ${(focus) ? "focus" : ""}`;
+        const validValue = (value) ? value : "";
         return <div className={className}>
             <label htmlFor={name}>{name}</label>
             <input type={type}
                 id={name}
                 name={name}
-                value={value}
+                value={validValue}
                 onChange={onChange}
                 onFocus={this.focus}
                 onBlur={this.blur}

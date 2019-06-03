@@ -1,0 +1,16 @@
+.custom {
+    margin: 1.5rem 0rem;
+}
+
+.custom-inline {
+    display: flex;
+    width: 100%;
+}
+
+.custom-inline > * {
+    padding-right: .5rem;
+}
+
+.custom-inline > *:last-child {
+    padding-right: 0;
+}
