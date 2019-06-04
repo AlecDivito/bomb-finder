@@ -50,4 +50,5 @@
 .home__list__item > a {
     display: block;
     width: 100%;
+    color: inherit;
 }

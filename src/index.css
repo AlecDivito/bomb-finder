@@ -1,7 +1,7 @@
 body, html {
     padding: 0;
     margin: 0;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     background-color: #333;
 }
@@ -23,11 +23,13 @@ ul {
 }
 
 #root {
-    margin: 0px 16px;
-    height: 100%;
+    /* margin: 0px 16px; */
+    height: 100vh;
+    position: relative;
     display: grid;
     grid-gap: 0px;
-    grid-template-rows: auto 1fr auto;
+    /* The 60px-auto-60px is used for keeping the page in its own element */
+    /* grid-template-rows: 60px 1fr 60px; */
     grid-template-columns: 100%;
     grid-template-areas: 
         "header"
@@ -35,6 +37,13 @@ ul {
         "footer"
 }
 
-#page {
+.page {
     grid-area: content;
+    /* margin: 0px 16px; */
+    /* the height and position is used to keep the element in its own position */
+    position: absolute;
+    height: 100%;
+    width: calc(100% - 32px);
+    padding: 0px 16px;
+    overflow: auto;
 }

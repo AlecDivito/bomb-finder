@@ -1,6 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, Switch } from 'react-router';
-import { BrowserRouter } from 'react-router-dom';
+import { Route, Switch, withRouter, RouteComponentProps } from 'react-router';
 import Loading from './components/Loading';
 
 import Home from './pages/home';
@@ -17,11 +16,16 @@ const Stats = lazy( () => import('./pages/stats'));
 
 
 
-const App: React.FC = () => {
+const App: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+    if (props.location.pathname === "/") {
+        document.getElementById("root")!.style.gridTemplateRows = "0px 1fr 60px";
+    } else {
+        document.getElementById("root")!.style.gridTemplateRows = "60px 1fr 60px";
+    }
     return (
-        <BrowserRouter>
+        <React.Fragment>
             <Header />
-            <div id="page">
+            <div id="page" className="page">
                 <Suspense fallback={<Loading />}>
                     <Switch>
                         <Route exact path="/" component={Home} />
@@ -40,8 +44,8 @@ const App: React.FC = () => {
                 </Suspense>
             </div>
             <Footer />
-        </BrowserRouter>
+        </React.Fragment>
     );
 }
 
-export default App;
+export default withRouter(App);
