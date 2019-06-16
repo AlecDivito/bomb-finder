@@ -43,7 +43,6 @@ export default class Game extends Component<Props, State> {
 
     public render() {
         if (this.state.toWonPage) {
-            console.log('redict');
             return <Redirect to={`/game/${this.props.match.params.id}/game-won`} />
         }
         else if (this.state.to404Page) {

@@ -57,8 +57,9 @@ export default class InputController {
      */
     public pollEvents(id: number): SimpleEventState | undefined {
         if (this.state) {
-            this.state.pos.x -= this.listeners[id].element.offsetLeft;
-            this.state.pos.y -= this.listeners[id].element.offsetTop;
+            const rect = this.listeners[id].element.getBoundingClientRect();
+            this.state.pos.x -= rect.left;
+            this.state.pos.y -= rect.top;
         }
         return this.state;
     }
@@ -103,7 +104,6 @@ export default class InputController {
         if (this.state && this.state.events.includes("touch")) {
             return;
         }
-        console.log(this.state, event);
         if (this.state) {
             this.state.events.push(event.type as any);
             return;
@@ -127,7 +127,6 @@ export default class InputController {
     }
 
     private touchEvent = (event: TouchEvent) => {
-        console.log(event.type);
         if (event.type === "touchstart") {
             if (this.touchTimer === 0) {
                 this.timer = Date.now();

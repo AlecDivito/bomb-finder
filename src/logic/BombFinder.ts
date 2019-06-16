@@ -3,27 +3,24 @@ import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d } from "../models/GameTypes";
 import Games from "../models/Games";
+import Preferences from "../models/Preferences";
 
 export default class BombFinder {
 
     private games: Games;
+    private settings: Preferences;
 
     private grid: Cell[] = [];
     private updateRemainingPiecesCount: boolean = false;
     private remainingPieces: number = 0;
 
-    // TODO: set the gaps and size dynamically
-    //       we probably need to redo the way we pass in
-    //       values to the constructor
-    private readonly gaps: number = 15;
-    private readonly size: number = 75;
-
     private get area(): number {
         return this.games.width * this.games.height;
     }
 
-    constructor(games: Games) {
+    constructor(games: Games, settings: Preferences) {
         this.games = games;
+        this.settings = settings;
         this.init();
     }
 
@@ -55,12 +52,12 @@ export default class BombFinder {
         return this.games.width;
     }
 
-    public get getGaps() {
-        return this.gaps;
+    public get gaps() {
+        return this.settings.gridGapSize;
     }
 
-    public get getSize() {
-        return this.size;
+    public get size() {
+        return this.settings.defaultCellSize;
     }
 
     public get getGrid(): Readonly<Cell[]> {
@@ -124,7 +121,7 @@ export default class BombFinder {
                 cell.hover = false;
             });
             const index = this.getIndexByPixel(events.pos);
-            if (index !== null && index < this.grid.length) {
+            if (index !== null && index < this.grid.length && this.grid[index]) {
                 this.grid[index].hover = true;
             }
         }

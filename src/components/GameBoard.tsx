@@ -7,6 +7,8 @@ import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
 import uuid from '../util/uuid';
 import './GameBoard.css';
+import Loading from './Loading';
+import Preferences from '../models/Preferences';
 
 interface Props {
     id: string;
@@ -62,11 +64,12 @@ class GameBoard extends Component<Props, State> {
 
     public async createGame() {
         const games = await Games.GetGame(this.props.id);
+        const preferences = await Preferences.GetPreferences();
         if (games.result === "won") {
             this.props.onGameFinished(games.result);
             return;
         }
-        this.gameState = new BombFinder(games);
+        this.gameState = new BombFinder(games, preferences);
         this.renderer = new BombFinderRenderer(this.gameState);
         this.input = new InputController();
         this.setState({ ready: true });
@@ -104,25 +107,26 @@ class GameBoard extends Component<Props, State> {
             const route = `/game/${this.state.newGameId}`;
             return <Redirect to={route} />;
         }
+        if (!this.state.ready) {
+            return <Loading />
+        }
+        const dimensions = {
+            height: this.renderer!.gameBoardHeight,
+            width: this.renderer!.gameBoardWidth,
+        };
         return (
-            <div className="board__container">
-                {
-                    (this.state.ready)
+            <div className="board" id="board-container" style={dimensions}>
+                {/* <div>
+                    <div>Time: {this.gameState!.getTime}</div>
+                    <div>Pieces: {this.gameState!.getRemainingAvailablePiece}/{this.gameState!.getTotalAvailablePieces}</div>
+                </div> */}
+                <canvas className="board__canvas" id="board" />
+                {(this.gameState!.isGameOver)
                     ? <div>
-                        <div>Time: {this.gameState!.getTime}</div>
-                        <div>Pieces: {this.gameState!.getRemainingAvailablePiece}/{this.gameState!.getTotalAvailablePieces}</div>
+                        <button onClick={this.tryAgain}>Try Again</button>
+                        <Link to="/">Main Menu</Link>
                     </div>
-                    : <div></div>
-                }
-                <canvas className="board" id="board" />
-                {
-                    (this.state.ready && this.gameState!.isGameOver)
-                        ?
-                        <div>
-                            <button onClick={this.tryAgain}>Try Again</button>
-                            <Link to="/">Main Menu</Link>
-                        </div>
-                        : null
+                    : null
                 }
             </div>
         );

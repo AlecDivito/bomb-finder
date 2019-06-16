@@ -7,22 +7,18 @@ export default class BombFinderRenderer {
 
     private readonly state: BombFinder;
 
-    // keeping coloring background code for later maybe
-    private counter = 0;
-    private timer = 0;
-
     constructor(state: BombFinder) {
         this.state = state;
     }
 
     public get gameBoardWidth() {
-        return (this.state.getWidth * this.state.getSize) +
-            ((this.state.getWidth + 1) * this.state.getGaps)
+        return (this.state.getWidth * this.state.size) +
+            ((this.state.getWidth + 1) * this.state.gaps)
     }
 
     public get gameBoardHeight() {
-        return (this.state.getHeight * this.state.getSize) +
-            ((this.state.getHeight + 1) * this.state.getGaps)
+        return (this.state.getHeight * this.state.size) +
+            ((this.state.getHeight + 1) * this.state.gaps)
     }
 
     public update(mousePos: EventState) {
@@ -30,14 +26,6 @@ export default class BombFinderRenderer {
     }
 
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
-        // this.timer += delta;
-        // if (this.timer > 5000) {
-        //     this.counter++;
-        //     this.timer = 0;
-        //     if (this.counter > 360) {
-        //         this.counter = 0;
-        //     }
-        // }
         this.drawBackground(ctx);
         this.drawBoard(ctx)
     }
@@ -57,8 +45,8 @@ export default class BombFinderRenderer {
             const row = Math.floor(index / this.state.getWidth);
             const col = index % this.state.getWidth;
 
-            const x = (this.state.getGaps * (col + 1)) + (this.state.getSize * col);
-            const y = (this.state.getGaps * (row + 1)) + (this.state.getSize * row);
+            const x = (this.state.gaps * (col + 1)) + (this.state.size * col);
+            const y = (this.state.gaps * (row + 1)) + (this.state.size * row);
 
             switch (cell.visibility) {
                 case Visibility.INVISIBLE:
@@ -73,11 +61,11 @@ export default class BombFinderRenderer {
                 default:
                     break;
             }
-            ctx.fillRect(x, y, this.state.getSize, this.state.getSize);
+            ctx.fillRect(x, y, this.state.size, this.state.size);
             if (cell.visibility === Visibility.VISIBLE) {
                 ctx.fillStyle = "#000000";
                 ctx.font = "48px serif";
-                const offset = + (this.state.getSize / 2);
+                const offset = + (this.state.size / 2);
                 ctx.fillText(String(cell.value), x + offset - 15, y + offset + 15);
             }
         });
