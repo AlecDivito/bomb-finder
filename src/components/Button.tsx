@@ -3,6 +3,7 @@ import "./Button.css"
 
 interface Props {
     type: "button" | "submit";
+    className?: string;
     text: string;
     onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }
@@ -11,13 +12,14 @@ interface Props {
  * Taken from:
  * https://codepen.io/finnhvman/pen/zpygBB
  */
-const Button: React.FC<Props> = ({ type, text, onClick }) => {
+const Button: React.FC<Props> = ({ type, className, text, onClick }) => {
+    const classes = (className) ? `${className} button` : "button";
     if (onClick) {
-        return <button className="button" type={type} onClick={onClick}>
+        return <button className={classes} type={type} onClick={onClick}>
             {text}
         </button>
     }
-    return <button className="button" type={type}>{text}</button>
+    return <button className={classes} type={type}>{text}</button>
 }
 
 export default Button;

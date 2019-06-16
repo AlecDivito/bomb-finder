@@ -8,6 +8,7 @@ import uuid from '../util/uuid';
 import './GameBoard.css';
 import Loading from './Loading';
 import Preferences from '../models/Preferences';
+import Button from './Button';
 
 interface Props {
     id: string;
@@ -112,17 +113,23 @@ class GameBoard extends Component<Props, State> {
             height: this.gameState!.gameBoardHeight,
             width: this.gameState!.gameBoardWidth,
         };
+        const canvasClass = `board__canvas ${this.gameState!.gameState}`
         return (
             <div className="board" id="board-container" style={dimensions}>
                 {/* <div>
                     <div>Time: {this.gameState!.getTime}</div>
                     <div>Pieces: {this.gameState!.getRemainingAvailablePiece}/{this.gameState!.getTotalAvailablePieces}</div>
                 </div> */}
-                <canvas className="board__canvas" id="board" />
+                <canvas className={canvasClass} id="board" />
                 {(this.gameState!.isGameOver)
-                    ? <div>
-                        <button onClick={this.tryAgain}>Try Again</button>
-                        <Link to="/">Main Menu</Link>
+                    ? <div className="board__popup">
+                        <Button className="board__popup__item"
+                            type="button"
+                            text="Try Again"
+                            onClick={this.tryAgain} />
+                        <Link className="board__popup__item link-button" to="/">
+                            Main Menu
+                        </Link>
                     </div>
                     : null
                 }

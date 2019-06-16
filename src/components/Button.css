@@ -1,13 +1,19 @@
-.button {
-    width: 100%;
+.button, .link-button {
+    width: calc(100vw - 32px);
     height: 3.5rem;
     background-color: #333;
     border: 1px solid #FFF;
     border-radius: 16px;
     transition: .25s color, .25s background-color ease-in;
+    display: block;
+    text-align: center;
 }
 
 .button:hover {
     background-color: #FFF;
     color: #333;
+}
+
+.link-button {
+    line-height: 3.5rem;
 }

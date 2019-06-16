@@ -58,6 +58,10 @@ export default class BombFinder {
         return this.height;
     }
 
+    public get gameState() {
+        return this.games.result;
+    }
+
     public get isGameOver() {
         return this.games.result === "lost" || this.games.result === "won";
     }

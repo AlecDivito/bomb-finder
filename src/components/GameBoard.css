@@ -18,4 +18,32 @@
 }
 
 .board__canvas {
+    transition: .25s filter ease-in;
+}
+
+.board__canvas.lost {
+    filter: blur(2px);
+}
+
+.board__popup {
+    position: absolute;
+    bottom: 0;
+    margin: 0px 16px;
+    width: 100%;
+}
+
+.board__popup__item {
+    margin-bottom: 2rem;
+}
+
+.board__popup__item:first-child {
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #333;
+}
+
+.board__popup__item:last-child {
+    color: #FFF;
+    background-color: #000;
+    border: 1px solid #333;
 }

@@ -3,6 +3,7 @@ import { Link, RouteComponentProps } from "react-router-dom";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
 import "./game-won.css";
+import "../components/Button.css"
 
 interface ParamProps {
     id: string;
@@ -43,20 +44,20 @@ export default class GameWon extends Component<Props> {
         const playAgain = `/game/${this.state.difficulty}`;
         return (
             <div className="game-won">
-                <h1>GameWon Page!!!</h1>
+                <h1>
+                    You Won!
+                    <small className="game-won--caption">
+                        {this.state.difficulty}
+                    </small>
+                </h1>
                 <ul className="game-won__stats">
                     <li>moves: {this.state.moves}</li>
                     <li>time: {this.state.time}</li>
-                    <li>difficulty: {this.state.difficulty}</li>
                 </ul>
-                <ul className="game-won__options">
-                    <li className="game-won__options__item">
-                        <Link to={playAgain}>Play Again</Link>
-                    </li>
-                    <li className="game-won__options__item">
-                        <Link to="/">Main Menu</Link>
-                    </li>
-                </ul>
+                <div className="game-won__options">
+                    <Link className="game-won__options__item link-button" to={playAgain}>Play Again</Link>
+                    <Link className="game-won__options__item link-button" to="/">Main Menu</Link>
+                </div>
             </div>
         );
     }
