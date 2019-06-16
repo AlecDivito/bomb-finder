@@ -8,36 +8,25 @@ export default class Preferences extends IndexDbTable {
     public readonly preferences: string = "preferences";
     
     @Field()
-    public soundVolume: number;
+    public soundVolume: number = 0;
     
     @Field()
-    public musicVolume: number;
+    public musicVolume: number = 0;
 
     @Field()
-    public defaultCellSize: number;
+    public defaultCellSize: number = 35;
 
     @Field()
-    public gridGapSize: number;
+    public gridGapSize: number = 8.5;
 
     @Field()
-    public allowFlags: boolean;
+    public allowFlags: boolean = true;
     
     @Field()
-    public showMilliseconds: boolean;
+    public showMilliseconds: boolean = false;
 
     @Field()
-    public timestamp: Date;
-
-    constructor() {
-        super();
-        this.allowFlags = true;
-        this.soundVolume = 1;
-        this.musicVolume = 1;
-        this.defaultCellSize = 35;
-        this.gridGapSize = 8.5;
-        this.showMilliseconds = false;
-        this.timestamp = new Date();
-    }
+    public timestamp: Date = new Date();
 
     public async save() {
         this.timestamp = new Date();
@@ -50,6 +39,8 @@ export default class Preferences extends IndexDbTable {
         p.soundVolume = preferences.soundVolume;
         p.musicVolume = preferences.musicVolume;
         p.showMilliseconds = preferences.showMilliseconds;
+        p.defaultCellSize = preferences.defaultCellSize;
+        p.gridGapSize = preferences.gridGapSize;
         return p;
     }
 

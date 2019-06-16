@@ -130,16 +130,21 @@ export class IndexDbTable {
             if (!this.database) {
                 await this.connection();
             }
-            const request = this.database!
-                .transaction([this.constructor.name], "readonly")
-                .objectStore(this.constructor.name)
-                .get(id);
-            request.onerror = (event) => {
-                reject();
-            };
-            request.onsuccess = (event) => {
-                resolve(request.result);
-            };
+            if (!this.database!.objectStoreNames.contains(this.constructor.name)) {
+                resolve(undefined);
+            }
+            else {
+                const request = this.database!
+                    .transaction([this.constructor.name], "readonly")
+                    .objectStore(this.constructor.name)
+                    .get(id);
+                request.onerror = (event) => {
+                    reject();
+                };
+                request.onsuccess = (event) => {
+                    resolve(request.result);
+                };
+            }
         });
     }
 

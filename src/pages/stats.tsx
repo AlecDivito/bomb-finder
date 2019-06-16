@@ -1,16 +1,12 @@
 import React, { Component } from "react";
-import { Statistics } from "../models/Types";
-import Games from "../models/Games";
 import Loading from "../components/Loading";
+import Statistics from "../models/Statistics";
 
 interface State {
     loading: boolean;
     stats?: Statistics;
 }
 
-// TODO: Update the app to calculate the stats on the fly
-// What I mean by that is at the end of every game, re-compute all of
-// the statistics and
 // TODO: Add pretty graphs :)
 export default class Stats extends Component<{}, State> {
 
@@ -20,7 +16,7 @@ export default class Stats extends Component<{}, State> {
     };
 
     async componentDidMount() {
-        let stats = await Games.GetGameStatistics();
+        let stats = await Statistics.GetStats();
         this.setState({stats, loading: false});
     }
 
@@ -28,9 +24,18 @@ export default class Stats extends Component<{}, State> {
         if (this.state.loading) {
             return <Loading />
         }
+        else if (this.state.stats && this.state.stats!.gamesPlayed === 0) {
+            return <div style={{ margin: '0px 16px' }}>
+                <h1>Statistics!</h1>
+                <p>
+                    No Games Found! Play some games and come back too see how
+                    good you are!
+                </p>
+            </div>
+        }
         return (
             <div style={{ margin: '0px 16px' }}>
-                <h1>Stats!!!</h1>
+                <h1>Stats!</h1>
                 <ul>
                     <li>
                         Games Played: <strong>{this.state.stats!.gamesPlayed}</strong>
@@ -42,28 +47,28 @@ export default class Stats extends Component<{}, State> {
                         Losses: <strong>{this.state.stats!.losses}</strong>
                     </li>
                     <li>
-                        InComplete Games: <strong>{this.state.stats!.incomplete}</strong>
+                        InComplete Games: <strong>{this.state.stats!.inprogress}</strong>
                     </li>
                     <li>
-                        Average Number of Moves during losses: <strong>{this.state.stats!.averageNumberOfMovesLoss}</strong>
+                        Average Number of Moves during losses: <strong>{this.state.stats!.averagesMovesPerLoss}</strong>
                     </li>
                     <li>
-                        Average Number of Moves during win: <strong>{this.state.stats!.averageNumberOfMovesWin}</strong>
+                        Average Number of Moves during win: <strong>{this.state.stats!.averagesMovesPerWin}</strong>
                     </li>
                     <li>
-                        Average Number of Moves during total: <strong>{this.state.stats!.averageNumberOfMovesTotal}</strong>
+                        Average Number of Moves during total: <strong>{this.state.stats!.averageNumberOfMoves}</strong>
                     </li>
                     <li>
-                        Average time for losses: <strong>{this.state.stats!.averageTimeTakenLoss}</strong>
+                        Average time for losses: <strong>{this.state.stats!.averageTimePerLoss}</strong>
                     </li>
                     <li>
-                        Average time for win: <strong>{this.state.stats!.averageTimeTakenWin}</strong>
+                        Average time for win: <strong>{this.state.stats!.averageTimePerWin}</strong>
                     </li>
                     <li>
-                        Average time for total: <strong>{this.state.stats!.averageTimeTakenTotal}</strong>
+                        Average time for total: <strong>{this.state.stats!.averageTime}</strong>
                     </li>
                     <li>
-                        Average Number of Invisible Pieces during loss: <strong>{this.state.stats!.averageNumberOfInvisiblePieces}</strong>
+                        Average Number of Invisible Pieces during loss: <strong>{this.state.stats!.averageInvisiblePiecesPerLoss}</strong>
                     </li>
                 </ul>
             </div>

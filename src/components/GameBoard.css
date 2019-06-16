@@ -25,11 +25,15 @@
     filter: blur(2px);
 }
 
+/*
+    TODO: this is fixed right now, it should be a more re-seizable size
+ */
 .board__popup {
-    position: absolute;
-    bottom: 0;
+    position: fixed;
+    bottom: 60px;
     margin: 0px 16px;
-    width: 100%;
+    width: 100vw;
+    left: 0;
 }
 
 .board__popup__item {
