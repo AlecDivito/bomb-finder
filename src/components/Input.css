@@ -9,7 +9,7 @@
     box-shadow: insert 0 -.25em .5em lighten(#06f, 45%);
 }
 
-.form-input input:not([type="checkbox"]) {
+.form-input input:not([type="checkbox"]):not([type="range"]) {
     margin-top: 5px;
     padding: 6px 15px;
     border: 1px solid #FFF;

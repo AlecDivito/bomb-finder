@@ -5,7 +5,7 @@ interface Props {
     text: string;
     name: string;
     checked: boolean;
-    onChange: (event: React.FormEvent<HTMLInputElement>) => void
+    onChange: (event: React.FormEvent<HTMLInputElement>) => void;
 }
 
 /**
