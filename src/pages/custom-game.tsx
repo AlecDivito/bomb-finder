@@ -60,7 +60,7 @@ export default class CustomGameForm extends React.Component<{}, State> {
             return <Redirect to={`/game/${this.state.gameId}`} />
         }
         return (
-            <React.Fragment>
+            <div style={{ margin: '0px 16px' }}>
                 <h3>Create New Game</h3>
                 <form className="custom" onSubmit={this.handleSubmit}>
                     <div className="custom-inline">
@@ -91,7 +91,7 @@ export default class CustomGameForm extends React.Component<{}, State> {
                     <Button type="submit"
                         text="Start Game" />
                 </form>
-            </React.Fragment>
+            </div>
         );
     }
 }

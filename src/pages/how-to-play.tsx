@@ -4,7 +4,7 @@ export default class HowToPlay extends Component {
 
     public render() {
         return (
-            <React.Fragment>
+            <div style={{margin: '0px 16px'}}>
                 <h1>How to play</h1>
                 <p>
                     An unrevealed tile might have a black hole behind it, it
@@ -40,7 +40,7 @@ export default class HowToPlay extends Component {
                 <p>
                     Left click to flag aboutan invisible cell
                 </p>
-            </React.Fragment>
+            </div>
         );
     }
 }

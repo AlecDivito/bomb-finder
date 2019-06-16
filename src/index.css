@@ -39,11 +39,8 @@ ul {
 
 .page {
     grid-area: content;
-    /* margin: 0px 16px; */
-    /* the height and position is used to keep the element in its own position */
     position: absolute;
     height: 100%;
-    width: calc(100% - 32px);
-    padding: 0px 16px;
+    width: 100%;
     overflow: auto;
 }

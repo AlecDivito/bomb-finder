@@ -4,7 +4,7 @@ export default class About extends Component {
 
     public render() {
         return (
-            <React.Fragment>
+            <div style={{ margin: '0px 16px' }}>
                 <h1>About!!!</h1>
                 <p>
                     Hi I created this. I really liked what with google did with
@@ -33,7 +33,7 @@ export default class About extends Component {
                     Thanks for learning a bit about me, hope you have fun playing
                     the game I made.
                 </p>
-            </React.Fragment>
+            </div>
         );
     }
 }

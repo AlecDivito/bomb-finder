@@ -50,7 +50,7 @@ export default class Settings extends Component<Props, Preferences> {
             return <Loading />;
         }
         return (
-            <div>
+            <div style={{ margin: '0px 16px' }}>
                 <h1>Settings!!!</h1>
                 <form onSubmit={this.handleSubmit}>
                     <h3>User preferences</h3>

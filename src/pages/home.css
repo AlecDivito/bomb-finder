@@ -1,5 +1,6 @@
 .home {
     height: 100%;
+    margin: 0px 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -29,7 +29,7 @@ export default class Stats extends Component<{}, State> {
             return <Loading />
         }
         return (
-            <React.Fragment>
+            <div style={{ margin: '0px 16px' }}>
                 <h1>Stats!!!</h1>
                 <ul>
                     <li>
@@ -66,7 +66,7 @@ export default class Stats extends Component<{}, State> {
                         Average Number of Invisible Pieces during loss: <strong>{this.state.stats!.averageNumberOfInvisiblePieces}</strong>
                     </li>
                 </ul>
-            </React.Fragment>
+            </div>
         );
     }
 }
