@@ -96,26 +96,32 @@ export class IndexDbTable {
             if (!this.database) {
                 await this.connection();
             }
-            const request = this.database!
-                .transaction([this.constructor.name], "readonly")
-                .objectStore(this.constructor.name)
-                .openCursor();
-
-            request.onerror = (event) => {
-                reject();
-            };
-            request.onsuccess = (event: Event) => {
-                let cursor = (event.target as IDBRequest).result;
-                if (cursor) {
-                    if (filter && filter(cursor.value)) {
-                        data.push(cursor.value);
+            if (!this.database!.objectStoreNames.contains(this.constructor.name)) {
+                resolve(data);
+            }
+            else
+            {
+                const request = this.database!
+                    .transaction([this.constructor.name], "readonly")
+                    .objectStore(this.constructor.name)
+                    .openCursor();
+    
+                request.onerror = (event) => {
+                    reject(data);
+                };
+                request.onsuccess = (event: Event) => {
+                    let cursor = (event.target as IDBRequest).result;
+                    if (cursor) {
+                        if (filter && filter(cursor.value)) {
+                            data.push(cursor.value);
+                        }
+                        cursor.continue();
                     }
-                    cursor.continue();
-                }
-                if (!cursor) {
-                    resolve(data);
-                }
-            };
+                    if (!cursor) {
+                        resolve(data);
+                    }
+                };
+            }
         });
     }
 
