@@ -4,6 +4,7 @@ import CheckBox from "../components/CheckBox";
 import Slider from "../components/Slider";
 import Loading from "../components/Loading";
 import Button from "../components/Button";
+import Input from "../components/Input";
 
 interface Props {
 
@@ -53,6 +54,16 @@ export default class Settings extends Component<Props, Preferences> {
                 <h1>Settings!!!</h1>
                 <form onSubmit={this.handleSubmit}>
                     <h3>User preferences</h3>
+                    <Input type="number"
+                        text="Default Grid Cell Size"
+                        name="defaultCellSize"
+                        value={this.state.defaultCellSize}
+                        onChange={this.handleChange}/>
+                    <Input type="number"
+                        text="Default Grid Gap Size"
+                        name="gridGapSize"
+                        value={this.state.gridGapSize}
+                        onChange={this.handleChange} />
                     <Slider text="Sound Volume"
                         name="soundVolume"
                         value={this.state.soundVolume}

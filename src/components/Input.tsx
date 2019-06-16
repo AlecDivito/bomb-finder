@@ -8,6 +8,7 @@ interface State {
 interface Props {
     type: "text" | "number";
     name: string;
+    text?: string;
     value: string | number;
     onChange: (event: React.FormEvent<HTMLInputElement>) => void
 }
@@ -36,12 +37,13 @@ export default class Input extends React.Component<Props, State> {
     }
 
     render() {
-        const { type, name, value, onChange } = this.props;
+        const { type, name, text, value, onChange } = this.props;
         const { focus } = this.state;
+        const label = (text) ? text : name;
         const className = `form-input ${(focus) ? "focus" : ""}`;
         const validValue = (value) ? value : "";
         return <div className={className}>
-            <label htmlFor={name}>{name}</label>
+            <label htmlFor={name}>{label}</label>
             <input type={type}
                 id={name}
                 name={name}

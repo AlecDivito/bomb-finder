@@ -6,16 +6,22 @@ export default class Preferences extends IndexDbTable {
     
     @Field(true)
     public readonly preferences: string = "preferences";
-
-    @Field()
-    public allowFlags: boolean;
-
+    
     @Field()
     public soundVolume: number;
-
+    
     @Field()
     public musicVolume: number;
 
+    @Field()
+    public defaultCellSize: number;
+
+    @Field()
+    public gridGapSize: number;
+
+    @Field()
+    public allowFlags: boolean;
+    
     @Field()
     public showMilliseconds: boolean;
 
@@ -27,6 +33,8 @@ export default class Preferences extends IndexDbTable {
         this.allowFlags = true;
         this.soundVolume = 1;
         this.musicVolume = 1;
+        this.defaultCellSize = 35;
+        this.gridGapSize = 8.5;
         this.showMilliseconds = false;
         this.timestamp = new Date();
     }
@@ -47,14 +55,16 @@ export default class Preferences extends IndexDbTable {
 
     static async GetPreferences() {
         const p = new Preferences();
-        const newP = await p.getById(p.preferences);
+        const newP = await p.getById(p.preferences) as any;
         // not undefined
         if (newP) {
             return newP;
         }
-        // undefined
-        p.save();
-        return p;
+        else {
+            // undefined
+            p.save();
+            return p;
+        }
     }
 
 }
