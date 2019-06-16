@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import BombFinder from "../logic/BombFinder";
-import BombFinderRenderer from "../logic/BombFinderRenderer";
 import InputController from "../logic/InputController";
 import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
@@ -28,7 +27,6 @@ class GameBoard extends Component<Props, State> {
     private canvas?: HTMLCanvasElement;
     private context2D?: CanvasRenderingContext2D;
     private gameState?: BombFinder;
-    private renderer?: BombFinderRenderer;
     private input?: InputController;
 
     state: Readonly<State> = {
@@ -65,12 +63,12 @@ class GameBoard extends Component<Props, State> {
     public async createGame() {
         const games = await Games.GetGame(this.props.id);
         const preferences = await Preferences.GetPreferences();
+        const page = document.getElementById("page") as HTMLDivElement;
         if (games.result === "won") {
             this.props.onGameFinished(games.result);
             return;
         }
-        this.gameState = new BombFinder(games, preferences);
-        this.renderer = new BombFinderRenderer(this.gameState);
+        this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight);
         this.input = new InputController();
         this.setState({ ready: true });
 
@@ -111,8 +109,8 @@ class GameBoard extends Component<Props, State> {
             return <Loading />
         }
         const dimensions = {
-            height: this.renderer!.gameBoardHeight,
-            width: this.renderer!.gameBoardWidth,
+            height: this.gameState!.gameBoardHeight,
+            width: this.gameState!.gameBoardWidth,
         };
         return (
             <div className="board" id="board-container" style={dimensions}>
@@ -134,8 +132,8 @@ class GameBoard extends Component<Props, State> {
 
     private init() {
         if (this.state.ready) {
-            this.canvas!.width = this.renderer!.gameBoardWidth;
-            this.canvas!.height = this.renderer!.gameBoardHeight;
+            this.canvas!.width = this.gameState!.gameBoardWidth;
+            this.canvas!.height = this.gameState!.gameBoardHeight;
         }
     }
 
@@ -150,12 +148,12 @@ class GameBoard extends Component<Props, State> {
         
         if (events) {
             this.gameState!.handleEvents(events);
-            this.renderer!.draw(this.context2D!, delta);
+            this.gameState!.draw(this.context2D!, delta);
         }
         
         // Initial draw call before any events
         if (this.state.rafId === undefined || this.gameState!.isGameOver) {
-            this.renderer!.draw(this.context2D!, delta);
+            this.gameState!.draw(this.context2D!, delta);
         }
         
         this.input!.flush();

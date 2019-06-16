@@ -14,14 +14,48 @@ export default class BombFinder {
     private updateRemainingPiecesCount: boolean = false;
     private remainingPieces: number = 0;
 
+    private readonly height: number;
+    private readonly width: number;
+
+    private readonly offsetWidth: number;
+    private readonly offsetHeight: number;
+
     private get area(): number {
         return this.games.width * this.games.height;
     }
 
-    constructor(games: Games, settings: Preferences) {
+    constructor(games: Games, settings: Preferences, minWidth: number, minHeight: number) {
         this.games = games;
         this.settings = settings;
+
+        const calculatedWidth = this.calculateBoardSize(this.getWidth);
+        const calculatedHeight = this.calculateBoardSize(this.getHeight);
+
+        if (minWidth > calculatedWidth) {
+            this.width = minWidth;
+            this.offsetWidth = (this.width - calculatedWidth) / 2;;
+        } else {
+            this.width = calculatedWidth;
+            this.offsetWidth = 0;
+        }
+
+        if (minHeight > calculatedHeight) {
+            this.height = minHeight;
+            this.offsetHeight = (this.height - calculatedHeight) / 2;
+        } else {
+            this.height = calculatedHeight;
+            this.offsetHeight = 0;
+        }
+
         this.init();
+    }
+
+    public get gameBoardWidth() {
+        return this.width;
+    }
+
+    public get gameBoardHeight() {
+        return this.height;
     }
 
     public get isGameOver() {
@@ -90,21 +124,18 @@ export default class BombFinder {
             this.games.totalMoves++;
             this.games.save();
         }
-        if (this.games.result === "lost") {
+        if (this.games.result === "lost" || this.remainingPieces === 0) {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
             this.games.board = this.grid;
             this.games.isComplete = true;
-            this.games.result = "lost";
             this.games.finishedAt = new Date();
+        }
+        if (this.games.result === "lost") {
+            this.games.result = "lost";
             this.games.save();
         }
         else if (this.remainingPieces === 0) {
-            this.games.result = ("won");
-            this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
-            this.games.board = this.grid;
-            this.games.isComplete = true;
             this.games.result = "won";
-            this.games.finishedAt = new Date();
             this.games.save();
         }
     }
@@ -188,14 +219,15 @@ export default class BombFinder {
 
     private getIndexByPixel(point: Point2d): number | null {
         const cellSize = this.gaps + this.size;
-        const row = Math.floor(point.y / cellSize);
-        const col = Math.floor(point.x / cellSize);
+        const row = Math.floor((point.y - this.offsetHeight) / cellSize);
+        const col = Math.floor((point.x - this.offsetWidth) / cellSize);
 
         // check if pointer is inside square
-        const top = (row * cellSize) + this.gaps;
-        const left = (col * cellSize) + this.gaps;
+        const top =  this.offsetHeight + ((row * cellSize) + this.gaps);
+        const left = this.offsetWidth + ((col * cellSize) + this.gaps);
+        console.log(row, col, top, left);
 
-        if (InSquare({ top, left, size: this.size }, point)) {
+        if (InSquare({top, left, size: this.size }, point)) {
             return this.getIndex(row, col);
         }
         return null;
@@ -296,7 +328,46 @@ export default class BombFinder {
         return neighbors;
     }
 
+    public draw(ctx: CanvasRenderingContext2D, delta: number) {
+        this.drawBoard(ctx)
+    }
 
+    private drawBoard(ctx: CanvasRenderingContext2D) {
+        ctx.save();
+        this.getGrid.forEach((cell, index) => {
+            const row = Math.floor(index / this.getWidth);
+            const col = index % this.getWidth;
+
+            const x = this.offsetWidth + this.calculateBoardSize(col);
+            const y = this.offsetHeight + this.calculateBoardSize(row);
+
+            switch (cell.visibility) {
+                case Visibility.INVISIBLE:
+                    ctx.fillStyle = (cell.hover) ? "#0000FF" : "#FFFFFF";
+                    break;
+                case Visibility.MARKED:
+                    ctx.fillStyle = "#FF0000";
+                    break;
+                case Visibility.VISIBLE:
+                    ctx.fillStyle = "#CCCCCC";
+                    break;
+                default:
+                    break;
+            }
+            ctx.fillRect(x, y, this.size, this.size);
+            if (cell.visibility === Visibility.VISIBLE) {
+                ctx.fillStyle = "#000000";
+                ctx.font = "48px serif";
+                const offset = + (this.size / 2);
+                ctx.fillText(String(cell.value), x + offset - 15, y + offset + 15);
+            }
+        });
+        ctx.restore();
+    }
+
+    private calculateBoardSize(size: number) {
+        return (size * this.size) + ((size + 1) * this.gaps)
+    }
 
 }
 
