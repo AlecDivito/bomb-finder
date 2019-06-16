@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link, RouteComponentProps } from "react-router-dom";
 import Games from "../models/Games";
 import Loading from "../components/Loading";
+import "./game-won.css";
 
 interface ParamProps {
     id: string;
@@ -39,19 +40,20 @@ export default class GameWon extends Component<Props> {
         if (this.state.loading) {
             return <Loading />
         }
+        const playAgain = `/game/${this.state.difficulty}`;
         return (
-            <div>
+            <div className="game-won">
                 <h1>GameWon Page!!!</h1>
-                <ul>
+                <ul className="game-won__stats">
                     <li>moves: {this.state.moves}</li>
                     <li>time: {this.state.time}</li>
                     <li>difficulty: {this.state.difficulty}</li>
                 </ul>
-                <ul>
-                    {/* <li>
-                        <Link to="/game/easy">Play Again</Link>
-                    </li> */}
-                    <li>
+                <ul className="game-won__options">
+                    <li className="game-won__options__item">
+                        <Link to={playAgain}>Play Again</Link>
+                    </li>
+                    <li className="game-won__options__item">
                         <Link to="/">Main Menu</Link>
                     </li>
                 </ul>
