@@ -106,8 +106,12 @@ export default class BombFinder {
         return this.games.bombs;
     }
 
-    public async reset(newId: string) {
-        return await this.games.reset(newId);
+    public async reset(): Promise<string> {
+        const newGame = await this.games.reset(this.games);
+        if (newGame) {
+            return newGame.id;
+        }
+        throw new Error("Had a problem saving old Game");
     }
 
     public update(delta: number) {
@@ -126,7 +130,7 @@ export default class BombFinder {
             this.updateRemainingPiecesCount = false;
             this.games.invisiblePieces = this.getRemainingAvailablePiece;
             this.games.totalMoves++;
-            this.games.save();
+            Games.save(this.games);
         }
         if (this.games.result === "lost" || this.remainingPieces === 0) {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
@@ -136,11 +140,11 @@ export default class BombFinder {
         }
         if (this.games.result === "lost") {
             this.games.result = "lost";
-            this.games.save();
+            Games.save(this.games);
         }
         else if (this.remainingPieces === 0) {
             this.games.result = "won";
-            this.games.save();
+            Games.save(this.games);
         }
     }
 

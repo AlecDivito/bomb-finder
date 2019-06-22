@@ -28,7 +28,7 @@ export default class GameWon extends Component<Props> {
     }
 
     async componentDidMount() {
-        const game = await Games.GetGame(this.props.match.params.id);
+        const game = await Games.GetById(this.props.match.params.id);
         this.setState({
             loading: false,
             moves: game.totalMoves,

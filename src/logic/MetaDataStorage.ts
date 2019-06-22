@@ -310,7 +310,7 @@ export class Query {
         });
     }
 
-    static async getAll<T>(type: T): Promise<T[]> {
+    static async getAll<T>(type: T, filter?: (record: T) => boolean ): Promise<T[]> {
         const data: any = [];
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
@@ -332,9 +332,9 @@ export class Query {
                 request.onsuccess = (event: Event) => {
                     let cursor = (event.target as IDBRequest).result;
                     if (cursor) {
-                        // if (filter && filter(cursor.value)) {
+                        if (filter && filter(cursor.value)) {
                             data.push(cursor.value);
-                        // }
+                        }
                         cursor.continue();
                     }
                     if (!cursor) {
@@ -345,10 +345,27 @@ export class Query {
         });
     }
 
-    static async getById<T>(type: T): Promise<T> {
-        return new Promise((resolve, reject) => {
-            console.log(type.constructor.name);
-            resolve(type);
+    static async getById<T>(type: T, id: string | number): Promise<T> {
+        const query = Query.Instance();
+        return new Promise(async (resolve, reject) => {
+            if (!query.database) {
+                await query.connection(type.constructor.name);
+            }
+            if (!query.database!.objectStoreNames.contains(type.constructor.name)) {
+                resolve(undefined);
+            }
+            else {
+                const request = query.database!
+                    .transaction([type.constructor.name], "readonly")
+                    .objectStore(type.constructor.name)
+                    .get(id);
+                request.onerror = (event) => {
+                    reject();
+                };
+                request.onsuccess = (event) => {
+                    resolve(request.result);
+                };
+            }
         });
     }
 

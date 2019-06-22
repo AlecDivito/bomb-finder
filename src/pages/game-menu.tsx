@@ -1,11 +1,9 @@
 import React, { Component } from "react";
 import { Redirect, Link } from "react-router-dom";
-import { GameDifficulty } from "../models/GameTypes";
-import Games from "../models/Games";
+import Games, { IGames } from "../models/Games";
 import Loading from "../components/Loading";
 import Box from "../components/Box";
 import plus from "../assets/plus.svg";
-import RandInRange from "../util/Random";
 import uuid from "../util/uuid";
 import "./game-menu.css"
 import Statistics from "../models/Statistics";
@@ -16,7 +14,7 @@ interface State {
     gameId?: string;
     gameTemplates?: ICustomGameConfig[];
     gameLocation?: string;
-    unfinishedGames?: Games[];
+    unfinishedGames?: IGames[];
 }
 
 const configData: ICustomGameConfig[] = [
@@ -50,7 +48,6 @@ export default class GameMenu extends Component<{}, State> {
 
     async componentDidMount() {
         let gameTemplates = [...configData, ...await CustomGameConfig.getAll()];
-        console.log(gameTemplates);
         let unfinishedGames = await Games.GetUnfinishedGames();
         unfinishedGames = unfinishedGames.sort((a, b) => (a.invisiblePieces > b.invisiblePieces) ? 1 : -1);
         this.setState({ loading: false, unfinishedGames, gameTemplates });
@@ -76,12 +73,11 @@ export default class GameMenu extends Component<{}, State> {
     }
 
     prepareGame = async (prepared: ICustomGameConfig) => {
-        const gameId = uuid();
-        let game = new Games(gameId, prepared.name!,
+        let game = Games.Create(uuid(), prepared.name!,
             prepared.width, prepared.height, prepared.bombs);
-        await game.save();
+        await Games.save(game);
         await Statistics.AddGame();
-        this.setState({ gameId, gameLocation: `/game/${gameId}` });
+        this.setState({ gameId: game.id, gameLocation: `/game/${game.id}` });
     }
 
     public render() {
@@ -105,7 +101,7 @@ export default class GameMenu extends Component<{}, State> {
                             <p><small><strong>Height: </strong>{g.height}</small></p>
                         </Box>
                     )}
-                        <Box degree={RandInRange(0, 360)} className="menu__new__item"
+                        <Box degree={(gameTemplates!.length * 25) + 100} className="menu__new__item"
                             onClick={() => this.prepareDefaultGame("custom")}>
                     <Link to="/menu/custom">
                             <h2>Custom</h2>

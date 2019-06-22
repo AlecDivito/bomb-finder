@@ -65,9 +65,13 @@ export default class CustomGameForm extends React.Component<{}, State> {
         if (!name) {
             name = "custom";
         }
-        const game = new Games(uuid(), name, width, height, bombs);
-        await game.save();
-        this.setState({ gameId: game.id });
+        const game = Games.Create(uuid(), name, width, height, bombs);
+        const result = await Games.save(game);
+        if (result) {
+            this.setState({ gameId: game.id });
+        } else {
+            // TODO: Add error handling
+        }
     }
 
     render() {

@@ -28,10 +28,14 @@ export default class CustomGameConfig implements ICustomGameConfig {
     @Field()
     public bombs: number = 10;
 
+    @Field()
+    public createdAt: Date = new Date();
+
     public save: boolean = false;
 
     static async save(config: ICustomGameConfig) {
-        const save = Object.assign(new CustomGameConfig(), config, {id: uuid()});
+        const save = Object.assign(new CustomGameConfig(), config,
+            {id: uuid(), createdAt: new Date()});
         return await Query.save(save);
     }
 
@@ -39,8 +43,8 @@ export default class CustomGameConfig implements ICustomGameConfig {
         return await Query.getAll(new CustomGameConfig());
     }
 
-    static async getById() {
-        return await Query.getById(new CustomGameConfig());
+    static async getById(id: string) {
+        return await Query.getById(new CustomGameConfig(), id);
     }
     
     static validate(config: ICustomGameConfig) {

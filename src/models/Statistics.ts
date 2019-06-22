@@ -66,4 +66,17 @@ export default class Statistics extends IndexDbTable {
             return stats;
         }
     }
+
+    public static async AddGame() {
+        const s = await Statistics.GetStats();
+        s.inprogress++;
+        s.save();
+    }
+
+    public static async AddGameResults(result: "won" | "loss", moves: number, time: number) {
+        const s = await Statistics.GetStats();
+        s.inprogress--;
+        
+
+    }
 }

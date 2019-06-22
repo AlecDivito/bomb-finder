@@ -4,7 +4,6 @@ import InputController from "../logic/InputController";
 import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
 import Games from '../models/Games';
-import uuid from '../util/uuid';
 import './GameBoard.css';
 import Loading from './Loading';
 import Preferences from '../models/Preferences';
@@ -62,7 +61,7 @@ class GameBoard extends Component<Props, State> {
     }
 
     public async createGame() {
-        const games = await Games.GetGame(this.props.id);
+        const games = await Games.GetById(this.props.id);
         const preferences = await Preferences.GetPreferences();
         const page = document.getElementById("page") as HTMLDivElement;
         if (games.result === "won") {
@@ -95,9 +94,12 @@ class GameBoard extends Component<Props, State> {
 
     public tryAgain = async () => {
         if (this.state.ready && !this.state.newGameId) {
-            const newGameId = uuid();
-            await this.gameState!.reset(newGameId);
-            this.setState({ newGameId });
+            try {
+                const newGameId = await this.gameState!.reset();
+                this.setState({ newGameId });
+            } catch (e) {
+                // TODO: implement Error handling
+            }
         }
     }
 
