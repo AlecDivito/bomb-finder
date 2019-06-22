@@ -5,7 +5,6 @@ import CheckBox from "../components/CheckBox";
 import Button from "../components/Button";
 import { Redirect } from "react-router";
 import Games from "../models/Games";
-import uuid from "../util/uuid";
 import CustomGameConfig, { ICustomGameConfig } from "../models/CustomGameConfig";
 import Loading from "../components/Loading";
 import { FormError } from "../models/Types";
@@ -65,13 +64,9 @@ export default class CustomGameForm extends React.Component<{}, State> {
         if (!name) {
             name = "custom";
         }
-        const game = Games.Create(uuid(), name, width, height, bombs);
-        const result = await Games.save(game);
-        if (result) {
-            this.setState({ gameId: game.id });
-        } else {
-            // TODO: Add error handling
-        }
+        // TODO: Add error handling (add in Games first)
+        const game = await Games.Create(name, width, height, bombs);
+        this.setState({ gameId: game.id });
     }
 
     render() {

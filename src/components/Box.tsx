@@ -2,7 +2,7 @@ import React from 'react';
 import "./Box.css";
 
 interface Props {
-    onClick: () => void;
+    onClick?: () => void;
     className: string;
     degree: number;
 }
@@ -17,6 +17,12 @@ const Box: React.FC<Props> = ({onClick, degree, className, children}) => {
             hsl(${clampedDegree}, 51.3%, 46.7%) 0%,
             hsl(${clampedMax}, 96%, 62.9%) 100%)`
     };
+    if (!onClick) {
+        return <div style={style}
+            className={classes}>
+            {children}
+        </div>
+    }
     return <div onClick={onClick}
         style={style}
         className={classes}>

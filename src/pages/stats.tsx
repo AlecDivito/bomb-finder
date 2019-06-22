@@ -24,7 +24,7 @@ export default class Stats extends Component<{}, State> {
         if (this.state.loading) {
             return <Loading />
         }
-        else if (this.state.stats && this.state.stats!.gamesPlayed === 0) {
+        if (this.state.stats && this.state.stats!.gamesPlayed === 0) {
             return <div style={{ margin: '0px 16px' }}>
                 <h1>Statistics!</h1>
                 <p>
@@ -67,9 +67,9 @@ export default class Stats extends Component<{}, State> {
                     <li>
                         Average time for total: <strong>{this.state.stats!.averageTime}</strong>
                     </li>
-                    <li>
+                    {/* <li>
                         Average Number of Invisible Pieces during loss: <strong>{this.state.stats!.averageInvisiblePiecesPerLoss}</strong>
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         );

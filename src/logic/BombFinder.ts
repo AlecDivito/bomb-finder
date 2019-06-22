@@ -130,7 +130,7 @@ export default class BombFinder {
             this.updateRemainingPiecesCount = false;
             this.games.invisiblePieces = this.getRemainingAvailablePiece;
             this.games.totalMoves++;
-            Games.save(this.games);
+            this.games.update();
         }
         if (this.games.result === "lost" || this.remainingPieces === 0) {
             this.grid.forEach((cell) => cell.visibility = Visibility.VISIBLE);
@@ -140,11 +140,11 @@ export default class BombFinder {
         }
         if (this.games.result === "lost") {
             this.games.result = "lost";
-            Games.save(this.games);
+            this.games.update();
         }
         else if (this.remainingPieces === 0) {
             this.games.result = "won";
-            Games.save(this.games);
+            this.games.update();
         }
     }
 

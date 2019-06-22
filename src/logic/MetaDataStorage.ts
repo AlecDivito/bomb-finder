@@ -31,7 +31,9 @@ export class MetaDataStorage {
         const fields = this.tableQueue
             .filter(item => item.table === table)
             .map(item => item.field);
-        const primaryKey = this.tableQueue.filter(item => item.primaryKey)[0].field;
+        const primaryKey = this.tableQueue
+            .filter(item => item.primaryKey)
+            .filter(item => item.table === table)[0].field;
         const record = { table, fields, primaryKey };
         this.storage.push(record);
     }
@@ -369,6 +371,31 @@ export class Query {
         });
     }
 
+    static async remove<T>(type: T) {
+        const query = Query.Instance();
+        return new Promise(async (resolve, reject) => {
+            if (!query.database) {
+                await query.connection(type.constructor.name);
+            }
+            const key = MetaDataStorage.getInstance().getPrimaryKey(type.constructor.name);
+            if (!key) {
+                reject(false);
+                return;
+            }
+            const id: string = (type as any)[key];
+            const request = query.database!
+                .transaction([type.constructor.name], "readwrite")
+                .objectStore(type.constructor.name)
+                .delete(id);
+            request.onerror = (event) => {
+                reject(false);
+            };
+            request.onsuccess = (event) => {
+                resolve(true);
+            };
+        })
+    }
+
     private async connection(tableName: string, version?: number) {
         const request = await window.indexedDB.open(window.location.hostname, version);
         return new Promise((resolve, reject) => {
@@ -382,7 +409,6 @@ export class Query {
                 const database: IDBDatabase = event.target.result;
                 // create an object store for this database
                 const tableMetaData = MetaDataStorage.getInstance().getMetaData(tableName);
-                MetaDataStorage.getInstance();
                 if (tableMetaData === undefined) {
                     throw new Error("No table found");
                 }
@@ -401,6 +427,7 @@ export class Query {
                         unique: false
                     });
                 }
+                console.log(objectStore);
                 // currently assuming everything went hunky dory
                 // if this exits successfully, trigger onsuccess callback
             }

@@ -4,10 +4,8 @@ import Games, { IGames } from "../models/Games";
 import Loading from "../components/Loading";
 import Box from "../components/Box";
 import plus from "../assets/plus.svg";
-import uuid from "../util/uuid";
-import "./game-menu.css"
-import Statistics from "../models/Statistics";
 import CustomGameConfig, { ICustomGameConfig } from "../models/CustomGameConfig";
+import "./game-menu.css"
 
 interface State {
     loading: boolean;
@@ -53,12 +51,6 @@ export default class GameMenu extends Component<{}, State> {
         this.setState({ loading: false, unfinishedGames, gameTemplates });
     }
 
-    prepareDefaultGame = async (prepare: ICustomGameConfig | string) => {
-        if (typeof(prepare) === "object") {
-            this.prepareGame(prepare);
-        }
-    }
-
     loadOldGame = async (id: string) => {
         if (!this.state.unfinishedGames) {
             // TODO: log message that games aren't ready yet
@@ -73,10 +65,8 @@ export default class GameMenu extends Component<{}, State> {
     }
 
     prepareGame = async (prepared: ICustomGameConfig) => {
-        let game = Games.Create(uuid(), prepared.name!,
-            prepared.width, prepared.height, prepared.bombs);
-        await Games.save(game);
-        await Statistics.AddGame();
+        // TODO: Add error handling (add in Games first)
+        let game = await Games.Create(prepared.name!, prepared.width, prepared.height, prepared.bombs);
         this.setState({ gameId: game.id, gameLocation: `/game/${game.id}` });
     }
 
@@ -94,19 +84,18 @@ export default class GameMenu extends Component<{}, State> {
                 <div className="menu__new">
                     {gameTemplates!.map((g, i) => 
                         <Box key={g.name} degree={(i * 25) + 100} className="menu__new__item"
-                            onClick={() => this.prepareDefaultGame(g)}>
+                            onClick={() => this.prepareGame(g)}>
                             <h2 className="menu--title">{g.name}</h2>
                             <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
                             <p><small><strong>Width: </strong>{g.width}</small></p>
                             <p><small><strong>Height: </strong>{g.height}</small></p>
                         </Box>
                     )}
-                        <Box degree={(gameTemplates!.length * 25) + 100} className="menu__new__item"
-                            onClick={() => this.prepareDefaultGame("custom")}>
-                    <Link to="/menu/custom">
-                            <h2>Custom</h2>
-                            <img src={plus} alt="Add custom game" />
-                    </Link>
+                        <Box degree={(gameTemplates!.length * 25) + 100} className="menu__new__item">
+                            <Link to="/menu/custom">
+                                    <h2>Custom</h2>
+                                    <img src={plus} alt="Add custom game" />
+                            </Link>
                         </Box>
                 </div>
                 {

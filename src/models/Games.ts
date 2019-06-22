@@ -2,6 +2,7 @@ import { Table, Field, Query } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 import uuid from '../util/uuid';
+import Statistics from './Statistics';
 
 export interface IGames {
     id: string;
@@ -53,23 +54,6 @@ export default class Games implements IGames {
 
     private constructor() { }
 
-    public static Create(
-        id: string,
-        difficulty: GameDifficulty,
-        width: number,
-        height: number,
-        bombs: number,
-    ) {
-        const game = new Games();
-        game.id = id;
-        game.difficulty = difficulty;
-        game.width = width;
-        game.height = height;
-        game.bombs = bombs;
-        game.invisiblePieces = game.totalPieces;
-        return game;
-    }
-
     public get totalPieces() {
         return (this.width * this.height) - this.bombs;
     }
@@ -90,18 +74,50 @@ export default class Games implements IGames {
      * @param newId id of the new game
      */
     public async reset(oldGame: Games): Promise<Games | undefined> {
-        const oldGameSaved = await Games.save(oldGame);
+        const oldGameSaved = await oldGame.update();
         if (oldGameSaved) {
-            const newGame = Games.Create(uuid(), oldGame.difficulty, oldGame.width, oldGame.height, oldGame.bombs);
-            await Games.save(newGame);
+            // TODO: Add error handling (need to add in games first (down there))
+            const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
+                oldGame.height, oldGame.bombs);
             return newGame;
         }
         return undefined;
     }
 
-    static async save(game: Games): Promise<boolean> {
-        return await Query.save(game);
+    public async update(): Promise<boolean> {
+        return await Query.save(this);
     }
+
+    public async logAndDestroy() {
+        await Statistics.AddGameResults(this);
+        await Query.remove(this);
+    }
+
+    static async Create(
+        difficulty: GameDifficulty,
+        width: number,
+        height: number,
+        bombs: number,
+    ) {
+        const game = new Games();
+        game.id = uuid();
+        game.difficulty = difficulty;
+        game.width = width;
+        game.height = height;
+        game.bombs = bombs;
+        game.invisiblePieces = game.totalPieces;
+        const result = await Query.save(game);
+        const stats = await Statistics.AddGame();
+        if (result) {
+            if (stats) {
+                console.warn("Couldn't save stats");
+            }
+            return game;
+        }
+        // TODO: Add Error handling
+        // this is temporary
+        return game;
+    } 
 
     static async DoesGameExists(id: string): Promise<boolean> {
         try {
