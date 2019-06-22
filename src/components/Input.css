@@ -61,3 +61,9 @@ input[type="checkbox"] {
 .form-input.data label {
     color: #999;
 }
+
+.form-input .error {
+    color: red;
+    font-size: 14px;
+    padding-left: 1rem;
+}

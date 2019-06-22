@@ -9,8 +9,10 @@ interface Props {
     type: "text" | "number";
     name: string;
     text?: string;
-    value: string | number;
+    value?: string | number;
+    error?: string;
     onChange: (event: React.FormEvent<HTMLInputElement>) => void
+    onBlur?: () => void;
 }
 
 /**
@@ -33,11 +35,14 @@ export default class Input extends React.Component<Props, State> {
     blur = () => {
         if (!this.props.value) {
             this.setState({ focus: false });
-        } 
+        }
+        if (this.props.onBlur) {
+            this.props.onBlur();
+        }
     }
 
     render() {
-        const { type, name, text, value, onChange } = this.props;
+        const { type, name, text, value, error, onChange } = this.props;
         const { focus } = this.state;
         const label = (text) ? text : name;
         const className = `form-input ${(focus) ? "focus" : ""}`;
@@ -51,7 +56,13 @@ export default class Input extends React.Component<Props, State> {
                 onChange={onChange}
                 onFocus={this.focus}
                 onBlur={this.blur}
+                autoComplete="off"
                 required/>
+            {
+                (error)
+                ? <span className="error">{error}</span>
+                : null
+            }
         </div>
     }
 }
