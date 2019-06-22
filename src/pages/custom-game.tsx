@@ -6,25 +6,25 @@ import Button from "../components/Button";
 import { Redirect } from "react-router";
 import Games from "../models/Games";
 import uuid from "../util/uuid";
+import CustomGameConfig, { ICustomGameConfig } from "../models/CustomGameConfig";
+import Loading from "../components/Loading";
+import { FormError } from "../models/Types";
+import { isObjectEmpty } from "../util/isObjectEmpty";
 
-type State = {
-    width: number;
-    height: number;
-    bombs: number;
+interface State extends ICustomGameConfig {
     save: boolean;
-    name: string;
     gameId?: string;
+    errors: FormError<ICustomGameConfig>;
 }
 
 export default class CustomGameForm extends React.Component<{}, State> {
 
-    state = {
-        width: 8,
-        height: 8,
-        bombs: 10,
-        save: false,
-        name: "",
-        gameId: undefined,
+    componentDidMount() {
+        const c = Object.assign({},
+            new CustomGameConfig(),
+            {gameId: undefined, errors: {}}
+        );
+        this.setState({...c});
     }
 
     handleChange = (event: any) => {
@@ -42,20 +42,38 @@ export default class CustomGameForm extends React.Component<{}, State> {
         const name = target.name;
 
         this.setState({
-            [name]: value
-        } as Pick<State, keyof State>);
+            [name]: value,
+        } as Pick<State, keyof State>, this.validate);
+    }
+
+    validate = () => {
+        const errors = CustomGameConfig.validate(this.state);
+        this.setState({errors});
     }
 
     handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        // TODO: Save Game Template
-        const { width, height, bombs } = this.state;
-        const game = new Games(uuid(), "custom", width, height, bombs);
+        const errors = CustomGameConfig.validate(this.state);
+        if (!isObjectEmpty(errors)) {
+            this.setState({errors});
+            return;
+        }
+        if (this.state.save) {
+            await CustomGameConfig.save(this.state);
+        }
+        let { width, height, bombs, name } = this.state;
+        if (!name) {
+            name = "custom";
+        }
+        const game = new Games(uuid(), name, width, height, bombs);
         await game.save();
         this.setState({ gameId: game.id });
     }
 
     render() {
+        if (!this.state) {
+            return <Loading />;
+        }
         if (this.state.gameId) {
             return <Redirect to={`/game/${this.state.gameId}`} />
         }
@@ -66,16 +84,22 @@ export default class CustomGameForm extends React.Component<{}, State> {
                     <div className="custom-inline">
                         <Input type="number"
                             name="width"
+                            error={this.state.errors.width}
                             value={this.state.width}
+                            onBlur={this.validate}
                             onChange={this.handleChange} />
                         <Input type="number"
                             name="height"
+                            error={this.state.errors.height}
                             value={this.state.height}
+                            onBlur={this.validate}
                             onChange={this.handleChange} />
                     </div>
                     <Input type="number"
                         name="bombs"
+                        error={this.state.errors.bombs}
                         value={this.state.bombs}
+                        onBlur={this.validate}
                         onChange={this.handleChange} />
                     <CheckBox text="Save Game Configuration"
                         name="save"
@@ -85,10 +109,13 @@ export default class CustomGameForm extends React.Component<{}, State> {
                         ? null
                         : <Input type="text"
                             name="name"
+                            error={this.state.errors.name}
                             value={this.state.name}
+                            onBlur={this.validate}
                             onChange={this.handleChange} />
                     }
                     <Button type="submit"
+                        disabled={!isObjectEmpty(this.state.errors)}
                         text="Start Game" />
                 </form>
             </div>

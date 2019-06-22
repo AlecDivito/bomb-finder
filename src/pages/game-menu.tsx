@@ -8,36 +8,32 @@ import plus from "../assets/plus.svg";
 import RandInRange from "../util/Random";
 import uuid from "../util/uuid";
 import "./game-menu.css"
+import Statistics from "../models/Statistics";
+import CustomGameConfig, { ICustomGameConfig } from "../models/CustomGameConfig";
 
 interface State {
     loading: boolean;
     gameId?: string;
+    gameTemplates?: ICustomGameConfig[];
     gameLocation?: string;
     unfinishedGames?: Games[];
 }
 
-type PrepareGame = {
-    difficulty: GameDifficulty,
-    width: number,
-    height: number,
-    bombs: number,
-}
-
-const configData: PrepareGame[] = [
+const configData: ICustomGameConfig[] = [
     {
-        difficulty: "easy",
+        name: "easy",
         width: 8,
         height: 8,
         bombs: 10,
     },
     {
-        difficulty: "medium",
+        name: "medium",
         width: 16,
         height: 16,
         bombs: 40,
     },
     {
-        difficulty: "hard",
+        name: "hard",
         width: 24,
         height: 24,
         bombs: 99,
@@ -53,12 +49,14 @@ export default class GameMenu extends Component<{}, State> {
     };
 
     async componentDidMount() {
+        let gameTemplates = [...configData, ...await CustomGameConfig.getAll()];
+        console.log(gameTemplates);
         let unfinishedGames = await Games.GetUnfinishedGames();
         unfinishedGames = unfinishedGames.sort((a, b) => (a.invisiblePieces > b.invisiblePieces) ? 1 : -1);
-        this.setState({ loading: false, unfinishedGames });
+        this.setState({ loading: false, unfinishedGames, gameTemplates });
     }
 
-    prepareDefaultGame = async (prepare: PrepareGame | string) => {
+    prepareDefaultGame = async (prepare: ICustomGameConfig | string) => {
         if (typeof(prepare) === "object") {
             this.prepareGame(prepare);
         }
@@ -77,16 +75,12 @@ export default class GameMenu extends Component<{}, State> {
         this.setState({ gameId: id, gameLocation: `/game/${id}` });
     }
 
-    createCustomGame = async  (data: { width: number, height: number, bombs: number}) => {
-        const prepare: PrepareGame = { ...{difficulty: "custom" }, ...data };
-        this.prepareGame(prepare);
-    }
-
-    prepareGame = async (prepared: PrepareGame) => {
+    prepareGame = async (prepared: ICustomGameConfig) => {
         const gameId = uuid();
-        let game = new Games(gameId, prepared.difficulty,
+        let game = new Games(gameId, prepared.name!,
             prepared.width, prepared.height, prepared.bombs);
         await game.save();
+        await Statistics.AddGame();
         this.setState({ gameId, gameLocation: `/game/${gameId}` });
     }
 
@@ -94,15 +88,18 @@ export default class GameMenu extends Component<{}, State> {
         if (this.state && this.state.gameId && this.state.gameLocation) {
             return <Redirect to={this.state.gameLocation} />
         }
-        const { loading, unfinishedGames } = this.state;
+        const { loading, unfinishedGames, gameTemplates } = this.state;
+        if (loading) {
+            return <Loading />
+        }
         return (
             <div className="menu">
                 <h3>New Game</h3>
                 <div className="menu__new">
-                    {configData.map(g => 
-                        <Box key={g.difficulty} degree={g.bombs + 170} className="menu__new__item"
+                    {gameTemplates!.map((g, i) => 
+                        <Box key={g.name} degree={(i * 25) + 100} className="menu__new__item"
                             onClick={() => this.prepareDefaultGame(g)}>
-                            <h2 className="menu--title">{g.difficulty}</h2>
+                            <h2 className="menu--title">{g.name}</h2>
                             <p><small><strong>Bombs: </strong>{g.bombs}</small></p>
                             <p><small><strong>Width: </strong>{g.width}</small></p>
                             <p><small><strong>Height: </strong>{g.height}</small></p>
@@ -116,9 +113,6 @@ export default class GameMenu extends Component<{}, State> {
                     </Link>
                         </Box>
                 </div>
-                {
-                    (loading) ? <Loading /> : null
-                }
                 {
                     (unfinishedGames && unfinishedGames.length !== 0)
                     ? <React.Fragment>

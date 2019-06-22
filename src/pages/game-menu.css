@@ -8,6 +8,7 @@
 .menu--title {
     text-transform: capitalize;
     text-align: center;
+    font-size: 1.2rem;
 }
 
 /**

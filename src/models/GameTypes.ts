@@ -8,7 +8,7 @@ export enum GameStatus {
     GAME_PLAY,
 }
 
-export type GameDifficulty = "easy" | "medium" | "hard" | "custom";
+export type GameDifficulty = "easy" | "medium" | "hard" | string;
 
 export type GameProgress = "created" | "inprogress" | "lost" | "won";
 
