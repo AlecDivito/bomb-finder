@@ -153,12 +153,12 @@ class GameBoard extends Component<Props, State> {
         }
         const elapsedTime = delta - this.state.lastFrame;
         const events = this.input!.pollEvents(this.state.inputId!);
-        this.gameState!.update(elapsedTime);
         
         if (events) {
             this.gameState!.handleEvents(events);
             this.gameState!.draw(this.context2D!, delta);
         }
+        this.gameState!.update(elapsedTime);
         
         // Initial draw call before any events
         if (this.state.rafId === undefined || this.gameState!.isGameOver) {

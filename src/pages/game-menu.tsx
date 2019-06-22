@@ -45,8 +45,9 @@ export default class GameMenu extends Component<{}, State> {
     };
 
     async componentDidMount() {
-        let gameTemplates = [...configData, ...await CustomGameConfig.getAll()];
+        let customGameTemplates = await CustomGameConfig.getAll();
         let unfinishedGames = await Games.GetUnfinishedGames();
+        let gameTemplates = [...configData, ...customGameTemplates];
         unfinishedGames = unfinishedGames.sort((a, b) => (a.invisiblePieces > b.invisiblePieces) ? 1 : -1);
         this.setState({ loading: false, unfinishedGames, gameTemplates });
     }
@@ -93,8 +94,8 @@ export default class GameMenu extends Component<{}, State> {
                     )}
                         <Box degree={(gameTemplates!.length * 25) + 100} className="menu__new__item">
                             <Link to="/menu/custom">
-                                    <h2>Custom</h2>
-                                    <img src={plus} alt="Add custom game" />
+                                <h2>Custom</h2>
+                                <img src={plus} alt="Add custom game" />
                             </Link>
                         </Box>
                 </div>

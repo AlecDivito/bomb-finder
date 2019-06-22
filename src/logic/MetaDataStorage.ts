@@ -334,7 +334,7 @@ export class Query {
                 request.onsuccess = (event: Event) => {
                     let cursor = (event.target as IDBRequest).result;
                     if (cursor) {
-                        if (filter && filter(cursor.value)) {
+                        if (!filter || (filter && filter(cursor.value))) {
                             data.push(cursor.value);
                         }
                         cursor.continue();

@@ -108,11 +108,12 @@ export default class Statistics implements IStatistics {
             s.averageTimePerWin = Statistics.ComputeAvg(s.wins, s.averageTimePerWin, game.time);
 
             // best times per game type
-            if (!s.bestTime[game.difficulty]) { // best time doesn't exist for difficulty
-                s.bestTime[game.difficulty] = game.time;
+            const gameDiffKey = game.difficulty.replace(' ', '_');
+            if (!s.bestTime[gameDiffKey]) { // best time doesn't exist for difficulty
+                s.bestTime[gameDiffKey] = game.time;
             } else {
-                const best = s.bestTime[game.difficulty];
-                s.bestTime[game.difficulty] = (best < game.time) ? game.time : best;
+                const best = s.bestTime[gameDiffKey];
+                s.bestTime[gameDiffKey] = (best < game.time) ? game.time : best;
             }
         }
         // losses

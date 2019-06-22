@@ -90,7 +90,10 @@ export default class Games implements IGames {
 
     public async logAndDestroy() {
         await Statistics.AddGameResults(this);
-        await Query.remove(this);
+        await Query.save(this);
+        // TODO: Research weather removing the project
+        //       is worth it
+        // await Query.remove(this);
     }
 
     static async Create(
