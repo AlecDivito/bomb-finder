@@ -1,7 +1,7 @@
 import { Cell, CellState, CellValue, Visibility } from "../models/GameBoardTypes";
 import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
-import { Point2d } from "../models/GameTypes";
+import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
 import Preferences from "../models/Preferences";
 
@@ -13,6 +13,8 @@ export default class BombFinder {
     private grid: Cell[] = [];
     private updateRemainingPiecesCount: boolean = false;
     private remainingPieces: number = 0;
+
+    private inputMode: InputMode = InputMode.TOGGLE;
 
     private readonly height: number;
     private readonly width: number;
@@ -106,6 +108,10 @@ export default class BombFinder {
         return this.games.bombs;
     }
 
+    public setMarkInput(markFlag: boolean) {
+        this.inputMode = (markFlag) ? InputMode.MARK : InputMode.TOGGLE;
+    }
+
     public async reset(): Promise<string> {
         const newGame = await this.games.reset(this.games);
         if (newGame) {
@@ -172,7 +178,7 @@ export default class BombFinder {
             this.games.result = "inprogress";
             const index = this.getIndexByPixel(events.pos);
             if (index !== null && index < this.grid.length) {
-                if (events.leftClick && this.grid[index].visibility === Visibility.INVISIBLE) {
+                if (this.inputMode === InputMode.TOGGLE && events.leftClick && this.grid[index].visibility === Visibility.INVISIBLE) {
                     this.grid[index].visibility = Visibility.VISIBLE;
                     if (this.grid[index].value === null || this.grid[index].value === undefined) {
                         this.games.result = "lost";
@@ -183,10 +189,11 @@ export default class BombFinder {
                         }
                         this.updateRemainingPiecesCount = true;
                     }
-                } else if (events.rightClick && this.grid[index].visibility !== Visibility.MARKED) {
-                    this.grid[index].visibility = Visibility.MARKED;
-                } else if (events.rightClick && this.grid[index].visibility === Visibility.MARKED) {
-                    this.grid[index].visibility = Visibility.INVISIBLE;
+                } else if (events.rightClick || (events.leftClick && this.inputMode === InputMode.MARK)) {
+                    const visibility = this.grid[index].visibility;
+                    this.grid[index].visibility = (visibility === Visibility.MARKED)
+                        ? Visibility.INVISIBLE
+                        : Visibility.MARKED;
                 }
             }
         }
@@ -341,7 +348,21 @@ export default class BombFinder {
     }
 
     public draw(ctx: CanvasRenderingContext2D, delta: number) {
+        this.drawBackground(ctx);
         this.drawBoard(ctx)
+    }
+
+    private drawBackground(ctx: CanvasRenderingContext2D) {
+        if (this.inputMode === InputMode.TOGGLE) {
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, 0, this.width, this.height);
+            return;
+        }
+        const gradient = ctx.createLinearGradient(this.width, this.height, 0, 0);
+        gradient.addColorStop(0, 'blue');
+        gradient.addColorStop(1, '#333');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, this.width, this.height);
     }
 
     private drawBoard(ctx: CanvasRenderingContext2D) {

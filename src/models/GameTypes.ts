@@ -1,3 +1,8 @@
+export enum InputMode {
+    TOGGLE,
+    MARK,
+}
+
 export interface Point2d {
     x: number;
     y: number;
