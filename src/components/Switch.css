@@ -1,0 +1,45 @@
+.switch {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.switch__input {
+    display: none;
+}
+
+.switch__input:not(:checked) + .switch__box .switch__marker {
+    left: -10%;
+}
+
+.switch__input:checked + .switch__box .switch__marker {
+    left: 105%;
+    margin-left: -50%;
+    background-color: rgb(33, 150, 243);
+}
+
+.switch__input:checked + .switch__box {
+    background-color: rgb(33, 150, 243);
+    border-color: rgb(33, 150, 243);
+}
+
+.switch__box {
+    width: 3rem;
+    height: 1rem;
+    border-radius: 1.55rem;
+    border: 1px solid #FFFFFF;
+    position: relative;
+    transition: opacity .4s ease-out;
+}
+
+.switch__marker {
+    width: 2rem;
+    height: 2rem;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all .5s ease-out;
+}
+
