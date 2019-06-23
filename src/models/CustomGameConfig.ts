@@ -9,6 +9,7 @@ export interface ICustomGameConfig {
     bombs: number;
     name?: string;
     save?: boolean;
+    createdAt?: Date;
 }
 
 const EASY_ID = "00000000-0000-0000-0000-000000000001";
@@ -73,7 +74,6 @@ export default class CustomGameConfig implements ICustomGameConfig {
 
     static async getAll(): Promise<ICustomGameConfig[]> {
         let templates = await Query.getAll(new CustomGameConfig());
-        console.log(templates);
         // check if the default objects exist
         // if they don't, add them to the store and templates array
         const defaultTemplates = templates
@@ -128,12 +128,8 @@ export default class CustomGameConfig implements ICustomGameConfig {
     private static async addDefaultTemplateGames() {
         const templates = DEFAULT_TEMPLATES.map(temp => 
             Object.assign(new CustomGameConfig(), temp));
-            console.log(templates);
         for (let i = 0; i < templates.length; i++) {
-            const result = await Query.save(templates[i]);
-            if (!result) {
-                console.log('uh oh');
-            }
+            await Query.save(templates[i]);
         }
         // TODO: Add error handling
         return templates;
