@@ -8,6 +8,8 @@ import './GameBoard.css';
 import Loading from './Loading';
 import Preferences from '../models/Preferences';
 import Button from './Button';
+import GameHeader from './Gameheader';
+import GameFooter from './GameFooter';
 
 interface Props {
     id: string;
@@ -68,7 +70,7 @@ class GameBoard extends Component<Props, State> {
             this.props.onGameFinished(games.result);
             return;
         }
-        this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight);
+        this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight - 120);
         this.input = new InputController();
         this.setState({ ready: true });
 
@@ -90,6 +92,11 @@ class GameBoard extends Component<Props, State> {
         if (this.state.rafId) {
             window.cancelAnimationFrame(this.state.rafId!);
         }
+    }
+
+    public changeInputMode = (markFlag: boolean) => {
+        this.gameState!.setMarkInput(markFlag);
+        this.gameState!.draw(this.context2D!, 0);
     }
 
     public tryAgain = async () => {
@@ -118,10 +125,9 @@ class GameBoard extends Component<Props, State> {
         const canvasClass = `board__canvas ${this.gameState!.gameState}`
         return (
             <div className="board" id="board-container" style={dimensions}>
-                {/* <div>
-                    <div>Time: {this.gameState!.getTime}</div>
-                    <div>Pieces: {this.gameState!.getRemainingAvailablePiece}/{this.gameState!.getTotalAvailablePieces}</div>
-                </div> */}
+                <GameHeader time={this.gameState!.getTime}
+                    left={this.gameState!.getRemainingAvailablePiece}
+                    pieces={this.gameState!.getTotalAvailablePieces}/>
                 <canvas className={canvasClass} id="board" />
                 {(this.gameState!.isGameOver)
                     ? <div className="board__popup">
@@ -135,6 +141,7 @@ class GameBoard extends Component<Props, State> {
                     </div>
                     : null
                 }
+                <GameFooter flagToggle={this.changeInputMode} />
             </div>
         );
     }
