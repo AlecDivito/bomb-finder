@@ -294,6 +294,7 @@ export class Query {
                 await query.refreshDatabase(obj.constructor.name);
                 metaData = MetaDataStorage.getInstance().getMetaData(obj.constructor.name);
             }
+            
             const save: any = {};
             Object.keys(obj)
                 .filter(key => metaData!.fields.includes(key))

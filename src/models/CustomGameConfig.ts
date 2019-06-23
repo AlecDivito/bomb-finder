@@ -3,12 +3,41 @@ import uuid from "../util/uuid";
 import { FormError } from "./Types";
 
 export interface ICustomGameConfig {
+    id?: string;
     width: number;
     height: number;
     bombs: number;
     name?: string;
     save?: boolean;
 }
+
+const EASY_ID = "00000000-0000-0000-0000-000000000001";
+const MEDIUM_ID = "00000000-0000-0000-0000-000000000002";
+const HARD_ID = "00000000-0000-0000-0000-000000000003";
+
+const DEFAULT_TEMPLATES: ICustomGameConfig[] = [
+    {
+        id: EASY_ID,
+        name: "easy",
+        width: 8,
+        height: 8,
+        bombs: 10,
+    },
+    {
+        id: MEDIUM_ID,
+        name: "medium",
+        width: 16,
+        height: 16,
+        bombs: 40,
+    },
+    {
+        id: HARD_ID,
+        name: "hard",
+        width: 24,
+        height: 24,
+        bombs: 99,
+    }
+];
 
 @Table()
 export default class CustomGameConfig implements ICustomGameConfig {
@@ -29,6 +58,9 @@ export default class CustomGameConfig implements ICustomGameConfig {
     public bombs: number = 10;
 
     @Field()
+    public isDeleted: boolean = false;
+
+    @Field()
     public createdAt: Date = new Date();
 
     public save: boolean = false;
@@ -40,7 +72,21 @@ export default class CustomGameConfig implements ICustomGameConfig {
     }
 
     static async getAll(): Promise<ICustomGameConfig[]> {
-        return await Query.getAll(new CustomGameConfig());
+        let templates = await Query.getAll(new CustomGameConfig());
+        console.log(templates);
+        // check if the default objects exist
+        // if they don't, add them to the store and templates array
+        const defaultTemplates = templates
+            .filter(t => /^[0]{8}-[0]{4}-[0]{4}-[0]{4}-[0]{11}[1-3]$/.test(t.id));
+        if (defaultTemplates.length === 0) { // there is no default templates inside the tempaltes
+            const savedDefaultTemplates = await this.addDefaultTemplateGames();
+            templates = savedDefaultTemplates;
+        }
+        else {
+            // if they do, filter the templates out IF they are deleted
+            templates = templates.filter(item => !item.isDeleted)
+        }
+        return templates;
     }
 
     static async getById(id: string) {
@@ -77,6 +123,20 @@ export default class CustomGameConfig implements ICustomGameConfig {
             }
         });
         return errors;
+    }
+
+    private static async addDefaultTemplateGames() {
+        const templates = DEFAULT_TEMPLATES.map(temp => 
+            Object.assign(new CustomGameConfig(), temp));
+            console.log(templates);
+        for (let i = 0; i < templates.length; i++) {
+            const result = await Query.save(templates[i]);
+            if (!result) {
+                console.log('uh oh');
+            }
+        }
+        // TODO: Add error handling
+        return templates;
     }
 }
 

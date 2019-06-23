@@ -6,6 +6,7 @@ import Box from "../components/Box";
 import plus from "../assets/plus.svg";
 import CustomGameConfig, { ICustomGameConfig } from "../models/CustomGameConfig";
 import "./game-menu.css"
+import Button from "../components/Button";
 
 interface State {
     loading: boolean;
@@ -14,27 +15,6 @@ interface State {
     gameLocation?: string;
     unfinishedGames?: IGames[];
 }
-
-const configData: ICustomGameConfig[] = [
-    {
-        name: "easy",
-        width: 8,
-        height: 8,
-        bombs: 10,
-    },
-    {
-        name: "medium",
-        width: 16,
-        height: 16,
-        bombs: 40,
-    },
-    {
-        name: "hard",
-        width: 24,
-        height: 24,
-        bombs: 99,
-    }
-];
 
 // TODO: Add data to "Pieces Left" in Continue Playing section
 //       It should look like "Pieces Left: 16/54"
@@ -45,9 +25,8 @@ export default class GameMenu extends Component<{}, State> {
     };
 
     async componentDidMount() {
-        let customGameTemplates = await CustomGameConfig.getAll();
+        let gameTemplates = await CustomGameConfig.getAll();
         let unfinishedGames = await Games.GetUnfinishedGames();
-        let gameTemplates = [...configData, ...customGameTemplates];
         unfinishedGames = unfinishedGames.sort((a, b) => (a.invisiblePieces > b.invisiblePieces) ? 1 : -1);
         this.setState({ loading: false, unfinishedGames, gameTemplates });
     }
@@ -81,7 +60,10 @@ export default class GameMenu extends Component<{}, State> {
         }
         return (
             <div className="menu">
-                <h3>New Game</h3>
+                <h3 className="menu__header">
+                    <span>New Game</span>
+                    <Link to="/menu/manage" className="menu__header--link">Manage Templates</Link>
+                </h3>
                 <div className="menu__new">
                     {gameTemplates!.map((g, i) => 
                         <Box key={g.name} degree={(i * 25) + 100} className="menu__new__item"

@@ -2,6 +2,19 @@
     margin: 0px 16px;
 }
 
+.menu__header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.menu__header--link {
+    font-size: 12px;
+    border: 1px solid #FFF;
+    border-radius: 5px;
+    padding: 8px;
+}
+
 /**
  * Shared
  */
@@ -36,7 +49,7 @@
 }
 
 .menu__new__item:last-child {
-    min-height: 191px;
+    min-height: 200px;
 }
 
 .menu__new__item:nth-child(odd) {

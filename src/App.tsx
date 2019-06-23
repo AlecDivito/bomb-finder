@@ -14,6 +14,7 @@ const Settings = lazy( () => import('./pages/settings'));
 const Game = lazy( () => import('./pages/game'));
 const GameWon = lazy( () => import('./pages/game-won'));
 const Stats = lazy( () => import('./pages/stats'));
+const ManageGameTemplates = lazy( () => import('./pages/manage-templates'));
 
 
 
@@ -40,6 +41,7 @@ const App: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                         <Route exact path="/" component={Home} />
                         <Route path="/about" component={About} />
                         <Route path="/menu/custom" component={CustomGameForm} />
+                        <Route path="/menu/manage" component={ManageGameTemplates} />
                         <Route path="/menu" component={GameMenu} />
                         <Route path="/how-to-play" component={HowToPlay} />
                         <Route path="/settings" component={Settings} />
