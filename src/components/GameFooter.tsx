@@ -11,7 +11,7 @@ interface Props {
 
 const GameFooter: React.FC<Props> = (props: Props) => {
     return (
-        <footer className="footer">
+        <footer className="footer footer--game">
             <Link to="/how-to-play">
                 <img src={info} alt="Info" />
             </Link>

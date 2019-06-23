@@ -105,6 +105,7 @@ class GameBoard extends Component<Props, State> {
                 const newGameId = await this.gameState!.reset();
                 this.setState({ newGameId });
             } catch (e) {
+                console.warn("erorr " + e);
                 // TODO: implement Error handling
             }
         }
@@ -122,25 +123,29 @@ class GameBoard extends Component<Props, State> {
             height: this.gameState!.gameBoardHeight,
             width: this.gameState!.gameBoardWidth,
         };
-        const canvasClass = `board__canvas ${this.gameState!.gameState}`
         return (
-            <div className="board" id="board-container" style={dimensions}>
+            <div className="board">
                 <GameHeader time={this.gameState!.getTime}
                     left={this.gameState!.getRemainingAvailablePiece}
                     pieces={this.gameState!.getTotalAvailablePieces}/>
-                <canvas className={canvasClass} id="board" />
-                {(this.gameState!.isGameOver)
-                    ? <div className="board__popup">
-                        <Button className="board__popup__item"
-                            type="button"
-                            text="Try Again"
-                            onClick={this.tryAgain} />
-                        <Link className="board__popup__item link-button" to="/">
-                            Main Menu
-                        </Link>
-                    </div>
-                    : null
-                }
+                <div className="board__canvas" id="board-container">
+                    <canvas id="board"
+                        className={this.gameState!.gameState}
+                        width={dimensions.width}
+                        height={dimensions.height} />
+                    {(this.gameState!.isGameOver)
+                        ? <div className="board__popup">
+                            <Button className="board__popup__item"
+                                type="button"
+                                text="Try Again"
+                                onClick={this.tryAgain} />
+                            <Link className="board__popup__item link-button" to="/">
+                                Main Menu
+                            </Link>
+                        </div>
+                        : null
+                    }
+                </div>
                 <GameFooter flagToggle={this.changeInputMode} />
             </div>
         );

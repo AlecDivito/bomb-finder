@@ -7,6 +7,14 @@
     padding: 1rem;
 }
 
+.footer--game {
+    width: 100vw;
+    box-sizing: border-box;
+    /* position: fixed; */
+    background-color: #333;
+    bottom: 0;
+}
+
 .footer__text {
     display: flex;
 }

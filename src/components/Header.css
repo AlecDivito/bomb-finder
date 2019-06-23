@@ -8,6 +8,12 @@
     padding: 1rem;
 }
 
+.header--game {
+    width: 100vw;
+    box-sizing: border-box;
+    /* position: fixed; */
+}
+
 .header--hidden {
     height: 0;
     grid-area: header;

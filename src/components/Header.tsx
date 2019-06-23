@@ -11,7 +11,7 @@ const Header: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
     }
     return (
         <header className="header">
-            <div className="header__link" 
+            <div className="header__link"
                 onClick={() => props.history.goBack()}>
                 <img src={back} alt="Back" />
             </div>

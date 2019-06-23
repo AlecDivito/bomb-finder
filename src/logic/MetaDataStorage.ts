@@ -305,10 +305,10 @@ export class Query {
                 .objectStore(obj.constructor.name)
                 .put(save);
             request.onerror = (event) => {
-                reject();
+                reject(false);
             };
             request.onsuccess = (event) => {
-                resolve();
+                resolve(true);
             };
         });
     }

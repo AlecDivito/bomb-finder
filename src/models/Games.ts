@@ -75,6 +75,7 @@ export default class Games implements IGames {
      */
     public async reset(oldGame: Games): Promise<Games | undefined> {
         const oldGameSaved = await oldGame.update();
+        console.log(oldGameSaved);
         if (oldGameSaved) {
             // TODO: Add error handling (need to add in games first (down there))
             const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
@@ -84,8 +85,8 @@ export default class Games implements IGames {
         return undefined;
     }
 
-    public async update(): Promise<boolean> {
-        return await Query.save(this);
+    public update(): Promise<boolean> {
+        return Query.save(this);
     }
 
     public async logAndDestroy() {

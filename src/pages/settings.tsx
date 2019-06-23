@@ -77,7 +77,6 @@ export default class Settings extends Component<Props, Preferences> {
         if (!this.state) {
             return <Loading />;
         }
-        console.log(this.state);
         const dimensions = (this.state.defaultCellSize + this.state.gridGapSize) * 2;
         requestAnimationFrame(this.draw);
         return (
