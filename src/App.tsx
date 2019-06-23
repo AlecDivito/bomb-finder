@@ -5,6 +5,7 @@ import Loading from './components/Loading';
 import Home from './pages/home';
 import Footer from './components/Footer';
 import Header from './components/Header';
+import isUuid from './util/isUuid';
 const CustomGameForm = lazy( () => import('./pages/custom-game'));
 const About = lazy( () => import('./pages/about'));
 const GameMenu = lazy( () => import('./pages/game-menu'));
@@ -17,14 +18,22 @@ const Stats = lazy( () => import('./pages/stats'));
 
 
 const App: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+    const pathArray = props.location.pathname.split("/");
+    let hideDefaultNavigation = true;
     if (props.location.pathname === "/") {
         document.getElementById("root")!.style.gridTemplateRows = "0px 1fr 60px";
+    } else if (pathArray.length === 3 && pathArray[1] === "game" && isUuid(pathArray[2])) {
+        console.log(pathArray[2]);
+        hideDefaultNavigation = false;
+        document.getElementById("root")!.style.gridTemplateRows = "0px 1fr 0px";
     } else {
         document.getElementById("root")!.style.gridTemplateRows = "60px 1fr 60px";
     }
     return (
         <React.Fragment>
-            <Header />
+            {
+                (hideDefaultNavigation) ? <Header /> : null
+            }
             <div id="page" className="page">
                 <Suspense fallback={<Loading />}>
                     <Switch>
@@ -43,7 +52,9 @@ const App: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                     </Switch>
                 </Suspense>
             </div>
-            <Footer />
+            {
+                (hideDefaultNavigation) ? <Footer /> : null
+            }
         </React.Fragment>
     );
 }

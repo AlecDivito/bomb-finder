@@ -18,6 +18,15 @@
     height: 24px;
 }
 
+.header__detail {
+    display: flex;
+    align-items: center;
+}
+
+.header__detail > *:first-child {
+    margin-right: 4px;
+}
+
 .header > h3 {
     margin: 0;
 }

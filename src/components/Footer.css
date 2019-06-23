@@ -6,3 +6,12 @@
     align-items: center;
     padding: 1rem;
 }
+
+.footer__text {
+    display: flex;
+}
+
+.footer__text > span {
+    padding: 0px 1rem;
+}
+
