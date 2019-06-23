@@ -12,10 +12,15 @@ interface Props {
 
 export default class Settings extends Component<Props, Preferences> {
 
+    private canvas?: HTMLCanvasElement;
+    private ctx?: CanvasRenderingContext2D;
+
     async componentDidMount() {
         const preferences = await Preferences.GetPreferences();
         this.setState(preferences);
-        console.log(this.state);
+        this.canvas = document.getElementById('preview') as HTMLCanvasElement;
+        this.ctx = this.canvas.getContext('2d')!;
+        requestAnimationFrame(this.draw);
     }
 
     handleChange = (event: any) => {
@@ -26,10 +31,11 @@ export default class Settings extends Component<Props, Preferences> {
         }
         else {
             value = parseInt(target.value, 10);
+            if (isNaN(value)) {
+                value = 0;
+            }
         }
         const name = target.name;
-
-        console.log({[name]:value});
 
         this.setState({
             [name]: value
@@ -41,17 +47,42 @@ export default class Settings extends Component<Props, Preferences> {
         this.setState({
             timestamp: new Date()
         });
-        console.log(this.state);
         Preferences.CreatePreferences(this.state).save();
+    }
+
+    draw = () => {
+        let size: number, gap: number;
+        if (this.state.defaultCellSize && this.state.defaultCellSize < 8) {
+            size = 8;
+        } else {
+            size = this.state.defaultCellSize;
+        }
+        if (this.state.gridGapSize && this.state.gridGapSize < 1) {
+            gap = 1;
+        } else {
+            gap = this.state.gridGapSize;
+        }
+        this.ctx!.save();
+        [0, 0, 1, 1].forEach((c, i) => {
+            const index = (i % 2);
+            const x = (index * size) + (gap * index);
+            const y = (c * size) + (gap * c);
+            this.ctx!.fillRect(x, y, size, size);
+            this.ctx!.fillStyle = "#FFFFFF";
+        });
+        this.ctx!.restore();
     }
 
     public render() {
         if (!this.state) {
             return <Loading />;
         }
+        console.log(this.state);
+        const dimensions = (this.state.defaultCellSize + this.state.gridGapSize) * 2;
+        requestAnimationFrame(this.draw);
         return (
             <div style={{ margin: '0px 16px' }}>
-                <h1>Settings!!!</h1>
+                <h1>Settings</h1>
                 <form onSubmit={this.handleSubmit}>
                     <h3>User preferences</h3>
                     <Input type="number"
@@ -64,6 +95,10 @@ export default class Settings extends Component<Props, Preferences> {
                         name="gridGapSize"
                         value={this.state.gridGapSize}
                         onChange={this.handleChange} />
+                    <h3>Grid Preview</h3>
+                    <div className="form-input center overflow-x">
+                        <canvas id="preview" width={dimensions} height={dimensions}/>
+                    </div>
                     <Slider text="Sound Volume"
                         name="soundVolume"
                         value={this.state.soundVolume}
