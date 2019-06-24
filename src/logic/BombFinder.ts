@@ -4,21 +4,26 @@ import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
 import { IPreferences } from "../models/Preferences";
+import AnimationTimer from "./Animation";
 
 export default class BombFinder {
 
+    // template data
     private games: Games;
     private settings: IPreferences;
 
+    // game play
     private grid: Cell[] = [];
     private updateRemainingPiecesCount: boolean = false;
     private remainingPieces: number = 0;
-
     private inputMode: InputMode = InputMode.TOGGLE;
 
+    // animations
+    private backgroundAnimation: AnimationTimer;
+
+    // canvas data
     private readonly height: number;
     private readonly width: number;
-
     private readonly offsetWidth: number;
     private readonly offsetHeight: number;
 
@@ -48,6 +53,8 @@ export default class BombFinder {
             this.height = calculatedHeight;
             this.offsetHeight = 0;
         }
+        this.backgroundAnimation = new AnimationTimer(0, (delta) => delta * 10, (t, d) => t > d);            
+        this.setMarkInput();
 
         this.init();
     }
@@ -84,8 +91,17 @@ export default class BombFinder {
         return Math.floor(this.games.time);
     }
 
-    public setMarkInput(markFlag: boolean) {
+    public setMarkInput(markFlag: boolean = false) {
         this.inputMode = (markFlag) ? InputMode.MARK : InputMode.TOGGLE;
+        if (this.inputMode === InputMode.MARK) {
+            this.backgroundAnimation.setTarget(this.height);
+            this.backgroundAnimation.setCallback((d) => d * 10);
+            this.backgroundAnimation.setIsComplete((t, d) => t > d);
+        } else if (this.inputMode === InputMode.TOGGLE) {
+            this.backgroundAnimation.setTarget(0);
+            this.backgroundAnimation.setCallback((d) => -d * 10);
+            this.backgroundAnimation.setIsComplete((t, d) => t < d);
+        }
     }
 
     public async reset(): Promise<string> {
@@ -97,6 +113,7 @@ export default class BombFinder {
     }
 
     public update(delta: number) {
+        this.backgroundAnimation.update(delta);
         if (this.games.gameHasStarted) {
             const calcDelta = delta / 1000;
             this.games.time += calcDelta;
@@ -165,13 +182,13 @@ export default class BombFinder {
                     this.toggleCell(index);
                 }
                 this.setCellVisibility(index);
-                this.updateRemainingPiecesCount = true;
             } else if (events.rightClick || (events.leftClick && this.inputMode === InputMode.MARK)) {
                 cell.visibility = (cell.visibility === Visibility.MARKED)
-                    ? Visibility.INVISIBLE
-                    : Visibility.MARKED;
+                ? Visibility.INVISIBLE
+                : Visibility.MARKED;
                 this.markCell(index);
             }
+            this.updateRemainingPiecesCount = true;
         }
         if (this.games.result === "lost") {
             this.grid.forEach((cell) => {
@@ -349,41 +366,33 @@ export default class BombFinder {
                 neighbors.push(tempIndex);
             }
         }
+        
         return neighbors;
-    
-        // const neighbors = [];
-        // for (let i = -1; i < 2; i++) {
-        //     neighbors.push((index - (this.games.width + i)));
-        // }
-        // for (let i = -1; i < 0; i += 2) {
-        //     neighbors.push((index + i));
-        // }
-        // for (let i = -1; i < 2; i++) {
-        //     neighbors.push((index + (this.games.width + i)));
-        // }
-        // console.log(neighbors);
-        // console.log(neighbors.filter((index) => index >= 0 && index < this.area));
-        // return neighbors.filter((index) => index >= 0 && index < this.area);
-
-
     }
 
-    public draw(ctx: CanvasRenderingContext2D, delta: number) {
+    public draw(ctx: CanvasRenderingContext2D) {
         this.drawBackground(ctx);
         this.drawBoard(ctx)
     }
 
     private drawBackground(ctx: CanvasRenderingContext2D) {
+        ctx.save();
         if (this.inputMode === InputMode.TOGGLE) {
-            ctx.fillStyle = "#333";
-            ctx.fillRect(0, 0, this.width, this.height);
-            return;
+            const gradient = ctx.createLinearGradient(this.width / 2, this.height, this.width / 2, 0);
+            gradient.addColorStop(0, '#333');
+            gradient.addColorStop(1, 'red');
+            ctx.fillStyle = gradient;
+            const height = this.height - this.backgroundAnimation.getValue();
+            ctx.fillRect(0, 0, this.width, height);
+        } else {
+            const gradient = ctx.createLinearGradient(this.width / 2, this.height, this.width / 2, 0);
+            gradient.addColorStop(0, '#333');
+            gradient.addColorStop(1, 'blue');
+            ctx.fillStyle = gradient;
+            const y = this.height - this.backgroundAnimation.getValue();
+            ctx.fillRect(0, y, this.width, this.backgroundAnimation.getValue());
         }
-        const gradient = ctx.createLinearGradient(this.width, this.height, 0, 0);
-        gradient.addColorStop(0, 'blue');
-        gradient.addColorStop(1, '#333');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.restore();
     }
 
     private drawBoard(ctx: CanvasRenderingContext2D) {

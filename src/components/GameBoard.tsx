@@ -99,7 +99,7 @@ class GameBoard extends Component<Props, State> {
 
     public changeInputMode = (markFlag: boolean) => {
         this.gameState!.setMarkInput(markFlag);
-        this.gameState!.draw(this.context2D!, 0);
+        this.gameState!.draw(this.context2D!);
     }
 
     public tryAgain = async () => {
@@ -164,13 +164,13 @@ class GameBoard extends Component<Props, State> {
         
         if (events) {
             this.gameState!.handleEvents(events);
-            this.gameState!.draw(this.context2D!, delta);
         }
         this.gameState!.update(elapsedTime);
+        this.gameState!.draw(this.context2D!);
         
         // Initial draw call before any events
         if (this.state.rafId === undefined || this.gameState!.isGameOver) {
-            this.gameState!.draw(this.context2D!, delta);
+            this.gameState!.draw(this.context2D!);
         }
         
         this.input!.flush();
