@@ -26,7 +26,6 @@
     transition: .25s filter ease-in;
     grid-area: content;
     position: absolute;
-    overflow: scroll;
 }
 
 .board__canvas.lost {
