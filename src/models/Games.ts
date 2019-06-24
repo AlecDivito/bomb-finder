@@ -75,7 +75,6 @@ export default class Games implements IGames {
      */
     public async reset(oldGame: Games): Promise<Games | undefined> {
         const oldGameSaved = await oldGame.update();
-        console.log(oldGameSaved);
         if (oldGameSaved) {
             // TODO: Add error handling (need to add in games first (down there))
             const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
@@ -112,14 +111,14 @@ export default class Games implements IGames {
         game.invisiblePieces = game.totalPieces;
         const result = await Query.save(game);
         const stats = await Statistics.AddGame();
-        if (result) {
-            if (stats) {
-                console.warn("Couldn't save stats");
-            }
-            return game;
+        if (!result) {
+            // TODO: Add Error handling
+            // this is temporary
+            console.warn("Couldn't save new game");
         }
-        // TODO: Add Error handling
-        // this is temporary
+        if (!stats) {
+            console.warn("Couldn't save stats");
+        }
         return game;
     } 
 
@@ -138,7 +137,8 @@ export default class Games implements IGames {
             // TODO: better error message
             throw new Error("Game does not exist, This shouldn't be called");
         }
-        return Object.assign(new Games(), result);
+        const newGame = Object.assign(new Games(), result);
+        return newGame;
     }
 
     static async GetUnfinishedGames(): Promise<IGames[]> {

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Preferences from "../models/Preferences";
+import Preferences, { IPreferences } from "../models/Preferences";
 import CheckBox from "../components/CheckBox";
 import Slider from "../components/Slider";
 import Loading from "../components/Loading";
@@ -10,7 +10,7 @@ interface Props {
 
 }
 
-export default class Settings extends Component<Props, Preferences> {
+export default class Settings extends Component<Props, IPreferences> {
 
     private canvas?: HTMLCanvasElement;
     private ctx?: CanvasRenderingContext2D;
@@ -47,7 +47,7 @@ export default class Settings extends Component<Props, Preferences> {
         this.setState({
             timestamp: new Date()
         });
-        Preferences.CreatePreferences(this.state).save();
+        Preferences.Save(this.state);
     }
 
     draw = () => {

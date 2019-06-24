@@ -3,12 +3,12 @@ import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
-import Preferences from "../models/Preferences";
+import { IPreferences } from "../models/Preferences";
 
 export default class BombFinder {
 
     private games: Games;
-    private settings: Preferences;
+    private settings: IPreferences;
 
     private grid: Cell[] = [];
     private updateRemainingPiecesCount: boolean = false;
@@ -26,7 +26,7 @@ export default class BombFinder {
         return this.games.width * this.games.height;
     }
 
-    constructor(games: Games, settings: Preferences, minWidth: number, minHeight: number) {
+    constructor(games: Games, settings: IPreferences, minWidth: number, minHeight: number) {
         this.games = games;
         this.settings = settings;
 
@@ -114,6 +114,7 @@ export default class BombFinder {
 
     public async reset(): Promise<string> {
         const newGame = await this.games.reset(this.games);
+        console.log(newGame);
         if (newGame) {
             return newGame.id;
         }

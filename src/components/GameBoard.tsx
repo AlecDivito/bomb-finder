@@ -73,16 +73,19 @@ class GameBoard extends Component<Props, State> {
         this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight - 120);
         this.input = new InputController();
         this.setState({ ready: true });
+        this.canvas = document.getElementById("board") as HTMLCanvasElement;
+        const container = document.getElementById("board-container") as HTMLDivElement;
+        this.context2D = this.canvas.getContext("2d")!;
+
+        const inputId = this.input.start(this.canvas!, ["mousemove", "mousedown",
+            "contextmenu", "touchstart", "touchmove", "touchend"]);
 
         // TODO: Add error handling
-        this.canvas = document.getElementById("board") as HTMLCanvasElement;
-        this.context2D = this.canvas.getContext("2d")!;
-        this.setState({
-            inputId: this.input.start(this.canvas!, ["mousemove", "mousedown",
-                "contextmenu", "touchstart", "touchmove", "touchend"])
-        });
-        this.init();
-        this.draw(0);
+        this.canvas!.width = this.gameState!.gameBoardWidth;
+        this.canvas!.height = this.gameState!.gameBoardHeight;
+        container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
+        this.setState({ ready: true, inputId: inputId });
+        requestAnimationFrame(this.draw);
     }
 
     public destroyGame() {
@@ -151,13 +154,6 @@ class GameBoard extends Component<Props, State> {
         );
     }
 
-    private init() {
-        if (this.state.ready) {
-            this.canvas!.width = this.gameState!.gameBoardWidth;
-            this.canvas!.height = this.gameState!.gameBoardHeight;
-        }
-    }
-
     private draw = (delta: number) => {
         if (!this.state.ready) {
             // TODO: do we need this ready check for the game?????
@@ -181,7 +177,7 @@ class GameBoard extends Component<Props, State> {
         
         
         if (this.gameState!.isGameOver) {
-            window.cancelAnimationFrame(this.state.rafId!);
+            cancelAnimationFrame(this.state.rafId!);
             this.setState({ lastFrame: delta });
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
@@ -190,7 +186,7 @@ class GameBoard extends Component<Props, State> {
         }
 
         this.setState({
-            rafId: window.requestAnimationFrame(this.draw),
+            rafId: requestAnimationFrame(this.draw),
             lastFrame: delta
         });
     }

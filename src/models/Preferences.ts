@@ -1,8 +1,17 @@
-import { Table, IndexDbTable, Field } from "../logic/MetaDataStorage";
+import { Table, Field, Query } from "../logic/MetaDataStorage";
 
+export interface IPreferences {
+    soundVolume: number;
+    musicVolume: number;
+    defaultCellSize: number;
+    gridGapSize: number;
+    allowFlags: boolean;
+    showMilliseconds: boolean;
+    timestamp: Date;
+}
 
 @Table()
-export default class Preferences extends IndexDbTable {
+export default class Preferences implements IPreferences {
     
     @Field(true)
     public readonly preferences: string = "preferences";
@@ -28,34 +37,22 @@ export default class Preferences extends IndexDbTable {
     @Field()
     public timestamp: Date = new Date();
 
-    public async save() {
-        this.timestamp = new Date();
-        return await super.save();
-    }
-
-    static CreatePreferences(preferences: Readonly<Preferences>) {
-        const p = new Preferences();
-        p.allowFlags = preferences.allowFlags;
-        p.soundVolume = preferences.soundVolume;
-        p.musicVolume = preferences.musicVolume;
-        p.showMilliseconds = preferences.showMilliseconds;
-        p.defaultCellSize = preferences.defaultCellSize;
-        p.gridGapSize = preferences.gridGapSize;
-        return p;
-    }
-
-    static async GetPreferences(): Promise<Preferences> {
-        const p = new Preferences();
-        const newP = await p.getById(p.preferences) as any;
-        // not undefined
-        if (newP) {
-            return newP;
+    static async GetPreferences(): Promise<IPreferences> {
+        const preferences = new Preferences();
+        const cachedSettings: IPreferences = await Query.getById(preferences, preferences.preferences);
+        // not defined
+        if (cachedSettings) {
+            return cachedSettings;
         }
         else {
-            // undefined
-            p.save();
-            return p;
+            return preferences;
         }
+    }
+
+    static async Save(preferences: IPreferences) {
+        preferences.timestamp = new Date();
+        Object.assign(new Preferences(), preferences);
+        return await Query.save(preferences);
     }
 
 }
