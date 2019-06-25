@@ -4,44 +4,43 @@ type AnimationComplete = (timer: number, target: number) => boolean;
 
 export default class AnimationTimer {
 
-    private isPaused: boolean = false;
     private timer = 0;
     private target: number;
-    private callback: AnimationCallback;
-    private isComplete: AnimationComplete;
+    private step: number;
+    private loop: boolean;
 
-    constructor(target: number, callback: AnimationCallback, isComplete: AnimationComplete) {
-        this.target = target;
-        this.callback = callback;
-        this.isComplete = isComplete;
+    constructor(target: number, step: number, loop: boolean = false) {
         this.timer = 0;
+        this.target = target;
+        this.step = step;
+        this.loop = loop;
     }
 
     update(delta: number) {
-        if (!this.isComplete(this.timer, this.target)) {
-            this.timer += this.callback(delta);
+        if (!this.isComplete()) {
+            this.timer += this.step;
         } else {
-            this.timer = this.target;
+            if (this.loop) {
+                this.timer = this.timer % this.target;
+            } else {
+                this.timer = this.target;
+            }
         }
-    }
-
-    public setTarget(target: number) {
-        this.target = target;
-    }
-
-    public setIsComplete(isComplete: AnimationComplete) {
-        this.isComplete = isComplete;
-    }
-
-    public setCallback(callback: AnimationCallback) {
-        this.callback = callback;
     }
 
     public getValue() {
         return this.timer;
     }
 
-    public getTarget() {
-        return this.target;
+    public setTarget(target: number) {
+        this.target = target;
+    }
+
+    public setStep(step: number) {
+        this.step = step;
+    }
+
+    public isComplete() {
+        return this.timer >= this.target;
     }
 }

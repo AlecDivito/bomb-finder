@@ -51,8 +51,8 @@ export default class Preferences implements IPreferences {
 
     static async Save(preferences: IPreferences) {
         preferences.timestamp = new Date();
-        Object.assign(new Preferences(), preferences);
-        return await Query.save(preferences);
+        const settings = Object.assign(new Preferences(), preferences);
+        return await Query.save(settings);
     }
 
 }

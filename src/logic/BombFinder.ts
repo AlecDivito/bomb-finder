@@ -19,7 +19,8 @@ export default class BombFinder {
     private inputMode: InputMode = InputMode.TOGGLE;
 
     // animations
-    private backgroundAnimation: AnimationTimer;
+    private readonly backgroundAnimation: AnimationTimer;
+    private readonly pieceAnimation: AnimationTimer;
 
     // canvas data
     private readonly height: number;
@@ -53,7 +54,8 @@ export default class BombFinder {
             this.height = calculatedHeight;
             this.offsetHeight = 0;
         }
-        this.backgroundAnimation = new AnimationTimer(0, (delta) => delta * 10, (t, d) => t > d);            
+        this.pieceAnimation = new AnimationTimer(360, .5, true);
+        this.backgroundAnimation = new AnimationTimer(0, 25);            
         this.setMarkInput();
 
         this.init();
@@ -95,12 +97,10 @@ export default class BombFinder {
         this.inputMode = (markFlag) ? InputMode.MARK : InputMode.TOGGLE;
         if (this.inputMode === InputMode.MARK) {
             this.backgroundAnimation.setTarget(this.height);
-            this.backgroundAnimation.setCallback((d) => d * 10);
-            this.backgroundAnimation.setIsComplete((t, d) => t > d);
+            this.backgroundAnimation.setStep(25);
         } else if (this.inputMode === InputMode.TOGGLE) {
             this.backgroundAnimation.setTarget(0);
-            this.backgroundAnimation.setCallback((d) => -d * 10);
-            this.backgroundAnimation.setIsComplete((t, d) => t < d);
+            this.backgroundAnimation.setStep(-25);
         }
     }
 
@@ -114,6 +114,7 @@ export default class BombFinder {
 
     public update(delta: number) {
         this.backgroundAnimation.update(delta);
+        this.pieceAnimation.update(delta);
         if (this.games.gameHasStarted) {
             const calcDelta = delta / 1000;
             this.games.time += calcDelta;
@@ -377,21 +378,22 @@ export default class BombFinder {
 
     private drawBackground(ctx: CanvasRenderingContext2D) {
         ctx.save();
-        if (this.inputMode === InputMode.TOGGLE) {
-            const gradient = ctx.createLinearGradient(this.width / 2, this.height, this.width / 2, 0);
-            gradient.addColorStop(0, '#333');
-            gradient.addColorStop(1, 'red');
-            ctx.fillStyle = gradient;
-            const height = this.height - this.backgroundAnimation.getValue();
-            ctx.fillRect(0, 0, this.width, height);
-        } else {
-            const gradient = ctx.createLinearGradient(this.width / 2, this.height, this.width / 2, 0);
-            gradient.addColorStop(0, '#333');
-            gradient.addColorStop(1, 'blue');
-            ctx.fillStyle = gradient;
-            const y = this.height - this.backgroundAnimation.getValue();
-            ctx.fillRect(0, y, this.width, this.backgroundAnimation.getValue());
-        }
+
+        const height = this.height - this.backgroundAnimation.getValue();
+        const gradient = ctx.createLinearGradient(this.width / 2, height,
+            this.width / 2, 0);
+        gradient.addColorStop(0.05, '#333');
+        gradient.addColorStop(1, 'red');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, this.width, height);
+
+        const gradient1 = ctx.createLinearGradient(this.width / 2,
+            this.backgroundAnimation.getValue(), this.width / 2, 0);
+        gradient1.addColorStop(0.05, '#333');
+        gradient1.addColorStop(1, 'blue');
+        ctx.fillStyle = gradient1;
+        ctx.fillRect(0, height, this.width, this.backgroundAnimation.getValue());
+
         ctx.restore();
     }
 
@@ -401,9 +403,11 @@ export default class BombFinder {
             const row = Math.floor(index / this.games.width);
             const col = index % this.games.width;
 
+            // position
             const x = this.offsetWidth + this.calculateBoardSize(col);
             const y = this.offsetHeight + this.calculateBoardSize(row);
 
+            // color
             switch (cell.visibility) {
                 case Visibility.INVISIBLE:
                     ctx.fillStyle = (cell.hover) ? "#0000FF" : "#FFFFFF";
@@ -420,7 +424,13 @@ export default class BombFinder {
                 default:
                     break;
             }
-            ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+
+            //piece style
+            if (cell.visibility === Visibility.INVISIBLE) {
+                this.drawInvisiblePiece(ctx, x, y);
+            } else {
+                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+            }
             if (isVisible(cell.visibility)) {
                 ctx.fillStyle = "#000000";
                 ctx.font = "48px serif";
@@ -433,6 +443,68 @@ export default class BombFinder {
 
     private calculateBoardSize(size: number) {
         return (size * this.settings.defaultCellSize) + ((size + 1) * this.settings.gridGapSize)
+    }
+
+    private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number) {
+        ctx.save();
+
+        let length = this.settings.defaultCellSize;
+
+        ctx.beginPath();
+        ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fill();
+        ctx.closePath();
+
+        let max = 7;
+        let s = this.settings.defaultCellSize;
+        let jump = 0;
+        for (let i = 1; i < max; i++) {
+            const rotation = (i % 2 === 0) ? 1 : -1;
+            this.drawRotatingSquare(ctx, jump + x, jump + y, s, rotation);
+            jump += (s / 4) / 2;
+            s = (s / 4) * 3;
+        }
+
+        ctx.restore();
+    }
+
+    private drawRotatingSquare(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, cellLength: number,
+        rotationDirection: 1 | -1) {
+        const radius = cellLength / 8;
+        let length = cellLength / 2 + (radius * 2);
+        let x = worldX + cellLength / 4 - (radius);
+        let y = worldY + cellLength / 4 - (radius);
+
+        ctx.save();
+        ctx.beginPath();
+        // Draw the rotating bits inside of the circle
+        ctx.translate(x + length / 2, y + length / 2);
+        ctx.rotate(((this.pieceAnimation.getValue() + 180) * rotationDirection) *  Math.PI / 180);
+        ctx.translate((x + length / 2) * -1, (y + length / 2) * -1);
+
+        // start
+        ctx.moveTo(x + radius, y);
+        // top
+        ctx.lineTo(x + length - radius, y);
+        ctx.quadraticCurveTo(x + length, y, x + length, y + radius);
+        // right
+        ctx.lineTo(x + length, y + length - radius);
+        ctx.quadraticCurveTo(x + length, y + length, x + length - radius, y + length);
+        // bottom
+        ctx.lineTo(x + radius, y + length);
+        ctx.quadraticCurveTo(x, y + length, x, y + length - radius);
+        // left
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+
+        ctx.fill();
+        ctx.lineWidth = 2;
+
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
     }
 
 }

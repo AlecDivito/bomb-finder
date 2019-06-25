@@ -62,10 +62,6 @@ export class MetaDataStorage {
     public getMetaData(table: string): TableMetaData | undefined {
         return this.storage.find(s => s.table === table);
     }
-
-    public print() {
-        console.log(this.storage);
-    }
 }
 
 enum StorageOption {
@@ -101,8 +97,6 @@ export class Query {
             if (!query.database) {
                 await query.connection(obj.constructor.name);
             }
-            console.log(obj.constructor.name);
-            MetaDataStorage.getInstance().print();
             let metaData = MetaDataStorage.getInstance().getMetaData(obj.constructor.name);
             if (!query.database!.objectStoreNames.contains(obj.constructor.name)) {
                 // The database currently doesn't have our table in the database
