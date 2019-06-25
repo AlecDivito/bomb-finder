@@ -29,8 +29,8 @@
     overflow: scroll;
 }
 
-.board__canvas.lost {
-    filter: blur(2px);
+#board.lost {
+    filter: blur(1px);
 }
 
 /*

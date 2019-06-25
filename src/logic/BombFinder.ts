@@ -183,10 +183,8 @@ export default class BombFinder {
             }
             const cell = this.grid[index];
             if (this.inputMode === InputMode.TOGGLE && events.leftClick && cell.visibility === Visibility.INVISIBLE) {
-                console.log(cell.value);
                 if (isBomb(cell.value)) {
                     this.games.result = "lost";
-                    console.log(this.games.result);
                 }
                 if (cell.value === 0) {
                     this.toggleCell(index);
@@ -441,20 +439,14 @@ export default class BombFinder {
                     this.drawHover(ctx, x, y);
                 }
             } else if (cell.visibility === Visibility.MARKED) {
-                this.drawInvisiblePiece(ctx, x, y, "lightblue");
+                this.drawInvisiblePiece(ctx, x, y, "#3396ff");
                 // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             } else if (cell.visibility === Visibility.VISIBLE) {
                 this.drawVisibleCell(ctx, x, y, cell);
                 // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             } else if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
-                this.drawVisibleCell(ctx, x, y, cell, "lightblue");
+                this.drawVisibleCell(ctx, x, y, cell, "#3396ff");
                 // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
-            }
-            if (isVisible(cell.visibility)) {
-                ctx.fillStyle = "#000000";
-                ctx.font = "48px serif";
-                const offset = + (this.settings.defaultCellSize / 2);
-                ctx.fillText(String(cell.value), x + offset - 15, y + offset + 15);
             }
         });
         ctx.restore();
@@ -478,7 +470,7 @@ export default class BombFinder {
             ctx.strokeStyle = "#FFF";
         }
         this.drawRectangle(ctx, x, y, this.settings.defaultCellSize / 8, this.settings.defaultCellSize);
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.closePath();
         ctx.restore();
@@ -565,7 +557,73 @@ export default class BombFinder {
     }
 
     private drawVisibleCell(ctx: CanvasRenderingContext2D, x: number, y: number, cell: Cell, overrideColor?: string) {
+        ctx.save();
+        ctx.beginPath();
+        let length = this.settings.defaultCellSize;
+        if (isBomb(cell.value)) {
+            let radius = 3;
+            // draw the outline of the shape
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#690721";
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+            // draw inner circle
+            ctx.save();
+            ctx.beginPath();
+            length -= 6;
+            ctx.arc(x + 3 + length / 2, y + 3 + length / 2, length / 2, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#f00f4b";
+            ctx.lineWidth = 3;
+            // gradient 
 
+            const innerX = x + (length / 2);
+            const innerY = y + (length / 2);
+            var gradient = ctx.createRadialGradient(
+                innerX, innerY, this.settings.defaultCellSize / 6,
+                innerX, innerY, this.settings.defaultCellSize / 2);
+
+            // Add three color stops
+            gradient.addColorStop(0, '#333');
+            gradient.addColorStop(1, '#690721');
+
+            // fill shap
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
+
+        } else if (cell.value === 0) {
+            this.drawRectangle(ctx, x, y, this.settings.defaultCellSize / 8, this.settings.defaultCellSize);
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "gray";
+        } else {
+            if (overrideColor) {
+                ctx.fillStyle = overrideColor;
+                ctx.strokeStyle = overrideColor;
+            } else {
+                ctx.fillStyle = "#FFFFFF";
+                ctx.strokeStyle = "#FFFFFF"
+            }
+            // http://www.ckollars.org/canvas-text-centering.html
+            ctx.font = `normal ${this.settings.defaultCellSize}px sans-serif`;
+            // const measurements = ctx.measureText(String(cell.value));
+            const offset = (this.settings.defaultCellSize / 2) + 2;
+            const ypos = y + (this.settings.defaultCellSize / 2) + offset;// + this.settings.defaultCellSize;
+            const xpos = x + (this.settings.defaultCellSize / 2);
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
+            ctx.lineWidth = 2;
+            ctx.fillText(String(cell.value), xpos, ypos);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
     }
 
     private drawCirlce(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, overrideColor?: string) {

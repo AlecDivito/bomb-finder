@@ -26,6 +26,8 @@ interface State {
 
 class GameBoard extends Component<Props, State> {
 
+    private stopUpdates: boolean = false;
+
     private canvas?: HTMLCanvasElement;
     private context2D?: CanvasRenderingContext2D;
     private gameState?: BombFinder;
@@ -34,9 +36,6 @@ class GameBoard extends Component<Props, State> {
     state: Readonly<State> = {
         ready: false,
         lastFrame: 0,
-        newGameId: undefined,
-        rafId: undefined,
-        inputId: undefined,
     }
 
     public componentDidUpdate(prevProps: Props, prevState: State) {
@@ -59,8 +58,11 @@ class GameBoard extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
+        this.stopUpdates = true;
         this.destroyGame();
     }
+
+    
 
     public async createGame() {
         const games = await Games.GetById(this.props.id);
@@ -93,7 +95,7 @@ class GameBoard extends Component<Props, State> {
             this.input!.stop(this.state.inputId!);
         }
         if (this.state.rafId) {
-            window.cancelAnimationFrame(this.state.rafId!);
+            cancelAnimationFrame(this.state.rafId!);
         }
     }
 
@@ -177,18 +179,20 @@ class GameBoard extends Component<Props, State> {
         
         
         if (this.gameState!.isGameOver) {
-            cancelAnimationFrame(this.state.rafId!);
+            // cancelAnimationFrame(this.state.rafId!);
             this.setState({ lastFrame: delta });
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
             }
-            return;
+            // return;
         }
 
-        this.setState({
-            rafId: requestAnimationFrame(this.draw),
-            lastFrame: delta
-        });
+        if (!this.stopUpdates) {
+            this.setState({
+                rafId: requestAnimationFrame(this.draw),
+                lastFrame: delta
+            });
+        }
     }
 }
 
