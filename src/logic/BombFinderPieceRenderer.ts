@@ -32,6 +32,12 @@ export default class BombFinderPieceRenderer {
         }
     }
 
+    drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number) {
+        ctx.save();
+        this.drawInvisiblePiece(ctx, x, y);
+        ctx.restore();
+    }
+
     drawPiece(ctx: CanvasRenderingContext2D, cell: Cell, x: number, y: number) {
         if (cell.visibility === Visibility.INVISIBLE) {
             this.drawInvisiblePiece(ctx, x, y);
