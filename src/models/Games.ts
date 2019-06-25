@@ -3,6 +3,7 @@ import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 import uuid from '../util/uuid';
 import Statistics from './Statistics';
+import Game from '../pages/game';
 
 export interface IGames {
     id: string;
@@ -60,6 +61,10 @@ export default class Games implements IGames {
 
     public get gameHasStarted() {
         return this.result === "inprogress";
+    }
+
+    public get area() {
+        return this.width * this.height;
     }
 
     public set setResult(result: GameProgress) {

@@ -4,6 +4,7 @@ import Games from "../models/Games";
 import Loading from "../components/Loading";
 import "./game-won.css";
 import "../components/Button.css"
+import BombFinder from "../logic/BombFinder";
 
 interface ParamProps {
     id: string;
@@ -16,15 +17,24 @@ type State = {
     moves?: number,
     time?: number,
     difficulty?: string,
+    rafId?: number,
+    lastFrame?: number,
 }
 
-export default class GameWon extends Component<Props> {
+export default class GameWon extends Component<Props, State> {
+
+    private keepUpdating: boolean = true;
+    private canvas?: HTMLCanvasElement;
+    private context2D?: CanvasRenderingContext2D;
+    private game?: BombFinder;
 
     state = {
         loading: false,
         moves: undefined,
         time: undefined,
         difficulty: undefined,
+        rafId: undefined,
+        lastFrame: undefined,
     }
 
     async componentDidMount() {
@@ -34,7 +44,17 @@ export default class GameWon extends Component<Props> {
             moves: game.totalMoves,
             time: game.time,
             difficulty: game.difficulty,
-        })
+            lastFrame: 0
+        });
+        this.canvas = document.getElementById("piece-canvas") as HTMLCanvasElement;
+        this.context2D = this.canvas.getContext('2d')!;
+    }
+
+    componentWillUnmount() {
+        if (this.state.rafId) {
+            cancelAnimationFrame(this.state.rafId!);
+        }
+        this.keepUpdating = false;
     }
 
     public render() {
@@ -50,6 +70,7 @@ export default class GameWon extends Component<Props> {
                         {this.state.difficulty}
                     </small>
                 </h1>
+                <canvas id="piece-canvas" width="300" height="300"></canvas>
                 <ul className="game-won__stats">
                     <li>moves: {this.state.moves}</li>
                     <li>time: {this.state.time}</li>
@@ -61,4 +82,16 @@ export default class GameWon extends Component<Props> {
             </div>
         );
     }
+
+    private draw = (delta: number) => {
+        const elapsedTime = delta - this.state.lastFrame!;
+        this.game!.update(elapsedTime);
+        this.game!.draw(this.context2D!);
+        if (this.keepUpdating) {
+            this.setState({
+                rafId: requestAnimationFrame(this.draw),
+                lastFrame: delta,
+            })
+        }
+    } 
 }

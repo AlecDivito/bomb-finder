@@ -19,6 +19,7 @@ interface Props {
 interface State {
     ready: boolean;
     lastFrame: number;
+    totalPieces: number;
     newGameId?: string;
     rafId?: number;
     inputId?: number;
@@ -36,6 +37,7 @@ class GameBoard extends Component<Props, State> {
     state: Readonly<State> = {
         ready: false,
         lastFrame: 0,
+        totalPieces: 0,
     }
 
     public componentDidUpdate(prevProps: Props, prevState: State) {
@@ -62,8 +64,6 @@ class GameBoard extends Component<Props, State> {
         this.destroyGame();
     }
 
-    
-
     public async createGame() {
         const games = await Games.GetById(this.props.id);
         const preferences = await Preferences.GetPreferences();
@@ -74,7 +74,7 @@ class GameBoard extends Component<Props, State> {
         }
         this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight - 120);
         this.input = new InputController();
-        this.setState({ ready: true });
+        this.setState({ ready: true, totalPieces: games.totalPieces });
         this.canvas = document.getElementById("board") as HTMLCanvasElement;
         const container = document.getElementById("board-container") as HTMLDivElement;
         this.context2D = this.canvas.getContext("2d")!;
@@ -132,7 +132,7 @@ class GameBoard extends Component<Props, State> {
             <div className="board">
                 <GameHeader time={this.gameState!.getTime}
                     left={this.gameState!.getRemainingAvailablePiece}
-                    pieces={this.gameState!.getTotalAvailablePieces}/>
+                    pieces={this.state.totalPieces}/>
                 <div className="board__canvas" id="board-container">
                     <canvas id="board"
                         className={this.gameState!.gameState}
