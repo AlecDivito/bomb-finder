@@ -4,7 +4,9 @@ import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
 import { IPreferences } from "../models/Preferences";
-import AnimationTimer from "./Animation";
+import AnimationTimer, { LoopOptions } from "./Animation";
+
+const ROTATING_PIECES = 7;
 
 export default class BombFinder {
 
@@ -20,7 +22,7 @@ export default class BombFinder {
 
     // animations
     private readonly backgroundAnimation: AnimationTimer;
-    private readonly pieceAnimation: AnimationTimer;
+    private readonly pieceAnimations: AnimationTimer[] = [];
 
     // canvas data
     private readonly height: number;
@@ -54,7 +56,10 @@ export default class BombFinder {
             this.height = calculatedHeight;
             this.offsetHeight = 0;
         }
-        this.pieceAnimation = new AnimationTimer(360, .5, true);
+        for (let i = 1; i < ROTATING_PIECES + 1; i++) {
+            this.pieceAnimations.push(
+                new AnimationTimer(90 * i, Math.pow(i + 1, i * .05) - 1, LoopOptions.ALTERNATE));
+        }
         this.backgroundAnimation = new AnimationTimer(0, 25);            
         this.setMarkInput();
 
@@ -114,7 +119,9 @@ export default class BombFinder {
 
     public update(delta: number) {
         this.backgroundAnimation.update(delta);
-        this.pieceAnimation.update(delta);
+        for (let i = 0; i < ROTATING_PIECES; i++) {
+            this.pieceAnimations[i].update(delta);
+        }
         if (this.games.gameHasStarted) {
             const calcDelta = delta / 1000;
             this.games.time += calcDelta;
@@ -427,8 +434,16 @@ export default class BombFinder {
 
             //piece style
             if (cell.visibility === Visibility.INVISIBLE) {
-                this.drawInvisiblePiece(ctx, x, y);
-            } else {
+                if (cell.hover) {
+                    ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+                } else {
+                    this.drawInvisiblePiece(ctx, x, y);
+                }
+            } else if (cell.visibility === Visibility.MARKED) {
+                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+            } else if (cell.visibility === Visibility.VISIBLE) {
+                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+            } else if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
                 ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             }
             if (isVisible(cell.visibility)) {
@@ -448,21 +463,21 @@ export default class BombFinder {
     private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number) {
         ctx.save();
 
-        let length = this.settings.defaultCellSize;
+        // let length = this.settings.defaultCellSize;
 
         ctx.beginPath();
-        ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fill();
+        // ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
+        // ctx.lineWidth = 2;
+        // ctx.stroke();
+        // ctx.fill();
+        this.drawRectangle(ctx, x, y, this.settings.defaultCellSize / 8, this.settings.defaultCellSize);
         ctx.closePath();
 
-        let max = 7;
         let s = this.settings.defaultCellSize;
         let jump = 0;
-        for (let i = 1; i < max; i++) {
+        for (let i = 1; i < ROTATING_PIECES; i++) {
             const rotation = (i % 2 === 0) ? 1 : -1;
-            this.drawRotatingSquare(ctx, jump + x, jump + y, s, rotation);
+            this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation);
             jump += (s / 4) / 2;
             s = (s / 4) * 3;
         }
@@ -471,7 +486,7 @@ export default class BombFinder {
     }
 
     private drawRotatingSquare(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, cellLength: number,
-        rotationDirection: 1 | -1) {
+        i: number, rotationDirection: 1 | -1) {
         const radius = cellLength / 8;
         let length = cellLength / 2 + (radius * 2);
         let x = worldX + cellLength / 4 - (radius);
@@ -481,9 +496,16 @@ export default class BombFinder {
         ctx.beginPath();
         // Draw the rotating bits inside of the circle
         ctx.translate(x + length / 2, y + length / 2);
-        ctx.rotate(((this.pieceAnimation.getValue() + 180) * rotationDirection) *  Math.PI / 180);
+        ctx.rotate(this.pieceAnimations[i].getValue() *  Math.PI / 180);
         ctx.translate((x + length / 2) * -1, (y + length / 2) * -1);
+        this.drawRectangle(ctx, x, y, radius, length);
 
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    private drawRectangle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, length: number) {
         // start
         ctx.moveTo(x + radius, y);
         // top
@@ -501,10 +523,6 @@ export default class BombFinder {
 
         ctx.fill();
         ctx.lineWidth = 2;
-
-        ctx.closePath();
-        ctx.stroke();
-        ctx.restore();
     }
 
 }
