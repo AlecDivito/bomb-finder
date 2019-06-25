@@ -56,11 +56,11 @@ export default class BombFinder {
             this.height = calculatedHeight;
             this.offsetHeight = 0;
         }
-        for (let i = 1; i < ROTATING_PIECES + 1; i++) {
+        for (let i = ROTATING_PIECES + 1; i >= 1; i--) {
             this.pieceAnimations.push(
                 new AnimationTimer(90 * i, Math.pow(i + 1, i * .05) - 1, LoopOptions.ALTERNATE));
         }
-        this.backgroundAnimation = new AnimationTimer(0, 25);            
+        this.backgroundAnimation = new AnimationTimer(121, 3);            
         this.setMarkInput();
 
         this.init();
@@ -101,11 +101,13 @@ export default class BombFinder {
     public setMarkInput(markFlag: boolean = false) {
         this.inputMode = (markFlag) ? InputMode.MARK : InputMode.TOGGLE;
         if (this.inputMode === InputMode.MARK) {
-            this.backgroundAnimation.setTarget(this.height);
-            this.backgroundAnimation.setStep(25);
+            this.backgroundAnimation.setTarget(121);
+            this.backgroundAnimation.setStep(3);
+            this.backgroundAnimation.play();
         } else if (this.inputMode === InputMode.TOGGLE) {
             this.backgroundAnimation.setTarget(0);
-            this.backgroundAnimation.setStep(-25);
+            this.backgroundAnimation.setStep(-3);
+            this.backgroundAnimation.play();
         }
     }
 
@@ -386,20 +388,20 @@ export default class BombFinder {
     private drawBackground(ctx: CanvasRenderingContext2D) {
         ctx.save();
 
-        const height = this.height - this.backgroundAnimation.getValue();
-        const gradient = ctx.createLinearGradient(this.width / 2, height,
-            this.width / 2, 0);
-        gradient.addColorStop(0.05, '#333');
-        gradient.addColorStop(1, 'red');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, this.width, height);
+        // const height = this.height - this.backgroundAnimation.getValue();
+        // const gradient = ctx.createLinearGradient(this.width / 2, height,
+        //     this.width / 2, this.backgroundAnimation.getValue());
+        // gradient.addColorStop(0.05, '#333');
+        // gradient.addColorStop(1, `hsl(239, 100%, 50%)`);
+        // ctx.fillStyle = gradient;
+        // ctx.fillRect(0, 0, this.width, height);
 
         const gradient1 = ctx.createLinearGradient(this.width / 2,
-            this.backgroundAnimation.getValue(), this.width / 2, 0);
+            this.height, this.width / 2, 0);
         gradient1.addColorStop(0.05, '#333');
-        gradient1.addColorStop(1, 'blue');
+        gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 50%, 1)`);
         ctx.fillStyle = gradient1;
-        ctx.fillRect(0, height, this.width, this.backgroundAnimation.getValue());
+        ctx.fillRect(0, 0, this.width, this.height);
 
         ctx.restore();
     }
@@ -434,17 +436,19 @@ export default class BombFinder {
 
             //piece style
             if (cell.visibility === Visibility.INVISIBLE) {
+                this.drawInvisiblePiece(ctx, x, y);
                 if (cell.hover) {
-                    ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
-                } else {
-                    this.drawInvisiblePiece(ctx, x, y);
+                    this.drawHover(ctx, x, y);
                 }
             } else if (cell.visibility === Visibility.MARKED) {
-                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+                this.drawInvisiblePiece(ctx, x, y, "lightblue");
+                // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             } else if (cell.visibility === Visibility.VISIBLE) {
-                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+                this.drawVisibleCell(ctx, x, y, cell);
+                // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             } else if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
-                ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
+                this.drawVisibleCell(ctx, x, y, cell, "lightblue");
+                // ctx.fillRect(x, y, this.settings.defaultCellSize, this.settings.defaultCellSize);
             }
             if (isVisible(cell.visibility)) {
                 ctx.fillStyle = "#000000";
@@ -460,33 +464,62 @@ export default class BombFinder {
         return (size * this.settings.defaultCellSize) + ((size + 1) * this.settings.gridGapSize)
     }
 
-    private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number, overrideColor?: string) {
         ctx.save();
-
-        // let length = this.settings.defaultCellSize;
-
+        let length = this.settings.defaultCellSize;
         ctx.beginPath();
         // ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
         // ctx.lineWidth = 2;
         // ctx.stroke();
         // ctx.fill();
+        if (overrideColor) {
+            ctx.strokeStyle = overrideColor;
+        } else {
+            ctx.strokeStyle = "#FFF";
+        }
         this.drawRectangle(ctx, x, y, this.settings.defaultCellSize / 8, this.settings.defaultCellSize);
+        ctx.lineWidth = 3;
+        ctx.stroke();
         ctx.closePath();
+        ctx.restore();
 
+        const radius = 1;
+        this.drawCirlce(ctx, x + (length / 2) - (radius / 2), y + (length / 2) - (radius / 2), radius, overrideColor);
+
+        ctx.save();
         let s = this.settings.defaultCellSize;
         let jump = 0;
         for (let i = 1; i < ROTATING_PIECES; i++) {
             const rotation = (i % 2 === 0) ? 1 : -1;
-            this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation);
+            this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation, overrideColor);
             jump += (s / 4) / 2;
             s = (s / 4) * 3;
         }
+        ctx.restore();
+    }
 
+    private drawHover(ctx: CanvasRenderingContext2D, x: number, y: number) {
+        ctx.save()
+        let alpha = 1.0;
+        for (let i = 1; i <= (this.settings.gridGapSize / 2); i++) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(255,255,255, ${alpha})`;
+            this.drawRectangle(ctx, x - i, y - i, (this.settings.defaultCellSize) / 8,
+                this.settings.defaultCellSize + (i * 2));
+            if ((i + 1) >= (this.settings.gridGapSize / 2)) {
+                ctx.lineWidth = 1;
+            } else {
+                ctx.lineWidth = 2;
+            }
+            alpha -= 0.1;
+            ctx.stroke();
+            ctx.closePath();
+        }
         ctx.restore();
     }
 
     private drawRotatingSquare(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, cellLength: number,
-        i: number, rotationDirection: 1 | -1) {
+        i: number, rotationDirection: 1 | -1, overrideColor?: string) {
         const radius = cellLength / 8;
         let length = cellLength / 2 + (radius * 2);
         let x = worldX + cellLength / 4 - (radius);
@@ -499,6 +532,12 @@ export default class BombFinder {
         ctx.rotate(this.pieceAnimations[i].getValue() *  Math.PI / 180);
         ctx.translate((x + length / 2) * -1, (y + length / 2) * -1);
         this.drawRectangle(ctx, x, y, radius, length);
+        ctx.lineWidth = 2;
+        if (overrideColor) {
+            ctx.strokeStyle = overrideColor;
+        } else {
+            ctx.strokeStyle = "gray";
+        }
 
         ctx.closePath();
         ctx.stroke();
@@ -521,8 +560,27 @@ export default class BombFinder {
         ctx.lineTo(x, y + radius);
         ctx.quadraticCurveTo(x, y, x + radius, y);
 
-        ctx.fill();
-        ctx.lineWidth = 2;
+        // ctx.fill();
+        // ctx.lineWidth = 2;
+    }
+
+    private drawVisibleCell(ctx: CanvasRenderingContext2D, x: number, y: number, cell: Cell, overrideColor?: string) {
+
+    }
+
+    private drawCirlce(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, overrideColor?: string) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x + radius / 2, y + radius / 2, radius, 0, 2 * Math.PI);
+        if (overrideColor) {
+            ctx.strokeStyle = overrideColor;
+        } else {
+            ctx.strokeStyle = "#FFF";
+        }
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
     }
 
 }

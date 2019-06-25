@@ -7,6 +7,7 @@ export enum LoopOptions {
 
 export default class AnimationTimer {
 
+    private playing: boolean;
     private timer = 0;
     private target: number;
     private step: number;
@@ -19,26 +20,35 @@ export default class AnimationTimer {
         this.step = step;
         this.loop = loop;
         this.alternated = false;
+        this.playing = true;
     }
 
     update(delta: number) {
-        if (!this.isComplete()) {
+        if (!this.isComplete() && this.playing) {
             this.timer += this.step;
         } else {
             if (this.loop === LoopOptions.REPEAT) {
                 this.timer = this.timer % this.target;
             } else if (this.loop === LoopOptions.ALTERNATE) {
-                this.step = this.step * -1;
-                if (this.alternated) {
+                this.setStep(this.step * -1);
+                if (!this.alternated) {
                     this.timer = 0;
                 } else {
                     this.timer = this.target;
                 }
-                this.alternated = true;
             } else if (this.loop === LoopOptions.STOP) {
                 this.timer = this.target;
+                this.stop();
             }
         }
+    }
+
+    public stop() {
+        this.playing = false;
+    }
+
+    public play() {
+        this.playing = true;
     }
 
     public getValue() {
@@ -50,13 +60,15 @@ export default class AnimationTimer {
     }
 
     public setStep(step: number) {
+        if (step < 0) {
+            this.alternated = true;
+        } else {
+            this.alternated = false;
+        }
         this.step = step;
     }
 
     public isComplete() {
-        if (this.loop !== LoopOptions.ALTERNATE) {
-            return this.timer >= this.target;
-        }
         return (this.alternated)
             ? this.timer <= 0
             : this.timer >= this.target;
