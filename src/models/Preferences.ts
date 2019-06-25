@@ -1,12 +1,13 @@
 import { Table, Field, Query } from "../logic/MetaDataStorage";
 
 export interface IPreferences {
-    soundVolume: number;
-    musicVolume: number;
-    defaultCellSize: number;
-    gridGapSize: number;
-    allowFlags: boolean;
-    showMilliseconds: boolean;
+    // soundVolume: number;
+    // musicVolume: number;
+    defaultCellSize: number; // slider
+    gridGapSize: number;     // slider
+    spinningCubes: number;   // slider
+    simpleRender: boolean;   // checkbox
+    // fullScreen: boolean; // checkbox, don't save
     timestamp: Date;
 }
 
@@ -15,12 +16,6 @@ export default class Preferences implements IPreferences {
     
     @Field(true)
     public readonly preferences: string = "preferences";
-    
-    @Field()
-    public soundVolume: number = 0;
-    
-    @Field()
-    public musicVolume: number = 0;
 
     @Field()
     public defaultCellSize: number = 35;
@@ -29,11 +24,11 @@ export default class Preferences implements IPreferences {
     public gridGapSize: number = 8.5;
 
     @Field()
-    public allowFlags: boolean = true;
-    
-    @Field()
-    public showMilliseconds: boolean = false;
+    public spinningCubes: number = 7;
 
+    @Field()
+    public simpleRender: boolean = false;
+    
     @Field()
     public timestamp: Date = new Date();
 

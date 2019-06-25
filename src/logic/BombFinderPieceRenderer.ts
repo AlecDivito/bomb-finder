@@ -1,5 +1,5 @@
 import AnimationTimer, { LoopOptions } from "./Animation";
-import { Cell, Visibility, isBomb } from "../models/GameBoardTypes";
+import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBoardTypes";
 
 
 /**
@@ -15,26 +15,62 @@ export default class BombFinderPieceRenderer {
 
     private pieceLength: number;
     private gapSize: number;
+    private simpleRender: boolean;
 
-    constructor(pieceLength: number, gapSize: number, spinningCubes: number) {
+    private readonly exampleCell = {
+        hover: false,
+        visibility: Visibility.VISIBLE,
+        state: CellState.CLEAN,
+        value: 2 as CellValue,
+    };
+
+    constructor(pieceLength: number, gapSize: number, spinningCubes: number,
+        simpleRender: boolean = false) {
         this.pieceLength = pieceLength;
         this.gapSize = gapSize;
+        this.simpleRender = simpleRender;
+        this.setSpinningCubes(spinningCubes);
+    }
 
-        for (let i = spinningCubes + 1; i >= 1; i--) {
+    setCellSize(value: number) {
+        this.pieceLength = value;
+    }
+
+    setGapSize(value: number) {
+        this.gapSize = value;
+    }
+
+    setSpinningCubes(value: number) {
+        this.pieceAnimations = [];
+        for (let i = value + 1; i >= 1; i--) {
             this.pieceAnimations.push(
-                new AnimationTimer(90 * i, Math.pow(i + 1, i * .05) - 1, LoopOptions.ALTERNATE));
+                new AnimationTimer(90 * i, Math.pow(i + 1, i * .035) - 1, LoopOptions.ALTERNATE));
         }
     }
 
+    setSimpleRender(value: boolean) {
+        this.simpleRender = value;
+    }
+
     update(delta: number) {
+        if (this.simpleRender) {
+            return;
+        }
         for (let i = 0; i < this.pieceAnimations.length; i++) {
             this.pieceAnimations[i].update(delta);
         }
     }
 
-    drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number,
+        visibility: Visibility = Visibility.INVISIBLE) {
         ctx.save();
-        this.drawInvisiblePiece(ctx, x, y);
+        switch (visibility) {
+            case Visibility.INVISIBLE: this.drawInvisiblePiece(ctx, x, y); break;
+            case Visibility.MARKED: this.drawInvisiblePiece(ctx, x, y, "#3396ff"); break;
+            case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, this.exampleCell); break;
+            case Visibility.VISIBLY_SATISFIED:
+                this.drawVisibleCell(ctx, x, y, this.exampleCell, "#3396ff"); break;
+        }
         ctx.restore();
     }
 
@@ -46,13 +82,10 @@ export default class BombFinderPieceRenderer {
             }
         } else if (cell.visibility === Visibility.MARKED) {
             this.drawInvisiblePiece(ctx, x, y, "#3396ff");
-            // ctx.fillRect(x, y, this.pieceLength, this.pieceLength);
         } else if (cell.visibility === Visibility.VISIBLE) {
             this.drawVisibleCell(ctx, x, y, cell);
-            // ctx.fillRect(x, y, this.pieceLength, this.pieceLength);
         } else if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
             this.drawVisibleCell(ctx, x, y, cell, "#3396ff");
-            // ctx.fillRect(x, y, this.pieceLength, this.pieceLength);
         }
     }
 
@@ -71,7 +104,10 @@ export default class BombFinderPieceRenderer {
         ctx.closePath();
         ctx.restore();
 
-        const radius = 1;
+        if (this.simpleRender) {
+            return;
+        }
+        // const radius = 1;
         // this.drawCirlce(ctx, x + (length / 2) - (radius / 2), y + (length / 2) - (radius / 2), radius, overrideColor);
 
         ctx.save();
@@ -154,7 +190,7 @@ export default class BombFinderPieceRenderer {
         ctx.beginPath();
         let length = this.pieceLength;
         if (isBomb(cell.value)) {
-            let radius = 3;
+            // let radius = 3;
             // draw the outline of the shape
             ctx.save();
             ctx.beginPath();

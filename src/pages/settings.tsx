@@ -4,23 +4,31 @@ import CheckBox from "../components/CheckBox";
 import Slider from "../components/Slider";
 import Loading from "../components/Loading";
 import Button from "../components/Button";
-import Input from "../components/Input";
+import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
 
-interface Props {
+export default class Settings extends Component<{}, IPreferences> {
 
-}
-
-export default class Settings extends Component<Props, IPreferences> {
-
+    private keepUpdating: boolean = true;
+    private lastFrame: number = 0; 
+    private rafId: number = 0;
     private canvas?: HTMLCanvasElement;
     private ctx?: CanvasRenderingContext2D;
+    private pieceRenderer?: BombFinderPieceRenderer;
 
     async componentDidMount() {
         const preferences = await Preferences.GetPreferences();
         this.setState(preferences);
         this.canvas = document.getElementById('preview') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d')!;
+        this.pieceRenderer = new BombFinderPieceRenderer(
+            preferences.defaultCellSize, preferences.gridGapSize,
+            preferences.spinningCubes, preferences.simpleRender);
         requestAnimationFrame(this.draw);
+    }
+
+    componentWillUnmount() {
+        this.keepUpdating = false;
+        cancelAnimationFrame(this.rafId);
     }
 
     handleChange = (event: any) => {
@@ -37,6 +45,13 @@ export default class Settings extends Component<Props, IPreferences> {
         }
         const name = target.name;
 
+        switch(name) {
+            case "defaultCellSize": this.pieceRenderer!.setCellSize(value); break;
+            case "gridGapSize":     this.pieceRenderer!.setGapSize(value); break;
+            case "spinningCubes":   this.pieceRenderer!.setSpinningCubes(value); break;
+            case "simpleRender":    this.pieceRenderer!.setSimpleRender(value); break;
+        }
+
         this.setState({
             [name]: value
         } as Pick<Preferences, keyof Preferences>);
@@ -50,70 +65,68 @@ export default class Settings extends Component<Props, IPreferences> {
         Preferences.Save(this.state);
     }
 
-    draw = () => {
-        let size: number, gap: number;
-        if (this.state.defaultCellSize && this.state.defaultCellSize < 8) {
-            size = 8;
-        } else {
-            size = this.state.defaultCellSize;
-        }
-        if (this.state.gridGapSize && this.state.gridGapSize < 1) {
-            gap = 1;
-        } else {
-            gap = this.state.gridGapSize;
-        }
-        this.ctx!.save();
+    draw = (delta: number) => {
+        const elapsedTime = delta - this.lastFrame!;
+        // clear board
+        const size = (this.state.defaultCellSize * 2) + this.state.gridGapSize;
+        this.ctx!.fillStyle = "#333";
+        this.ctx!.fillRect(0, 0, size, size);
+        // update and draw place holders
+        this.pieceRenderer!.update(elapsedTime);
         [0, 0, 1, 1].forEach((c, i) => {
             const index = (i % 2);
-            const x = (index * size) + (gap * index);
-            const y = (c * size) + (gap * c);
-            this.ctx!.fillRect(x, y, size, size);
-            this.ctx!.fillStyle = "#FFFFFF";
+            const x = (index * this.state.defaultCellSize) + (this.state.gridGapSize * index);
+            const y = (c * this.state.defaultCellSize) + (this.state.gridGapSize * c);
+            this.pieceRenderer!.drawPlaceHolder(this.ctx!, x, y, i);
         });
-        this.ctx!.restore();
+        if (this.keepUpdating) {
+            this.rafId = requestAnimationFrame(this.draw);
+            this.lastFrame = delta;
+        }
     }
 
     public render() {
         if (!this.state) {
             return <Loading />;
         }
-        const dimensions = (this.state.defaultCellSize + this.state.gridGapSize) * 2;
-        requestAnimationFrame(this.draw);
+        const dimensions = (this.state.defaultCellSize * 2) + this.state.gridGapSize;
         return (
             <div style={{ margin: '0px 16px' }}>
                 <h1>Settings</h1>
                 <form onSubmit={this.handleSubmit}>
                     <h3>User preferences</h3>
-                    <Input type="number"
-                        text="Default Grid Cell Size"
+
+                    <Slider text="Piece Length"
                         name="defaultCellSize"
+                        max={125}
+                        min={25}
                         value={this.state.defaultCellSize}
-                        onChange={this.handleChange}/>
-                    <Input type="number"
-                        text="Default Grid Gap Size"
+                        onChange={this.handleChange} />
+
+                    <Slider text="Piece Gap"
                         name="gridGapSize"
+                        max={50}
+                        min={5}
                         value={this.state.gridGapSize}
                         onChange={this.handleChange} />
+
+                    <Slider text="Spinning Cubes"
+                        name="spinningCubes"
+                        max={10}
+                        min={0}
+                        value={this.state.spinningCubes}
+                        onChange={this.handleChange} />
+
+                    <CheckBox text="Simple Render"
+                        name="simpleRender"
+                        checked={this.state.simpleRender}
+                        onChange={this.handleChange} />
+
                     <h3>Grid Preview</h3>
                     <div className="form-input center overflow-x">
                         <canvas id="preview" width={dimensions} height={dimensions}/>
                     </div>
-                    <Slider text="Sound Volume"
-                        name="soundVolume"
-                        value={this.state.soundVolume}
-                        onChange={this.handleChange} />
-                    <Slider text="Music Volume"
-                        name="musicVolume"
-                        value={this.state.musicVolume}
-                        onChange={this.handleChange} />
-                    <CheckBox text="Allow Flags"
-                        name="allowFlags"
-                        checked={this.state.allowFlags}
-                        onChange={this.handleChange} />
-                    <CheckBox text="Show Milliseconds"
-                        name="showMilliseconds"
-                        checked={this.state.showMilliseconds}
-                        onChange={this.handleChange}/>
+                    
                     <Button type="submit" text="Save Changes"/>
                 </form>
                 <p>

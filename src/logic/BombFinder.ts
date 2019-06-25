@@ -4,10 +4,8 @@ import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
 import { IPreferences } from "../models/Preferences";
-import AnimationTimer, { LoopOptions } from "./Animation";
+import AnimationTimer from "./Animation";
 import BombFinderPieceRenderer from "./BombFinderPieceRenderer";
-
-const ROTATING_PIECES = 7;
 
 export default class BombFinder {
 
@@ -24,7 +22,6 @@ export default class BombFinder {
 
     // animations
     private readonly backgroundAnimation: AnimationTimer;
-    private readonly pieceAnimations: AnimationTimer[] = [];
 
     // canvas data
     private readonly height: number;
@@ -36,7 +33,8 @@ export default class BombFinder {
         this.games = games;
         this.settings = settings;
         this.pieceRenderer = new BombFinderPieceRenderer(
-            this.settings.defaultCellSize, this.settings.gridGapSize, ROTATING_PIECES
+            this.settings.defaultCellSize, this.settings.gridGapSize,
+            this.settings.spinningCubes, this.settings.simpleRender
         );
 
         const calculatedWidth = this.calculateBoardSize(this.games.width);
@@ -56,10 +54,6 @@ export default class BombFinder {
         } else {
             this.height = calculatedHeight;
             this.offsetHeight = 0;
-        }
-        for (let i = ROTATING_PIECES + 1; i >= 1; i--) {
-            this.pieceAnimations.push(
-                new AnimationTimer(90 * i, Math.pow(i + 1, i * .05) - 1, LoopOptions.ALTERNATE));
         }
         this.backgroundAnimation = new AnimationTimer(121, 3);            
         this.setMarkInput();
@@ -119,9 +113,6 @@ export default class BombFinder {
     public update(delta: number) {
         this.pieceRenderer.update(delta);
         this.backgroundAnimation.update(delta);
-        for (let i = 0; i < ROTATING_PIECES; i++) {
-            this.pieceAnimations[i].update(delta);
-        }
         if (this.games.gameHasStarted) {
             const calcDelta = delta / 1000;
             this.games.time += calcDelta;

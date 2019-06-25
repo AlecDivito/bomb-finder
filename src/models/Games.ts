@@ -3,7 +3,6 @@ import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 import uuid from '../util/uuid';
 import Statistics from './Statistics';
-import Game from '../pages/game';
 
 export interface IGames {
     id: string;
