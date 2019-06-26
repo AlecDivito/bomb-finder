@@ -55,7 +55,7 @@ export default class GameMenu extends Component<{}, State> {
             <div className="menu">
                 <h3 className="menu__header">
                     <span>New Game</span>
-                    {/* <Link to="/menu/manage" className="menu__header--link">Manage Templates</Link> */}
+                    <Link to="/menu/manage" className="menu__header--link">Manage Templates</Link>
                 </h3>
                 <div className="menu__new">
                     {gameTemplates!.map((g, i) => 

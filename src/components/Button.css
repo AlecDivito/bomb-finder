@@ -7,6 +7,7 @@
     transition: .25s color, .25s background-color ease-in;
     display: block;
     text-align: center;
+    cursor: pointer;
 }
 
 .button.disabled,

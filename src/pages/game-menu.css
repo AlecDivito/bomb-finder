@@ -87,19 +87,29 @@
         margin: auto;
     }
 
+    
     .menu__new {
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-gap: 2rem;
     }
 
     .menu__new__item {
-        width: 175px;
-        margin: 0px .5rem 2rem .5rem;
+        width: 100%;
         cursor: pointer;
+        margin-bottom: 0;
+    }
+
+    .menu__continue {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 1rem;
+        margin: 0;
     }
 
     .menu__continue__item {
-        width: 250px;
-        margin: 0px .5rem 1rem .5rem;
+        width: 100%;
+        margin: 0px;
         cursor: pointer;
     }
 }

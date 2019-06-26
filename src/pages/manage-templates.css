@@ -1,0 +1,108 @@
+.manage-templates {
+    margin: 0px 1rem;
+}
+
+.templates-table {
+    border: 1px solid #ccc;
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.templates-table__caption {
+    font-size: 1.5em;
+    margin: .5em 0 .75em;
+}
+
+thead .templates-table__row {
+    background-color: #3396ff;
+}
+
+tbody .templates-table__row {
+    /* border: 1px solid #ddd; */
+    padding: .35em;
+}
+
+tbody .templates-table__row:nth-child(odd) {
+    background-color: #666;
+}
+
+
+.templates-table__row th,
+.templates-table__row td {
+    padding: .625em;
+    text-align: center;
+}
+
+.templates-table__row td {
+    color: #fff;
+}
+
+.templates-table__row th {
+    font-size: .85em;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+@media only screen and (min-width: 768px) {
+    .manage-templates {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .templates-table {
+        width: 800px;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .templates-table {
+        border: 0;
+    }
+  
+    .templates-table__caption {
+        font-size: 1.3em;
+    }
+    
+    .templates-table thead {
+        border: none;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+    
+    .templates-table__row {
+        border-bottom: 3px solid #ddd;
+        display: block;
+        margin-bottom: .625em;
+    }
+    
+    .templates-table__row td {
+        border-bottom: 1px solid #ddd;
+        display: block;
+        font-size: .8em;
+        text-align: right;
+    }
+    
+    .templates-table__row td::before {
+        /*
+        * aria-label has no advantage, it won't be read inside a table
+        content: attr(aria-label);
+        */
+        content: attr(data-column);
+        float: left;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .templates-table__row td:last-child {
+        border-bottom: 0;
+    }
+}

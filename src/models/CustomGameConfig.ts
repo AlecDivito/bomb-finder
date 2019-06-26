@@ -72,6 +72,11 @@ export default class CustomGameConfig implements ICustomGameConfig {
         return await Query.save(save);
     }
 
+    static async delete(config: ICustomGameConfig) {
+        const cfg = Object.assign(new CustomGameConfig(), config);
+        return await Query.remove(cfg);
+    }
+
     static async getAll(): Promise<ICustomGameConfig[]> {
         let templates = await Query.getAll(new CustomGameConfig());
         // check if the default objects exist
