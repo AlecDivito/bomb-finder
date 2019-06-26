@@ -5,7 +5,6 @@ import home from "../assets/home-f.svg";
 import "./Header.css"
 
 const Header: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
-    // TODO: Check style if we need to render a hidden element or just null
     if (props.location.pathname === "/") {
         return <div className="header--hidden">BombFinder</div>;
     }

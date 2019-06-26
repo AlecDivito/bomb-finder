@@ -37,22 +37,23 @@ ul {
         "footer"
 }
 
-@media only screen and (min-width: 768px) {
-    #root {
-        margin: 0px 3.5rem;
-    }
-}
-
 .page {
     grid-area: content;
     position: absolute;
     height: 100%;
     width: 100%;
-    overflow: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
-.overflow-x {
-    overflow-x: scroll;
+@media only screen and (min-width: 768px) {
+    #root {
+        margin: 0px 3.5rem;
+    }
+
+    .page {
+        overflow-y: auto;
+    }
 }
 
 .center {

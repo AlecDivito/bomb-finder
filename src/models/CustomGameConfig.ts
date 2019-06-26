@@ -131,7 +131,6 @@ export default class CustomGameConfig implements ICustomGameConfig {
         for (let i = 0; i < templates.length; i++) {
             await Query.save(templates[i]);
         }
-        // TODO: Add error handling
         return templates;
     }
 }

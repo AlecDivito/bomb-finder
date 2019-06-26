@@ -3,6 +3,7 @@ import { GameProgress } from '../models/GameTypes';
 import GameBoard from '../components/GameBoard';
 import { RouteComponentProps, Redirect } from 'react-router';
 import Games from '../models/Games';
+import PageNotFound from './page-not-found';
 
 interface ParamProps {
     id: string;
@@ -46,8 +47,7 @@ export default class Game extends Component<Props, State> {
             return <Redirect to={`/game/${this.props.match.params.id}/game-won`} />
         }
         else if (this.state.to404Page) {
-            console.warn("Please implement me (404 page)");
-            return null;
+            return <PageNotFound />;
         }
         else if (this.state.ready) {
             return <GameBoard

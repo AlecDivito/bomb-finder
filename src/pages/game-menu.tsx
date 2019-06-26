@@ -15,8 +15,6 @@ interface State {
     unfinishedGames?: IGames[];
 }
 
-// TODO: Add data to "Pieces Left" in Continue Playing section
-//       It should look like "Pieces Left: 16/54"
 export default class GameMenu extends Component<{}, State> {
 
     state: Readonly<State> = {
@@ -31,10 +29,6 @@ export default class GameMenu extends Component<{}, State> {
     }
 
     loadOldGame = async (id: string) => {
-        if (!this.state.unfinishedGames) {
-            // TODO: log message that games aren't ready yet
-            return;
-        }
         const game = this.state.unfinishedGames!.find(g => g.id === id);
         if (!game) {
             // TODO: log message that game doesn't exist

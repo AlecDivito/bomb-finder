@@ -26,15 +26,13 @@
     transition: .25s filter ease-in;
     grid-area: content;
     position: absolute;
+    overflow: hidden;
 }
 
 #board.lost {
     filter: blur(1px);
 }
 
-/*
-    TODO: this is fixed right now, it should be a more re-seizable size
- */
 .board__popup {
     position: fixed;
     bottom: 60px;
@@ -62,8 +60,11 @@
 /**
  * Extra classes
  */
-.overflow-x, .overflow-y {
-    overflow: scroll;
+.overflow-x {
+    overflow-x: scroll;
+}
+.overflow-y {
+    overflow-y: scroll;
 }
 
 @media only screen and (min-width: 768px) {

@@ -52,10 +52,6 @@
     min-height: 200px;
 }
 
-.menu__new__item:nth-child(odd) {
-    margin-right: 1rem;
-}
-
 /**
  * Continue Menu (for all the continue options)
  */
@@ -78,6 +74,12 @@
     margin-bottom: 1rem;
 }
 
+@media only screen and (max-width: 767px) {
+    .menu__new__item:nth-child(odd) {
+        margin-right: 1rem;
+    }
+}
+
 @media only screen and (min-width: 768px) {
 
     .menu {
@@ -92,14 +94,12 @@
     .menu__new__item {
         width: 175px;
         margin: 0px .5rem 2rem .5rem;
-    }
-
-    .menu__continue {
-        justify-content: space-between;
+        cursor: pointer;
     }
 
     .menu__continue__item {
         width: 250px;
         margin: 0px .5rem 1rem .5rem;
+        cursor: pointer;
     }
 }
