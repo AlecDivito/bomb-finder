@@ -38,6 +38,7 @@ export default class GameWon extends Component<Props, State> {
 
     async componentDidMount() {
         this.game = await Games.GetById(this.props.match.params.id);
+        this.game.logAndDestroy();
         this.setState({
             loading: false,
             moves: this.game.totalMoves,

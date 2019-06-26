@@ -108,7 +108,7 @@ class GameBoard extends Component<Props, State> {
         if (this.state.ready && !this.state.newGameId) {
             try {
                 const newGameId = await this.gameState!.reset();
-                this.setState({ newGameId });
+                this.setState({ ready: false, newGameId });
             } catch (e) {
                 console.warn("erorr " + e);
                 // TODO: implement Error handling

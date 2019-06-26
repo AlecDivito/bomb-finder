@@ -182,7 +182,7 @@ export class Query {
         });
     }
 
-    static async remove<T extends Object>(type: T) {
+    static async remove<T extends Object>(type: T): Promise<boolean> {
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {

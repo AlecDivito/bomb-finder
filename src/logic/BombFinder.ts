@@ -153,7 +153,7 @@ export default class BombFinder {
         }
         else if (this.remainingPieces === 0) {
             this.games.result = "won";
-            this.games.logAndDestroy();
+            this.games.update();
         }
     }
 

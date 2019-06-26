@@ -78,7 +78,7 @@ export default class Games implements IGames {
      * @param newId id of the new game
      */
     public async reset(oldGame: Games): Promise<Games | undefined> {
-        const oldGameSaved = await oldGame.update();
+        const oldGameSaved = await oldGame.logAndDestroy();
         if (oldGameSaved) {
             // TODO: Add error handling (need to add in games first (down there))
             const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
@@ -93,11 +93,7 @@ export default class Games implements IGames {
     }
 
     public async logAndDestroy() {
-        await Statistics.AddGameResults(this);
-        await Query.save(this);
-        // TODO: Research weather removing the project
-        //       is worth it
-        // await Query.remove(this);
+        return await Query.remove(this) && await Statistics.AddGameResults(this);
     }
 
     static async Create(
