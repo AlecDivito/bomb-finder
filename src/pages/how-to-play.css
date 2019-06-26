@@ -1,0 +1,15 @@
+.how-to-play {
+    margin: 0px 1rem;
+}
+
+@media only screen and (min-width: 768px) {
+    .how-to-play {
+        width: 800px;
+        height: 100%;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+}

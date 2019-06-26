@@ -1,10 +1,11 @@
 import React, { Component } from "react";
+import "./how-to-play.css"
 
 export default class HowToPlay extends Component {
 
     public render() {
         return (
-            <div style={{margin: '0px 16px'}}>
+            <div className="how-to-play">
                 <h1>How to play</h1>
                 <p>
                     An unrevealed tile might have a black hole behind it, it

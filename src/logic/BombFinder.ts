@@ -28,6 +28,7 @@ export default class BombFinder {
     private readonly width: number;
     private readonly offsetWidth: number;
     private readonly offsetHeight: number;
+    private readonly overflowClasses: string = "";
 
     constructor(games: Games, settings: IPreferences, minWidth: number, minHeight: number) {
         this.games = games;
@@ -44,6 +45,7 @@ export default class BombFinder {
             this.width = minWidth;
             this.offsetWidth = (this.width - calculatedWidth) / 2;;
         } else {
+            this.overflowClasses += " overflow-x"; 
             this.width = calculatedWidth;
             this.offsetWidth = 0;
         }
@@ -52,6 +54,7 @@ export default class BombFinder {
             this.height = minHeight;
             this.offsetHeight = (this.height - calculatedHeight) / 2;
         } else {
+            this.overflowClasses += " overflow-y"; 
             this.height = calculatedHeight;
             this.offsetHeight = 0;
         }
@@ -59,6 +62,10 @@ export default class BombFinder {
         this.setMarkInput();
 
         this.init();
+    }
+
+    public get gameBoardOverflowClasses() {
+        return this.overflowClasses;
     }
 
     public get gameBoardWidth() {
@@ -266,7 +273,7 @@ export default class BombFinder {
         const top =  this.offsetHeight + ((row * cellSize) + this.settings.gridGapSize);
         const left = this.offsetWidth + ((col * cellSize) + this.settings.gridGapSize);
 
-        if (row >= 0 && col >= 0 && row < this.games.width && col < this.games.height &&
+        if (row >= 0 && col >= 0 && col < this.games.width && row < this.games.height &&
             InSquare({top, left, size: this.settings.defaultCellSize }, point)) {
             return this.getIndex(row, col);
         }

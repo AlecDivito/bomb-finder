@@ -26,7 +26,6 @@
     transition: .25s filter ease-in;
     grid-area: content;
     position: absolute;
-    overflow: scroll;
 }
 
 #board.lost {
@@ -58,4 +57,15 @@
     color: #FFF;
     background-color: #000;
     border: 1px solid #333;
+}
+
+/**
+ * Extra classes
+ */
+.overflow-x, .overflow-y {
+    overflow: scroll;
+}
+
+@media only screen and (min-width: 768px) {
+
 }

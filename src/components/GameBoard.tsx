@@ -128,12 +128,13 @@ class GameBoard extends Component<Props, State> {
             height: this.gameState!.gameBoardHeight,
             width: this.gameState!.gameBoardWidth,
         };
+        let canvasBoardClass = "board__canvas " + this.gameState!.gameBoardOverflowClasses;
         return (
             <div className="board">
                 <GameHeader time={this.gameState!.getTime}
                     left={this.gameState!.getRemainingAvailablePiece}
                     pieces={this.state.totalPieces}/>
-                <div className="board__canvas" id="board-container">
+                <div className={canvasBoardClass} id="board-container">
                     <canvas id="board"
                         className={this.gameState!.gameState}
                         width={dimensions.width}

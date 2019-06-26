@@ -77,10 +77,10 @@ export default class CustomGameForm extends React.Component<{}, State> {
             return <Redirect to={`/game/${this.state.gameId}`} />
         }
         return (
-            <div style={{ margin: '0px 16px' }}>
+            <div className="custom">
                 <h3>Create New Game</h3>
-                <form className="custom" onSubmit={this.handleSubmit}>
-                    <div className="custom-inline">
+                <form className="custom__form" onSubmit={this.handleSubmit}>
+                    <div className="custom__form--inline">
                         <Input type="number"
                             name="width"
                             error={this.state.errors.width}

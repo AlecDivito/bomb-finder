@@ -5,6 +5,7 @@ import Slider from "../components/Slider";
 import Loading from "../components/Loading";
 import Button from "../components/Button";
 import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
+import "./settings.css";
 
 export default class Settings extends Component<{}, IPreferences> {
 
@@ -75,8 +76,8 @@ export default class Settings extends Component<{}, IPreferences> {
         this.pieceRenderer!.update(elapsedTime);
         [0, 0, 1, 1].forEach((c, i) => {
             const index = (i % 2);
-            const x = (index * this.state.defaultCellSize) + (this.state.gridGapSize * index);
-            const y = (c * this.state.defaultCellSize) + (this.state.gridGapSize * c);
+            const x = 1 + (index * this.state.defaultCellSize) + (this.state.gridGapSize * index);
+            const y = 1 + (c * this.state.defaultCellSize) + (this.state.gridGapSize * c);
             this.pieceRenderer!.drawPlaceHolder(this.ctx!, x, y, i);
         });
         if (this.keepUpdating) {
@@ -89,12 +90,12 @@ export default class Settings extends Component<{}, IPreferences> {
         if (!this.state) {
             return <Loading />;
         }
-        const dimensions = (this.state.defaultCellSize * 2) + this.state.gridGapSize;
+        const dimensions = (this.state.defaultCellSize * 2) + this.state.gridGapSize + 2;
         return (
-            <div style={{ margin: '0px 16px' }}>
+            <div className="settings">
                 <h1>Settings</h1>
                 <form onSubmit={this.handleSubmit}>
-                    <h3>User preferences</h3>
+                    {/* <h3>User preferences</h3> */}
 
                     <Slider text="Piece Length"
                         name="defaultCellSize"
@@ -123,7 +124,7 @@ export default class Settings extends Component<{}, IPreferences> {
                         onChange={this.handleChange} />
 
                     <h3>Grid Preview</h3>
-                    <div className="form-input center overflow-x">
+                    <div className="form-input center">
                         <canvas id="preview" width={dimensions} height={dimensions}/>
                     </div>
                     

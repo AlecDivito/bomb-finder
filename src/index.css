@@ -37,6 +37,12 @@ ul {
         "footer"
 }
 
+@media only screen and (min-width: 768px) {
+    #root {
+        margin: 0px 3.5rem;
+    }
+}
+
 .page {
     grid-area: content;
     position: absolute;

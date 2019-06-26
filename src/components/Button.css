@@ -23,3 +23,9 @@
 .link-button {
     line-height: 3.5rem;
 }
+
+@media only screen and (min-width: 768px) {
+    .button, .link-button {
+        width: 100%;
+    }
+}

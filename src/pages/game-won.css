@@ -3,7 +3,7 @@
     margin: 0px 16px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
@@ -17,10 +17,15 @@
 
 .game-won__options {
     text-align: center;
+    width: 100%;
+}
+
+.game-won__stats {
+    margin: 1rem;
 }
 
 .game-won__options__item {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
 .game-won__options__item:first-child {
@@ -33,4 +38,12 @@
     color: #FFF;
     background-color: #000;
     border: 1px solid #333;
+}
+
+@media only screen and (min-width: 768px) {
+    .game-won {
+        width: 600px;
+        height: 100%;
+        margin: auto;
+    }
 }

@@ -1,16 +1,29 @@
 .custom {
-    margin: 1.5rem 0rem;
+    margin: 1.5rem 1rem;
 }
 
-.custom-inline {
+.custom__form--inline {
     display: flex;
     width: 100%;
 }
 
-.custom-inline > * {
+.custom__form--inline > * {
     padding-right: .5rem;
 }
 
-.custom-inline > *:last-child {
+.custom__form--inline > *:last-child {
     padding-right: 0;
+}
+
+@media only screen and (min-width: 768px) {
+    .custom {
+        width: 800px;
+        height: 100%;
+        margin: auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
 }

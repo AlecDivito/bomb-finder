@@ -1,0 +1,19 @@
+.settings {
+    margin: 0px 1rem;
+}
+
+.settings > * {
+    width: 100%;
+}
+
+@media only screen and (min-width: 768px) {
+    .settings {
+        width: 800px;
+        height: 100%;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+}
