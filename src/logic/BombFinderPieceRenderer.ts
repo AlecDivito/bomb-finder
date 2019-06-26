@@ -1,6 +1,12 @@
 import AnimationTimer, { LoopOptions } from "./Animation";
 import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBoardTypes";
 
+export interface CanvasWindow {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
 
 /**
  * All the renderer cares about is rendering
@@ -11,7 +17,11 @@ import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBo
  */
 export default class BombFinderPieceRenderer {
 
+    // TODO: Add more off screen canvas updating
+    private offscreenCanvas: HTMLCanvasElement = document.createElement("canvas");
     private pieceAnimations: AnimationTimer[] = [];
+
+    private canvasWindow?: CanvasWindow;
 
     private pieceLength: number;
     private gapSize: number;
@@ -29,11 +39,14 @@ export default class BombFinderPieceRenderer {
         this.pieceLength = pieceLength;
         this.gapSize = gapSize;
         this.simpleRender = simpleRender;
+        this.setCellSize(pieceLength);
         this.setSpinningCubes(spinningCubes);
     }
 
     setCellSize(value: number) {
         this.pieceLength = value;
+        this.offscreenCanvas.height = value;
+        this.offscreenCanvas.width = value;
     }
 
     setGapSize(value: number) {
@@ -52,13 +65,16 @@ export default class BombFinderPieceRenderer {
         this.simpleRender = value;
     }
 
-    update(delta: number) {
+    update(delta: number, canvasWindow?: CanvasWindow) {
+        this.canvasWindow = canvasWindow;
         if (this.simpleRender) {
             return;
         }
         for (let i = 0; i < this.pieceAnimations.length; i++) {
             this.pieceAnimations[i].update(delta);
         }
+        this.offscreenCanvas.getContext('2d')!.clearRect(0, 0, this.pieceLength, this.pieceLength);
+        this.drawInvisiblePiece(this.offscreenCanvas.getContext('2d')!, 0, 0);
     }
 
     drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number,
@@ -75,8 +91,19 @@ export default class BombFinderPieceRenderer {
     }
 
     drawPiece(ctx: CanvasRenderingContext2D, cell: Cell, x: number, y: number) {
+        // piece isn't even visible, don't render it
+        if (this.canvasWindow
+                && (x + this.pieceLength < this.canvasWindow.x // left
+                || x > this.canvasWindow.x + this.canvasWindow.width
+                || y + this.pieceLength < this.canvasWindow.y
+                || y > this.canvasWindow.y + this.canvasWindow.height)
+        ) {
+            return
+        } 
+
         if (cell.visibility === Visibility.INVISIBLE) {
-            this.drawInvisiblePiece(ctx, x, y);
+            // this.drawInvisiblePiece(ctx, x, y);
+            ctx.drawImage(this.offscreenCanvas, x, y);
             if (cell.hover) {
                 this.drawHover(ctx, x, y);
             }
@@ -269,5 +296,4 @@ export default class BombFinderPieceRenderer {
         ctx.closePath();
         ctx.restore();
     }
-
 }

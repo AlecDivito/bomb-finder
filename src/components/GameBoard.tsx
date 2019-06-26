@@ -169,6 +169,7 @@ class GameBoard extends Component<Props, State> {
             this.gameState!.handleEvents(events);
         }
         this.gameState!.update(elapsedTime);
+        // TODO: calcuate playing area and send it to draw
         this.gameState!.draw(this.context2D!);
         
         // Initial draw call before any events
