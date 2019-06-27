@@ -48,7 +48,6 @@ export default class GameWon extends Component<Props, State> {
             simpleRender: false,
             timestamp: new Date(),
         }
-        this.game.logAndDestroy();
         this.setState({
             loading: false,
             moves: this.game.totalMoves,
@@ -64,6 +63,9 @@ export default class GameWon extends Component<Props, State> {
     }
 
     componentWillUnmount() {
+        if (this.game) {
+            this.game.logAndDestroy();
+        }
         if (this.state.rafId) {
             cancelAnimationFrame(this.state.rafId!);
         }

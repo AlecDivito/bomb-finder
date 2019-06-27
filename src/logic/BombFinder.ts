@@ -142,7 +142,6 @@ export default class BombFinder {
             });
             this.games.board = this.grid;
             this.games.isComplete = true;
-            this.games.finishedAt = new Date();
         }
         if (this.games.result === "lost") {
             this.games.result = "lost";

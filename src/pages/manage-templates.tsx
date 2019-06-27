@@ -17,6 +17,11 @@ const COLUMN_NAMES: {name: string, key: keyof ICustomGameConfig }[] = [
     { name: "Created At", key: "createdAt" },
 ]
 
+/**
+ * TODO: Add custom logic to deal with an empty template grid
+ * Or just hide it on the main page
+ * 
+ */
 class ManageTemplates extends Component<{}, State> {
 
     constructor(props: {}) {

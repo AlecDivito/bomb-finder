@@ -16,7 +16,7 @@ export interface IGames {
     invisiblePieces: number;
     isComplete: boolean;
     result: GameProgress;
-    finishedAt: Date;
+    updatedAt: Date;
     createdAt: Date;
 }
 
@@ -48,7 +48,7 @@ export default class Games implements IGames {
     @Field()
     public result: GameProgress = "created";
     @Field()
-    public finishedAt: Date = new Date();
+    public updatedAt: Date = new Date();
     @Field()
     public createdAt: Date = new Date();
 
@@ -89,6 +89,7 @@ export default class Games implements IGames {
     }
 
     public update(): Promise<boolean> {
+        this.updatedAt = new Date();
         return Query.save(this);
     }
 
@@ -146,5 +147,19 @@ export default class Games implements IGames {
             (game: Games) => game.result === "created" || game.result === "inprogress"
         );
         return data;
+    }
+
+    static async GetLastPlayedGame(): Promise<IGames | undefined> {
+        const games: IGames[] = await Query.getAll(new Games());
+        if (games.length === 0) {
+            return undefined;
+        }
+        let game = games[0];
+        for (let i = 1; i < games.length; i++) {
+            if (game.updatedAt.getTime() < games[i].updatedAt.getTime()) {
+                game = games[i];
+            }
+        }
+        return game;
     }
 }
