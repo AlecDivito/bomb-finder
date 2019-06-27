@@ -1,5 +1,7 @@
 import AnimationTimer, { LoopOptions } from "./Animation";
 import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBoardTypes";
+import { createContext } from "vm";
+import RandInRange from "../util/Random";
 
 export interface CanvasWindow {
     x: number;
@@ -17,8 +19,22 @@ export interface CanvasWindow {
  */
 export default class BombFinderPieceRenderer {
 
+    /**
+     * Invisible
+     * Invisible Marked
+     * 0 cell
+     * bomb cell
+     * 1-8 cells
+     * 1-8 cells satisfied
+     */
+    // the offsreen canvas can be this.pieceLength * 20 by this.pieceLength
+    // then when we are drawing we just grab the offset
+    // why not 3 diffrent canvases, animated get there own
+
     // TODO: Add more off screen canvas updating
-    private offscreenCanvas: HTMLCanvasElement = document.createElement("canvas");
+    private invisiblePieceCanvas: HTMLCanvasElement;
+    private invisibleMarkedPieceCanvas: HTMLCanvasElement;
+    private staticPieceCanvas: HTMLCanvasElement[] = [];
     private pieceAnimations: AnimationTimer[] = [];
 
     private canvasWindow?: CanvasWindow;
@@ -39,14 +55,50 @@ export default class BombFinderPieceRenderer {
         this.pieceLength = pieceLength;
         this.gapSize = gapSize;
         this.simpleRender = simpleRender;
-        this.setCellSize(pieceLength);
         this.setSpinningCubes(spinningCubes);
+        // set up canvas
+        this.invisiblePieceCanvas = document.createElement("canvas");
+        this.invisibleMarkedPieceCanvas = document.createElement("canvas");
+        for (let i = 0; i < 18; i++) {
+            this.staticPieceCanvas[i] = document.createElement("canvas");
+            const ctx = this.staticPieceCanvas[i].getContext('2d')!;
+            if (i < 8) {
+                this.drawVisibleCell(ctx, 0, 0, (i + 1 as CellValue));
+            } else if (i < 16) {
+                const num: CellValue = (i % 8) + 1 as CellValue;
+                this.drawVisibleCell(ctx, 0, 0, num, "#3396ff");
+            } else if (i < 17) {
+                this.drawVisibleCell(ctx, 0, 0, 0);
+            } else {
+                this.drawVisibleCell(ctx, 0, 0, undefined);
+            }
+        }
     }
 
     setCellSize(value: number) {
         this.pieceLength = value;
-        this.offscreenCanvas.height = value;
-        this.offscreenCanvas.width = value;
+        // hard code invis
+        this.invisiblePieceCanvas.height = value;
+        this.invisiblePieceCanvas.width = value;
+        // marked invis
+        this.invisibleMarkedPieceCanvas.height = value;
+        this.invisibleMarkedPieceCanvas.width = value;
+        // everything else
+        for (let i = 0; i < 18; i++) {
+            this.staticPieceCanvas[i].width = value;
+            this.staticPieceCanvas[i].height = value;
+            const ctx = this.staticPieceCanvas[i].getContext('2d')!;
+            if (i < 8) {
+                this.drawVisibleCell(ctx, 0, 0, (i + 1 as CellValue));
+            } else if (i < 16) {
+                const num: CellValue = (i % 8) + 1 as CellValue;
+                this.drawVisibleCell(ctx, 0, 0, num, "#3396ff");
+            } else if (i < 17) {
+                this.drawVisibleCell(ctx, 0, 0, 0);
+            } else {
+                this.drawVisibleCell(ctx, 0, 0, undefined);
+            }
+        }
     }
 
     setGapSize(value: number) {
@@ -73,19 +125,25 @@ export default class BombFinderPieceRenderer {
         for (let i = 0; i < this.pieceAnimations.length; i++) {
             this.pieceAnimations[i].update(delta);
         }
-        this.offscreenCanvas.getContext('2d')!.clearRect(0, 0, this.pieceLength, this.pieceLength);
-        this.drawInvisiblePiece(this.offscreenCanvas.getContext('2d')!, 0, 0);
+        // get context
+        const ipcContext = this.invisiblePieceCanvas.getContext('2d')!;
+        const impcContext = this.invisibleMarkedPieceCanvas.getContext('2d')!;
+        // clear canvas
+        ipcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
+        impcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
+        // draw canvas
+        this.drawInvisiblePiece(ipcContext, 0, 0);
+        this.drawInvisiblePiece(impcContext, 0, 0, "#3396ff");
     }
 
-    drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number,
-        visibility: Visibility = Visibility.INVISIBLE) {
+    drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number, visibility: Visibility = Visibility.INVISIBLE) {
         ctx.save();
         switch (visibility) {
             case Visibility.INVISIBLE: this.drawInvisiblePiece(ctx, x, y); break;
             case Visibility.MARKED: this.drawInvisiblePiece(ctx, x, y, "#3396ff"); break;
-            case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, this.exampleCell); break;
+            case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, RandInRange(0, 8) as CellValue); break;
             case Visibility.VISIBLY_SATISFIED:
-                this.drawVisibleCell(ctx, x, y, this.exampleCell, "#3396ff"); break;
+                this.drawVisibleCell(ctx, x, y, RandInRange(0, 8) as CellValue, "#3396ff"); break;
         }
         ctx.restore();
     }
@@ -98,21 +156,32 @@ export default class BombFinderPieceRenderer {
                 || y + this.pieceLength < this.canvasWindow.y
                 || y > this.canvasWindow.y + this.canvasWindow.height)
         ) {
-            return
+            return;
         } 
 
         if (cell.visibility === Visibility.INVISIBLE) {
-            // this.drawInvisiblePiece(ctx, x, y);
-            ctx.drawImage(this.offscreenCanvas, x, y);
+            ctx.drawImage(this.invisiblePieceCanvas, x, y);
             if (cell.hover) {
                 this.drawHover(ctx, x, y);
             }
         } else if (cell.visibility === Visibility.MARKED) {
-            this.drawInvisiblePiece(ctx, x, y, "#3396ff");
-        } else if (cell.visibility === Visibility.VISIBLE) {
-            this.drawVisibleCell(ctx, x, y, cell);
-        } else if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
-            this.drawVisibleCell(ctx, x, y, cell, "#3396ff");
+            ctx.drawImage(this.invisibleMarkedPieceCanvas, x, y);
+        } else {
+            const index = this.getIndexByCell(cell);
+            ctx.drawImage(this.staticPieceCanvas[index], x, y);
+        }
+    }
+
+    private getIndexByCell(cell: Cell) {
+        if (isBomb(cell.value)) {
+            return 17;
+        } else if (cell.value === 0) {
+            return 16;
+        } else {
+            if (cell.visibility === Visibility.VISIBLY_SATISFIED) {
+                return cell.value! - 1 + 8;
+            }
+            return cell.value! - 1;
         }
     }
 
@@ -134,8 +203,6 @@ export default class BombFinderPieceRenderer {
         if (this.simpleRender) {
             return;
         }
-        // const radius = 1;
-        // this.drawCirlce(ctx, x + (length / 2) - (radius / 2), y + (length / 2) - (radius / 2), radius, overrideColor);
 
         ctx.save();
         let s = this.pieceLength;
@@ -212,11 +279,11 @@ export default class BombFinderPieceRenderer {
         ctx.restore();
     }
 
-    private drawVisibleCell(ctx: CanvasRenderingContext2D, x: number, y: number, cell: Cell, overrideColor?: string) {
+    private drawVisibleCell(ctx: CanvasRenderingContext2D, x: number, y: number, cellValue?: CellValue, overrideColor?: string) {
         ctx.save();
         ctx.beginPath();
         let length = this.pieceLength;
-        if (isBomb(cell.value)) {
+        if (isBomb(cellValue)) {
             // let radius = 3;
             // draw the outline of the shape
             ctx.save();
@@ -253,7 +320,7 @@ export default class BombFinderPieceRenderer {
             ctx.closePath();
             ctx.restore();
 
-        } else if (cell.value === 0) {
+        } else if (cellValue === 0) {
             this.drawRectangle(ctx, x, y, this.pieceLength / 8, this.pieceLength);
             ctx.lineWidth = 3;
             ctx.strokeStyle = "gray";
@@ -275,25 +342,10 @@ export default class BombFinderPieceRenderer {
             ctx.textBaseline = "bottom";
             ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
             ctx.lineWidth = 2;
-            ctx.fillText(String(cell.value), xpos, ypos);
+            ctx.fillText(String(cellValue), xpos, ypos);
         }
         ctx.closePath();
         ctx.stroke();
-        ctx.restore();
-    }
-
-    private drawCirlce(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, overrideColor?: string) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(x + radius / 2, y + radius / 2, radius, 0, 2 * Math.PI);
-        if (overrideColor) {
-            ctx.strokeStyle = overrideColor;
-        } else {
-            ctx.strokeStyle = "#FFF";
-        }
-        ctx.lineWidth = 5;
-        ctx.stroke();
-        ctx.closePath();
         ctx.restore();
     }
 }
