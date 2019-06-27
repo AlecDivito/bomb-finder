@@ -1,6 +1,5 @@
 import AnimationTimer, { LoopOptions } from "./Animation";
-import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBoardTypes";
-import { createContext } from "vm";
+import { Cell, Visibility, isBomb, CellValue } from "../models/GameBoardTypes";
 import RandInRange from "../util/Random";
 import { IPreferences } from "../models/Preferences";
 
@@ -52,9 +51,11 @@ export default class BombFinderPieceRenderer {
         this.invisiblePieceCanvas = document.createElement("canvas");
         this.invisiblePieceCanvas.height = this.pieceLength + 2;
         this.invisiblePieceCanvas.width = this.pieceLength + 2;
+        this.drawInvisiblePiece(this.invisiblePieceCanvas.getContext('2d')!, 1, 1);
         this.invisibleMarkedPieceCanvas = document.createElement("canvas");
         this.invisibleMarkedPieceCanvas.height = this.pieceLength + 2;
         this.invisibleMarkedPieceCanvas.width = this.pieceLength + 2;
+        this.drawInvisiblePiece(this.invisibleMarkedPieceCanvas.getContext('2d')!, 1, 1, "#3396ff");
         for (let i = 0; i < 18; i++) {
             this.staticPieceCanvas[i] = document.createElement("canvas");
             this.staticPieceCanvas[i].width = this.pieceLength + 2;

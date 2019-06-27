@@ -6,7 +6,7 @@ import "./game-won.css";
 import "../components/Button.css"
 import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
 import Button from "../components/Button";
-import Preferences from "../models/Preferences";
+import { IPreferences } from "../models/Preferences";
 
 interface ParamProps {
     id: string;
@@ -16,6 +16,7 @@ type Props = RouteComponentProps<ParamProps>;
 
 type State = {
     loading: boolean,
+    dimentions: number;
     moves?: number,
     time?: number,
     difficulty?: string,
@@ -34,19 +35,27 @@ export default class GameWon extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
-        this.state = {loading: true};
+        this.state = {loading: true, dimentions: 0};
     }
 
     async componentDidMount() {
+        // TODO: Handle Error when game doesn't exist
         this.game = await Games.GetById(this.props.match.params.id);
-        const settings = await Preferences.GetPreferences();
+        const settings: IPreferences = {
+            defaultCellSize: 120,
+            gridGapSize: 5,
+            spinningCubes: 7,
+            simpleRender: false,
+            timestamp: new Date(),
+        }
         this.game.logAndDestroy();
         this.setState({
             loading: false,
             moves: this.game.totalMoves,
             time: this.game.time,
             difficulty: this.game.difficulty,
-            lastFrame: 0
+            lastFrame: 0,
+            dimentions: settings.defaultCellSize + 1
         });
         this.canvas = document.getElementById("piece-canvas") as HTMLCanvasElement;
         this.context2D = this.canvas.getContext('2d')!;
@@ -82,7 +91,11 @@ export default class GameWon extends Component<Props, State> {
                         {this.state.difficulty}
                     </small>
                 </h1>
-                <canvas id="piece-canvas" width="120" height="120"></canvas>
+                <canvas id="piece-canvas"
+                    width={this.state.dimentions}
+                    height={this.state.dimentions}>
+                    This Device doesn't support the canvas element!
+                </canvas>
                 <ul className="game-won__stats">
                     <li>moves: {this.state.moves}</li>
                     <li>time: {this.state.time!.toFixed(2)}</li>
@@ -105,7 +118,7 @@ export default class GameWon extends Component<Props, State> {
         const elapsedTime = delta - this.state.lastFrame!;
         this.pieceRenderer!.update(elapsedTime);
         this.context2D!.fillStyle = "#333";
-        this.context2D!.fillRect(0, 0, 120, 120);
+        this.context2D!.fillRect(0, 0, this.state.dimentions, this.state.dimentions);
         this.pieceRenderer!.drawPlaceHolder(this.context2D!, 0, 0);
         if (this.keepUpdating) {
             this.setState({

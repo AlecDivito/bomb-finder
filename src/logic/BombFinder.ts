@@ -1,4 +1,4 @@
-import { Cell, CellState, CellValue, Visibility, isVisible, isBomb } from "../models/GameBoardTypes";
+import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable } from "../models/GameBoardTypes";
 import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
@@ -186,10 +186,12 @@ export default class BombFinder {
                 }
                 this.setCellVisibility(index);
             } else if (events.rightClick || (events.leftClick && this.inputMode === InputMode.MARK)) {
-                cell.visibility = (cell.visibility === Visibility.MARKED)
-                ? Visibility.INVISIBLE
-                : Visibility.MARKED;
-                this.markCell(index);
+                if (isMarkable(cell.visibility)) {
+                    cell.visibility = (cell.visibility === Visibility.MARKED)
+                        ? Visibility.INVISIBLE
+                        : Visibility.MARKED;
+                    this.markCell(index);
+                }
             }
             this.updateRemainingPiecesCount = true;
         }
@@ -394,10 +396,8 @@ export default class BombFinder {
         const startingColOffset = Math.max(this.width, canvasWindow.width) - canvasWindow.width;
         const startingRowOffset = Math.max(this.height, canvasWindow.height) - canvasWindow.height;
 
-        const startingRow = Math.floor(canvasWindow.x / (totalPieceSize + startingRowOffset + 1));
-        const startingCol = Math.floor(canvasWindow.y / (totalPieceSize + startingColOffset + 1));
-        
-        // 1 694 30 664
+        const startingRow = Math.floor(canvasWindow.x / (totalPieceSize + startingColOffset + 1));
+        const startingCol = Math.floor(canvasWindow.y / (totalPieceSize + startingRowOffset + 1));
 
         const endingCol = Math.min(Math.ceil(
             (canvasWindow.x + canvasWindow.width - this.offsetWidth) / totalPieceSize) + 1,

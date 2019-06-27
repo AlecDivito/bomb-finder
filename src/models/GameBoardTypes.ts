@@ -8,6 +8,9 @@ export enum Visibility {
 export const isVisible = (v: Visibility) => 
     v === Visibility.VISIBLE || v === Visibility.VISIBLY_SATISFIED;
 
+export const isMarkable = (v: Visibility) =>
+    v === Visibility.MARKED || v === Visibility.INVISIBLE;
+
 export enum CellState {
     BOMB,  // cell is a bomb
     CLEAN, // cell is clean

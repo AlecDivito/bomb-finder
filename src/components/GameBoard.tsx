@@ -3,14 +3,14 @@ import BombFinder from "../logic/BombFinder";
 import InputController from "../logic/InputController";
 import { Link, Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
+import { CanvasWindow } from '../logic/BombFinderPieceRenderer';
 import Games from '../models/Games';
-import './GameBoard.css';
 import Loading from './Loading';
 import Preferences from '../models/Preferences';
 import Button from './Button';
 import GameHeader from './Gameheader';
 import GameFooter from './GameFooter';
-import { CanvasWindow } from '../logic/BombFinderPieceRenderer';
+import './GameBoard.css';
 
 interface Props {
     id: string;
@@ -20,8 +20,10 @@ interface Props {
 interface State {
     ready: boolean;
     totalPieces: number;
+    gameOver: boolean;
     newGameId?: string;
     inputId?: number;
+    time: number;
 }
 
 class GameBoard extends Component<Props, State> {
@@ -38,7 +40,9 @@ class GameBoard extends Component<Props, State> {
 
     state: Readonly<State> = {
         ready: false,
+        gameOver: false,
         totalPieces: 0,
+        time: 0,
     }
 
     public componentDidUpdate(prevProps: Props, prevState: State) {
@@ -46,6 +50,8 @@ class GameBoard extends Component<Props, State> {
             // new game has started without unmounting the component
             this.setState({
                 ready: false,
+                time: 0,
+                gameOver: false,
                 newGameId: undefined,
                 inputId: undefined,
             });
@@ -141,7 +147,7 @@ class GameBoard extends Component<Props, State> {
                         className={this.gameState!.gameState}
                         width={dimensions.width}
                         height={dimensions.height} />
-                    {(this.gameState!.isGameOver)
+                    {(this.state.gameOver)
                         ? <div className="board__popup">
                             <Button className="board__popup__item"
                                 type="button"
@@ -191,6 +197,8 @@ class GameBoard extends Component<Props, State> {
             this.lastFrame = delta;
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
+            } else {
+                this.setState({ gameOver: true });
             }
             // return;
         }
@@ -198,6 +206,9 @@ class GameBoard extends Component<Props, State> {
         if (!this.stopUpdates) {
             this.rafId = requestAnimationFrame(this.draw);
             this.lastFrame = delta;
+            if (this.state.time !== this.gameState!.getTime) {
+                this.setState({ time: this.gameState!.getTime });
+            }
         }
     }
 }
