@@ -6,6 +6,7 @@ import "./game-won.css";
 import "../components/Button.css"
 import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
 import Button from "../components/Button";
+import Preferences from "../models/Preferences";
 
 interface ParamProps {
     id: string;
@@ -38,6 +39,7 @@ export default class GameWon extends Component<Props, State> {
 
     async componentDidMount() {
         this.game = await Games.GetById(this.props.match.params.id);
+        const settings = await Preferences.GetPreferences();
         this.game.logAndDestroy();
         this.setState({
             loading: false,
@@ -48,7 +50,7 @@ export default class GameWon extends Component<Props, State> {
         });
         this.canvas = document.getElementById("piece-canvas") as HTMLCanvasElement;
         this.context2D = this.canvas.getContext('2d')!;
-        this.pieceRenderer = new BombFinderPieceRenderer(120, 0, 7);
+        this.pieceRenderer = new BombFinderPieceRenderer(settings);
         requestAnimationFrame(this.draw);
     }
 

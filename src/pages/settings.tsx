@@ -21,9 +21,7 @@ export default class Settings extends Component<{}, IPreferences> {
         this.setState(preferences);
         this.canvas = document.getElementById('preview') as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d')!;
-        this.pieceRenderer = new BombFinderPieceRenderer(
-            preferences.defaultCellSize, preferences.gridGapSize,
-            preferences.spinningCubes, preferences.simpleRender);
+        this.pieceRenderer = new BombFinderPieceRenderer(preferences);
         requestAnimationFrame(this.draw);
     }
 

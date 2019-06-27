@@ -2,6 +2,7 @@ import AnimationTimer, { LoopOptions } from "./Animation";
 import { Cell, Visibility, isBomb, CellState, CellValue } from "../models/GameBoardTypes";
 import { createContext } from "vm";
 import RandInRange from "../util/Random";
+import { IPreferences } from "../models/Preferences";
 
 export interface CanvasWindow {
     x: number;
@@ -37,40 +38,37 @@ export default class BombFinderPieceRenderer {
     private staticPieceCanvas: HTMLCanvasElement[] = [];
     private pieceAnimations: AnimationTimer[] = [];
 
-    private canvasWindow?: CanvasWindow;
-
     private pieceLength: number;
     private gapSize: number;
     private simpleRender: boolean;
+    private exampleCellValue = RandInRange(0, 8);
 
-    private readonly exampleCell = {
-        hover: false,
-        visibility: Visibility.VISIBLE,
-        state: CellState.CLEAN,
-        value: 2 as CellValue,
-    };
-
-    constructor(pieceLength: number, gapSize: number, spinningCubes: number,
-        simpleRender: boolean = false) {
-        this.pieceLength = pieceLength;
-        this.gapSize = gapSize;
-        this.simpleRender = simpleRender;
-        this.setSpinningCubes(spinningCubes);
+    constructor(settings: IPreferences) {
+        this.pieceLength = settings.defaultCellSize;
+        this.gapSize = settings.gridGapSize;
+        this.simpleRender = settings.simpleRender;
+        this.setSpinningCubes(settings.spinningCubes);
         // set up canvas
         this.invisiblePieceCanvas = document.createElement("canvas");
+        this.invisiblePieceCanvas.height = this.pieceLength + 2;
+        this.invisiblePieceCanvas.width = this.pieceLength + 2;
         this.invisibleMarkedPieceCanvas = document.createElement("canvas");
+        this.invisibleMarkedPieceCanvas.height = this.pieceLength + 2;
+        this.invisibleMarkedPieceCanvas.width = this.pieceLength + 2;
         for (let i = 0; i < 18; i++) {
             this.staticPieceCanvas[i] = document.createElement("canvas");
+            this.staticPieceCanvas[i].width = this.pieceLength + 2;
+            this.staticPieceCanvas[i].height = this.pieceLength + 2;
             const ctx = this.staticPieceCanvas[i].getContext('2d')!;
             if (i < 8) {
-                this.drawVisibleCell(ctx, 0, 0, (i + 1 as CellValue));
+                this.drawVisibleCell(ctx, 1, 1.5, (i + 1 as CellValue));
             } else if (i < 16) {
                 const num: CellValue = (i % 8) + 1 as CellValue;
-                this.drawVisibleCell(ctx, 0, 0, num, "#3396ff");
+                this.drawVisibleCell(ctx, 1, 1.5, num, "#3396ff");
             } else if (i < 17) {
-                this.drawVisibleCell(ctx, 0, 0, 0);
+                this.drawVisibleCell(ctx, 1, 1.5, 0);
             } else {
-                this.drawVisibleCell(ctx, 0, 0, undefined);
+                this.drawVisibleCell(ctx, 1, 1.5, undefined);
             }
         }
     }
@@ -117,8 +115,7 @@ export default class BombFinderPieceRenderer {
         this.simpleRender = value;
     }
 
-    update(delta: number, canvasWindow?: CanvasWindow) {
-        this.canvasWindow = canvasWindow;
+    update(delta: number) {
         if (this.simpleRender) {
             return;
         }
@@ -132,8 +129,8 @@ export default class BombFinderPieceRenderer {
         ipcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
         impcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
         // draw canvas
-        this.drawInvisiblePiece(ipcContext, 0, 0);
-        this.drawInvisiblePiece(impcContext, 0, 0, "#3396ff");
+        this.drawInvisiblePiece(ipcContext, 1, 1);
+        this.drawInvisiblePiece(impcContext, 1, 1, "#3396ff");
     }
 
     drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number, visibility: Visibility = Visibility.INVISIBLE) {
@@ -141,28 +138,18 @@ export default class BombFinderPieceRenderer {
         switch (visibility) {
             case Visibility.INVISIBLE: this.drawInvisiblePiece(ctx, x, y); break;
             case Visibility.MARKED: this.drawInvisiblePiece(ctx, x, y, "#3396ff"); break;
-            case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, RandInRange(0, 8) as CellValue); break;
+            case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, this.exampleCellValue as CellValue); break;
             case Visibility.VISIBLY_SATISFIED:
-                this.drawVisibleCell(ctx, x, y, RandInRange(0, 8) as CellValue, "#3396ff"); break;
+                this.drawVisibleCell(ctx, x, y, this.exampleCellValue as CellValue, "#3396ff"); break;
         }
         ctx.restore();
     }
 
     drawPiece(ctx: CanvasRenderingContext2D, cell: Cell, x: number, y: number) {
-        // piece isn't even visible, don't render it
-        if (this.canvasWindow
-                && (x + this.pieceLength < this.canvasWindow.x // left
-                || x > this.canvasWindow.x + this.canvasWindow.width
-                || y + this.pieceLength < this.canvasWindow.y
-                || y > this.canvasWindow.y + this.canvasWindow.height)
-        ) {
-            return;
-        } 
-
         if (cell.visibility === Visibility.INVISIBLE) {
             ctx.drawImage(this.invisiblePieceCanvas, x, y);
             if (cell.hover) {
-                this.drawHover(ctx, x, y);
+                this.drawHover(ctx, x + 1, y + 1);
             }
         } else if (cell.visibility === Visibility.MARKED) {
             ctx.drawImage(this.invisibleMarkedPieceCanvas, x, y);

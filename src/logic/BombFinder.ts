@@ -5,7 +5,7 @@ import { Point2d, InputMode } from "../models/GameTypes";
 import Games from "../models/Games";
 import { IPreferences } from "../models/Preferences";
 import AnimationTimer from "./Animation";
-import BombFinderPieceRenderer from "./BombFinderPieceRenderer";
+import BombFinderPieceRenderer, { CanvasWindow } from "./BombFinderPieceRenderer";
 
 export default class BombFinder {
 
@@ -33,10 +33,7 @@ export default class BombFinder {
     constructor(games: Games, settings: IPreferences, minWidth: number, minHeight: number) {
         this.games = games;
         this.settings = settings;
-        this.pieceRenderer = new BombFinderPieceRenderer(
-            this.settings.defaultCellSize, this.settings.gridGapSize,
-            this.settings.spinningCubes, this.settings.simpleRender
-        );
+        this.pieceRenderer = new BombFinderPieceRenderer(settings);
 
         const calculatedWidth = this.calculateBoardSize(this.games.width);
         const calculatedHeight = this.calculateBoardSize(this.games.height);
@@ -376,9 +373,9 @@ export default class BombFinder {
         return neighbors;
     }
 
-    public draw(ctx: CanvasRenderingContext2D) {
+    public draw(ctx: CanvasRenderingContext2D, canvasWindow: CanvasWindow) {
         this.drawBackground(ctx);
-        this.drawBoard(ctx);
+        this.drawBoard(ctx, canvasWindow);
     }
 
     private drawBackground(ctx: CanvasRenderingContext2D) {
@@ -392,22 +389,39 @@ export default class BombFinder {
         ctx.restore();
     }
 
-    private drawBoard(ctx: CanvasRenderingContext2D) {
-        ctx.save();
-        this.grid.forEach((cell, index) => {
-            const row = Math.floor(index / this.games.width);
-            const col = index % this.games.width;
+    private drawBoard(ctx: CanvasRenderingContext2D, canvasWindow: CanvasWindow) {
+        const totalPieceSize = this.settings.defaultCellSize + this.settings.gridGapSize;
+        const startingColOffset = Math.max(this.width, canvasWindow.width) - canvasWindow.width;
+        const startingRowOffset = Math.max(this.height, canvasWindow.height) - canvasWindow.height;
 
-            // position
-            const x = this.offsetWidth + this.calculateBoardSize(col);
-            const y = this.offsetHeight + this.calculateBoardSize(row);
+        const startingRow = Math.floor(canvasWindow.x / (totalPieceSize + startingRowOffset + 1));
+        const startingCol = Math.floor(canvasWindow.y / (totalPieceSize + startingColOffset + 1));
+        
+        // 1 694 30 664
 
-            /**
-             * This is what I want to be able to call
-             */
-            this.pieceRenderer.drawPiece(ctx, cell, x, y);
-        });
-        ctx.restore();
+        const endingCol = Math.min(Math.ceil(
+            (canvasWindow.x + canvasWindow.width - this.offsetWidth) / totalPieceSize) + 1,
+            this.games.width);
+        const endingRow = Math.min(Math.ceil(
+            (canvasWindow.y + canvasWindow.height - this.offsetHeight) / totalPieceSize) + 1,
+            this.games.height);
+
+        for (let row = startingRow; row < endingRow; row++) {
+            for (let col = startingCol; col < endingCol; col++) {
+                // position
+                const x = this.offsetWidth + this.calculateBoardSize(col);
+                const y = this.offsetHeight + this.calculateBoardSize(row);
+                const index = this.getIndex(row, col);
+                const cell = this.grid[index];
+
+                /**
+                 * This is what I want to be able to call
+                 */
+                if (cell) {
+                    this.pieceRenderer.drawPiece(ctx, cell, x, y);
+                }
+            }    
+        }
     }
 
     private calculateBoardSize(size: number) {

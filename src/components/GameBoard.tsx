@@ -10,6 +10,7 @@ import Preferences from '../models/Preferences';
 import Button from './Button';
 import GameHeader from './Gameheader';
 import GameFooter from './GameFooter';
+import { CanvasWindow } from '../logic/BombFinderPieceRenderer';
 
 interface Props {
     id: string;
@@ -18,17 +19,18 @@ interface Props {
 
 interface State {
     ready: boolean;
-    lastFrame: number;
     totalPieces: number;
     newGameId?: string;
-    rafId?: number;
     inputId?: number;
 }
 
 class GameBoard extends Component<Props, State> {
 
     private stopUpdates: boolean = false;
+    private rafId?: number;
+    private lastFrame: number = 0;
 
+    private container?: HTMLDivElement;
     private canvas?: HTMLCanvasElement;
     private context2D?: CanvasRenderingContext2D;
     private gameState?: BombFinder;
@@ -36,7 +38,6 @@ class GameBoard extends Component<Props, State> {
 
     state: Readonly<State> = {
         ready: false,
-        lastFrame: 0,
         totalPieces: 0,
     }
 
@@ -45,9 +46,7 @@ class GameBoard extends Component<Props, State> {
             // new game has started without unmounting the component
             this.setState({
                 ready: false,
-                lastFrame: 0,
                 newGameId: undefined,
-                rafId: undefined,
                 inputId: undefined,
             });
             this.destroyGame();
@@ -72,11 +71,12 @@ class GameBoard extends Component<Props, State> {
             this.props.onGameFinished(games.result);
             return;
         }
+        // TODO: Remove magic number
         this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight - 120);
         this.input = new InputController();
         this.setState({ ready: true, totalPieces: games.totalPieces });
         this.canvas = document.getElementById("board") as HTMLCanvasElement;
-        const container = document.getElementById("board-container") as HTMLDivElement;
+        this.container = document.getElementById("board-container") as HTMLDivElement;
         this.context2D = this.canvas.getContext("2d")!;
 
         const inputId = this.input.start(this.canvas!, ["mousemove", "mousedown",
@@ -85,7 +85,7 @@ class GameBoard extends Component<Props, State> {
         // TODO: Add error handling
         this.canvas!.width = this.gameState!.gameBoardWidth;
         this.canvas!.height = this.gameState!.gameBoardHeight;
-        container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
+        this.container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
         this.setState({ ready: true, inputId: inputId });
         requestAnimationFrame(this.draw);
     }
@@ -94,20 +94,22 @@ class GameBoard extends Component<Props, State> {
         if (this.state.ready && this.state.inputId) {
             this.input!.stop(this.state.inputId!);
         }
-        if (this.state.rafId) {
-            cancelAnimationFrame(this.state.rafId!);
+        if (this.rafId) {
+            cancelAnimationFrame(this.rafId!);
         }
     }
 
     public changeInputMode = (markFlag: boolean) => {
         this.gameState!.setMarkInput(markFlag);
-        this.gameState!.draw(this.context2D!);
+        // this.gameState!.draw(this.context2D!);
     }
 
     public tryAgain = async () => {
+        console.log('trying');
         if (this.state.ready && !this.state.newGameId) {
             try {
                 const newGameId = await this.gameState!.reset();
+                console.log('lets go')
                 this.setState({ ready: false, newGameId });
             } catch (e) {
                 console.warn("erorr " + e);
@@ -162,7 +164,7 @@ class GameBoard extends Component<Props, State> {
             // TODO: do we need this ready check for the game?????
             return;
         }
-        const elapsedTime = delta - this.state.lastFrame;
+        const elapsedTime = delta - this.lastFrame;
         const events = this.input!.pollEvents(this.state.inputId!);
         
         if (events) {
@@ -170,11 +172,15 @@ class GameBoard extends Component<Props, State> {
         }
         this.gameState!.update(elapsedTime);
         // TODO: calcuate playing area and send it to draw
-        this.gameState!.draw(this.context2D!);
+        const viewport: CanvasWindow = {
+            x: this.container!.scrollLeft, y: this.container!.scrollTop,
+            width: this.container!.clientWidth, height: this.container!.clientHeight
+        };
+        this.gameState!.draw(this.context2D!, viewport);
         
         // Initial draw call before any events
-        if (this.state.rafId === undefined || this.gameState!.isGameOver) {
-            this.gameState!.draw(this.context2D!);
+        if (this.rafId === undefined || this.gameState!.isGameOver) {
+            this.gameState!.draw(this.context2D!, viewport);
         }
         
         this.input!.flush();
@@ -182,7 +188,7 @@ class GameBoard extends Component<Props, State> {
         
         if (this.gameState!.isGameOver) {
             // cancelAnimationFrame(this.state.rafId!);
-            this.setState({ lastFrame: delta });
+            this.lastFrame = delta;
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
             }
@@ -190,10 +196,8 @@ class GameBoard extends Component<Props, State> {
         }
 
         if (!this.stopUpdates) {
-            this.setState({
-                rafId: requestAnimationFrame(this.draw),
-                lastFrame: delta
-            });
+            this.rafId = requestAnimationFrame(this.draw);
+            this.lastFrame = delta;
         }
     }
 }
