@@ -41,7 +41,7 @@ export default class Home extends Component<{}, State> {
                     {
                         (this.state.gameId)
                             ? <li className="home__list__item">
-                                <Link to={`/game/${this.state.gameId}`}>CONTINUE GAME</Link>
+                                <Link to={`/game/${this.state.gameId}`}>CONTINUE</Link>
                             </li>
                             : null
                     }

@@ -37,7 +37,7 @@
     position: fixed;
     bottom: 60px;
     margin: 0px 16px;
-    width: 100vw;
+    width: calc(100% - 32px);
     left: 0;
 }
 
