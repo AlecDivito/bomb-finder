@@ -112,7 +112,7 @@ export default class Statistics implements IStatistics {
 
     public static async AddGameResults(game: Games): Promise<boolean> {
         if (game.result === "created" || game.result === "inprogress") {
-            return Promise.resolve(false);
+        return Promise.resolve(false);
         }
         const s = await Statistics.GetStats(game.difficulty);
         // general stuff and averages
@@ -126,10 +126,19 @@ export default class Statistics implements IStatistics {
             s.averageTime = Statistics.ComputeAvg(s.gamesPlayed, s.averageTime, game.time);
             
             // best times per game type
-            if (s.bestTime >= game.time) { // best time doesn't exist for difficulty
-                s.bestTime = game.time;
-            } else if (s.worstTime <= game.time) {
-                s.worstTime = game.time;
+            if (s.bestTime >= game.time || s.bestTime === 0) { // best time doesn't exist for difficulty
+                if (s.bestTime === 0 && !(s.bestTime >= game.time)) {
+                    s.bestTime = 1;
+                } else {
+                    s.bestTime = Math.floor(game.time);
+                }
+            }
+            if (s.worstTime <= game.time || s.worstTime === 0) {
+                if (Math.floor(game.time) === 0) {
+                    s.worstTime = 1;
+                } else {
+                    s.worstTime = Math.floor(game.time);
+                }
             }
             console.log(s);
         }

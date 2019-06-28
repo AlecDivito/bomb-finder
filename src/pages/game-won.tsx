@@ -58,11 +58,28 @@ export default class GameWon extends Component<Props, State> {
             simpleRender: false,
             timestamp: new Date(),
         };
+        let switchGameTimeToOne = false;
         let winningText = "You win!";
-        if (this.game.time < this.stats.bestTime) {
-            winningText = "New High Score!";
-        } else if (this.game.time > this.stats.worstTime) {
+        if (Math.floor(this.game.time) >= this.stats.worstTime) {
             winningText = "New Low Score!";
+            if (Math.floor(this.game.time) === 0) {
+                switchGameTimeToOne = true;
+                this.stats.worstTime = 1;
+            } else {
+                this.stats.worstTime = Math.floor(this.game.time);
+            }
+        }
+        if (Math.floor(this.game.time) <= this.stats.bestTime) {
+            winningText = "New High Score!";
+            if (Math.floor(this.game.time) === 0) {
+                switchGameTimeToOne = true;
+                this.stats.bestTime = 1;
+            } else {
+                this.stats.bestTime = Math.floor(this.game.time);
+            }
+        }
+        if (switchGameTimeToOne) {
+            this.game.time = 1;
         }
         this.setState({
             loading: false,
@@ -115,7 +132,7 @@ export default class GameWon extends Component<Props, State> {
                 <div className="divider" />
                 <ul className="game-won__stats">
                     <li className="game-won__stats__item">Moves <br/>{this.state.moves}</li>
-                    <li className="game-won__stats__item">Time <br/>{toHHMMSS(this.state.time!)}</li>
+                    <li className="game-won__stats__item">Score <br/>{toHHMMSS(this.state.time!)}</li>
                     <li className="game-won__stats__item--icon"><img src={hourglass} alt="watch" /></li>
                     <li className="game-won__stats__item">Best <br/>{toHHMMSS(this.stats!.bestTime)}</li>
                     <li className="game-won__stats__item">Worst <br/>{toHHMMSS(this.stats!.worstTime)}</li>

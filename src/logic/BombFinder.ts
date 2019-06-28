@@ -119,6 +119,9 @@ export default class BombFinder {
     }
 
     public update(delta: number) {
+        if (this.games.isComplete) {
+            return;
+        }
         this.pieceRenderer.update(delta);
         this.backgroundAnimation.update(delta);
         if (this.games.gameHasStarted && this.remainingPieces !== this.games.totalPieces) {

@@ -1,6 +1,6 @@
 .game-won {
     height: 100%;
-    margin: 0px 16px;
+    margin: 1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -21,8 +21,8 @@
 
 .game-won__stats {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    justify-content: space-evenly;
+    grid-template-columns: 1fr 1fr auto 1fr 1fr;
+    grid-column-gap: 4px;
     width: 100%;
 }
 
