@@ -94,6 +94,8 @@ export default class Games implements IGames {
     }
 
     public async logAndDestroy() {
+        // TODO: maybe throw an error here, if one fails, can't really tell which
+        //       one failed
         return await Query.remove(this) && await Statistics.AddGameResults(this);
     }
 
@@ -111,7 +113,7 @@ export default class Games implements IGames {
         game.bombs = bombs;
         game.invisiblePieces = game.totalPieces;
         const result = await Query.save(game);
-        const stats = await Statistics.AddGame();
+        const stats = await Statistics.AddGame(game.difficulty);
         if (!result) {
             // TODO: Add Error handling
             // this is temporary

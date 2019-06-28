@@ -91,6 +91,13 @@ export class Query {
         return Query.instance;
     }
 
+    static sanitizeId(id: string) {
+        return id.replace(" ", "_").toLocaleLowerCase();
+    }
+
+    // TODO: object should extend an object with id garenteed on the object
+    //       that way we can sanitize the id
+    //       There should be sanitization for every id
     static async save<T extends Object>(obj: T): Promise<boolean> {
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {

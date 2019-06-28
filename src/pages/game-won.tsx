@@ -7,6 +7,7 @@ import "../components/Button.css"
 import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
 import Button from "../components/Button";
 import { IPreferences } from "../models/Preferences";
+import toHHMMSS from "../util/toHHMMSS";
 
 interface ParamProps {
     id: string;
@@ -100,7 +101,7 @@ export default class GameWon extends Component<Props, State> {
                 </canvas>
                 <ul className="game-won__stats">
                     <li>moves: {this.state.moves}</li>
-                    <li>time: {this.state.time!.toFixed(2)}</li>
+                    <li>time: {toHHMMSS(this.state.time!)}</li>
                 </ul>
                 <div className="game-won__options">
                     <Button className="game-won__options__item link-button"

@@ -2,78 +2,95 @@ import { Table, Field, Query } from "../logic/MetaDataStorage";
 import Games from "./Games";
 
 export interface IStatistics {
-    bestTime: { [key: string]: number };
-    // worstTime: { [key: string]: number };
-    // longestGame: number;
-    // general
-    inprogress: number
-    gamesPlayed: number;
-    averageNumberOfMoves: number;
-    averageTime: number;
-    // wins
+    id: string;
+    name: string;
+    // time
+    bestTime: number;
+    worstTime: number;
+    averageTime: number
+    totalTimePlayed: number;
+    // games played
     wins: number;
-    averagesMovesPerWin: number;
-    averageTimePerWin: number;
-    // losses
     losses: number;
-    averagesMovesPerLoss: number;
-    averageTimePerLoss: number;
+    inprogress: number
+    // other
+    averageMoves: number;
 }
 
 @Table()
 export default class Statistics implements IStatistics {
 
+    // Game Difficulty
     @Field(true)
-    public readonly statistics: string = "statistics";
+    public id: string = "";
+
+    @Field()
+    public name: string = "";
 
     // best and worst
     @Field()
-    public bestTime: {[key: string]: number} = {};
-
-    // @Field()
-    // public worstTime: {[key: string]: number} = {};
-
-    // @Field()
-    // public longestGame: number = 0;
-
-    // average
-    @Field()
-    public gamesPlayed: number = 0;
+    public bestTime: number = 0;
 
     @Field()
-    public averageNumberOfMoves: number = 0;
+    public worstTime: number = 0;
 
     @Field()
     public averageTime: number = 0;
 
-    // wins
+    @Field()
+    public totalTimePlayed: number = 0;
+
+    // Games Played
     @Field()
     public wins: number = 0;
 
     @Field()
-    public averagesMovesPerWin: number = 0;
-
-    @Field()
-    public averageTimePerWin: number = 0;
-
-    // losses
-    @Field()
     public losses: number = 0;
 
     @Field()
-    public averagesMovesPerLoss: number = 0;
-
-    @Field()
-    public averageTimePerLoss: number = 0;
-
-    // inprogress TODO: figure out if we need this counter
-    @Field()
     public inprogress: number = 0;
 
+    // Other
+    @Field()
+    public averageMoves: number = 0;
 
-    public static async GetStats(): Promise<Statistics> {
+
+    public get gamesPlayed() {
+        return this.wins + this.losses + this.inprogress;
+    }
+
+    public static async GetAllStatistics(): Promise<Statistics[]> {
         const statistics = new Statistics();
-        const cacheStats: IStatistics = await Query.getById(statistics, statistics.statistics);
+        const allStatisticsObjects: IStatistics[] = await Query.getAll(statistics);
+        if (allStatisticsObjects.length === 0) {
+            return [];
+        }
+        // calculate total
+        const stat = new Statistics();
+        stat.name = "All Game Modes";
+        const allStatistics = allStatisticsObjects.map( (item) => {
+            // global all games
+            stat.bestTime = (item.bestTime < stat.bestTime) ? item.bestTime : stat.bestTime;
+            stat.worstTime = (item.worstTime > stat.worstTime) ? item.worstTime : stat.worstTime;
+            stat.averageTime += item.averageTime;
+            stat.averageMoves += item.averageMoves;
+            stat.wins += item.wins;
+            stat.losses += item.losses;
+            stat.inprogress += item.inprogress;
+            stat.totalTimePlayed += item.totalTimePlayed;
+            // spesific item
+            item.averageMoves = Math.round(item.averageMoves);
+            return Object.assign(new Statistics(), item);
+        }, statistics);
+        stat.averageMoves = Math.round(stat.averageMoves / allStatistics.length);
+        stat.averageTime = stat.averageTime / allStatistics.length;
+        allStatistics.unshift(stat);
+        return allStatistics;
+    }
+
+    public static async GetStats(id: string): Promise<Statistics> {
+        const statistics = new Statistics();
+        const cacheStats: IStatistics = await Query.getById(statistics, Query.sanitizeId(id));
         // not undefined
         if (cacheStats) {
             const stats = Object.assign(statistics, cacheStats);
@@ -84,9 +101,11 @@ export default class Statistics implements IStatistics {
         }
     }
 
-    public static async AddGame() {
-        const s = await Statistics.GetStats();
+    public static async AddGame(id: string) {
+        const s = await Statistics.GetStats(Query.sanitizeId(id));
         s.inprogress++;
+        s.name = id;
+        s.id = Query.sanitizeId(id);
         return await Query.save(s);
     }
 
@@ -94,33 +113,27 @@ export default class Statistics implements IStatistics {
         if (game.result === "created" || game.result === "inprogress") {
             return Promise.resolve(false);
         }
-        const s = await Statistics.GetStats();
+        const s = await Statistics.GetStats(game.difficulty);
         // general stuff and averages
         s.inprogress--;
-        s.gamesPlayed++;
-        s.averageNumberOfMoves = Statistics.ComputeAvg(s.gamesPlayed, s.averageNumberOfMoves, game.totalMoves);
-        s.averageTime = Statistics.ComputeAvg(s.gamesPlayed, s.averageTime, game.time);
-
+        s.totalTimePlayed += game.time;
+        
         // wins
         if (game.result === "won") {
             s.wins++;
-            s.averagesMovesPerWin = Statistics.ComputeAvg(s.wins, s.averagesMovesPerWin, game.totalMoves);
-            s.averageTimePerWin = Statistics.ComputeAvg(s.wins, s.averageTimePerWin, game.time);
+            s.averageMoves = Statistics.ComputeAvg(s.gamesPlayed, s.averageMoves, game.totalMoves);
+            s.averageTime = Statistics.ComputeAvg(s.gamesPlayed, s.averageTime, game.time);
 
             // best times per game type
-            const gameDiffKey = game.difficulty.replace(' ', '_');
-            if (!s.bestTime[gameDiffKey]) { // best time doesn't exist for difficulty
-                s.bestTime[gameDiffKey] = game.time;
-            } else {
-                const best = s.bestTime[gameDiffKey];
-                s.bestTime[gameDiffKey] = (best < game.time) ? game.time : best;
+            if (s.bestTime >= game.time) { // best time doesn't exist for difficulty
+                s.bestTime = game.time;
+            } else if (s.worstTime <= game.time) {
+                s.worstTime = game.time;
             }
         }
         // losses
         else {
             s.losses++;
-            s.averagesMovesPerLoss = Statistics.ComputeAvg(s.losses, s.averagesMovesPerLoss, game.totalMoves);
-            s.averageTimePerLoss = Statistics.ComputeAvg(s.losses, s.averageTimePerLoss, game.time);
         }
 
         return Query.save(s);

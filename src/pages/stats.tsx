@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 import Loading from "../components/Loading";
 import Statistics from "../models/Statistics";
+import "./stats.css";
+import Dropdown from "../components/Dropdown";
+import toHHMMSS from "../util/toHHMMSS";
 
 interface State {
     loading: boolean;
-    stats?: Statistics;
+    stats: Statistics[];
+    index: number;
 }
 
 // TODO: Add pretty graphs :)
@@ -12,20 +16,28 @@ export default class Stats extends Component<{}, State> {
 
     state: Readonly<State> = {
         loading: true,
-        stats: undefined,
+        stats: [],
+        index: 0,
     };
 
     async componentDidMount() {
-        let stats = await Statistics.GetStats();
+        let stats = await Statistics.GetAllStatistics();
+        console.log(stats); 
         this.setState({stats, loading: false});
+    }
+
+    changeStatistics = (e: React.FormEvent<HTMLSelectElement>) => {
+        const index = this.state.stats
+            .findIndex(s => s.name === e.currentTarget.value);
+        this.setState({ index });
     }
 
     public render() {
         if (this.state.loading) {
             return <Loading />
         }
-        if (this.state.stats && this.state.stats!.gamesPlayed === 0) {
-            return <div style={{ margin: '0px 16px' }}>
+        if (this.state.stats && this.state.stats!.length === 0) {
+            return <div className="stats">
                 <h1>Statistics!</h1>
                 <p>
                     No Games Found! Play some games and come back too see how
@@ -33,43 +45,30 @@ export default class Stats extends Component<{}, State> {
                 </p>
             </div>
         }
+        const { index, stats } = this.state
         return (
-            <div style={{ margin: '0px 16px' }}>
-                <h1>Stats!</h1>
+            <div className="stats">
+                <h1 className="stats__header">Stats!</h1>
+                <Dropdown
+                    value={stats[index].name}
+                    items={stats.map(s => s.name)}
+                    onChange={this.changeStatistics}/>
                 <ul>
                     <li>
-                        Games Played: <strong>{this.state.stats!.gamesPlayed}</strong>
+                        Games Played: <strong>{stats![index].gamesPlayed}</strong>
                     </li>
                     <li>
-                        Wins: <strong>{this.state.stats!.wins}</strong>
+                        Graph
                     </li>
                     <li>
-                        Losses: <strong>{this.state.stats!.losses}</strong>
+                        Average Moves: <strong>{stats![index].averageMoves}</strong>
                     </li>
                     <li>
-                        InComplete Games: <strong>{this.state.stats!.inprogress}</strong>
+                        Best Times: <strong>{stats![index].bestTime}</strong>
                     </li>
                     <li>
-                        Average Number of Moves during losses: <strong>{this.state.stats!.averagesMovesPerLoss}</strong>
+                        Total Time Played: <strong>{toHHMMSS(stats![index].totalTimePlayed)}</strong>
                     </li>
-                    <li>
-                        Average Number of Moves during win: <strong>{this.state.stats!.averagesMovesPerWin}</strong>
-                    </li>
-                    <li>
-                        Average Number of Moves during total: <strong>{this.state.stats!.averageNumberOfMoves}</strong>
-                    </li>
-                    <li>
-                        Average time for losses: <strong>{this.state.stats!.averageTimePerLoss}</strong>
-                    </li>
-                    <li>
-                        Average time for win: <strong>{this.state.stats!.averageTimePerWin}</strong>
-                    </li>
-                    <li>
-                        Average time for total: <strong>{this.state.stats!.averageTime}</strong>
-                    </li>
-                    {/* <li>
-                        Average Number of Invisible Pieces during loss: <strong>{this.state.stats!.averageInvisiblePiecesPerLoss}</strong>
-                    </li> */}
                 </ul>
             </div>
         );
