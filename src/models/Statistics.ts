@@ -103,7 +103,8 @@ export default class Statistics implements IStatistics {
 
     public static async AddGame(id: string) {
         const s = await Statistics.GetStats(Query.sanitizeId(id));
-        s.inprogress++;
+        console.log('creating new game');
+        s.inprogress += 1;
         s.name = id;
         s.id = Query.sanitizeId(id);
         return await Query.save(s);
@@ -115,25 +116,26 @@ export default class Statistics implements IStatistics {
         }
         const s = await Statistics.GetStats(game.difficulty);
         // general stuff and averages
-        s.inprogress--;
+        s.inprogress -= 1;
         s.totalTimePlayed += game.time;
         
         // wins
         if (game.result === "won") {
-            s.wins++;
+            s.wins += 1;
             s.averageMoves = Statistics.ComputeAvg(s.gamesPlayed, s.averageMoves, game.totalMoves);
             s.averageTime = Statistics.ComputeAvg(s.gamesPlayed, s.averageTime, game.time);
-
+            
             // best times per game type
             if (s.bestTime >= game.time) { // best time doesn't exist for difficulty
                 s.bestTime = game.time;
             } else if (s.worstTime <= game.time) {
                 s.worstTime = game.time;
             }
+            console.log(s);
         }
         // losses
         else {
-            s.losses++;
+            s.losses += 1;
         }
 
         return Query.save(s);

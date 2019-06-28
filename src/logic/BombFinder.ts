@@ -138,22 +138,23 @@ export default class BombFinder {
             this.games.totalMoves++;
             this.games.update();
         }
-        if (this.games.result === "lost" || this.remainingPieces === 0) {
+        if (!this.games.isComplete && (this.games.result === "lost" || this.remainingPieces === 0)) {
             this.grid.forEach((cell) => {
                 if (cell.state === CellState.BOMB) {
                     cell.visibility = Visibility.VISIBLE
                 }
             });
             this.games.board = this.grid;
+            if (this.games.result === "lost") {
+                console.log('fuck')
+                this.games.result = "lost";
+                this.games.logAndDestroy();
+            }
+            else if (this.remainingPieces === 0) {
+                this.games.result = "won";
+                this.games.update();
+            }
             this.games.isComplete = true;
-        }
-        if (this.games.result === "lost") {
-            this.games.result = "lost";
-            this.games.logAndDestroy();
-        }
-        else if (this.remainingPieces === 0) {
-            this.games.result = "won";
-            this.games.update();
         }
     }
 

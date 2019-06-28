@@ -77,15 +77,11 @@ export default class Games implements IGames {
      * @param game game thats finished
      * @param newId id of the new game
      */
-    public async reset(oldGame: Games): Promise<Games | undefined> {
-        const oldGameSaved = await oldGame.logAndDestroy();
-        if (oldGameSaved) {
-            // TODO: Add error handling (need to add in games first (down there))
-            const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
-                oldGame.height, oldGame.bombs);
-            return newGame;
-        }
-        return undefined;
+    public async reset(oldGame: Games): Promise<Games> {
+        // TODO: Add error handling (need to add in games first (down there))
+        const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
+            oldGame.height, oldGame.bombs);
+        return newGame;
     }
 
     public update(): Promise<boolean> {

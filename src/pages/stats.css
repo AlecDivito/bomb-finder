@@ -5,3 +5,8 @@
 .stats__header {
     margin-bottom: 1rem;
 }
+
+.stats--chart {
+    width: 200px;
+    margin: auto;
+}
