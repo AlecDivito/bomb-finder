@@ -61,6 +61,10 @@ export default class BombFinder {
         this.init();
     }
 
+    public get isInputModeToggle() {
+        return InputMode.TOGGLE === this.inputMode;
+    }
+
     public get gameBoardOverflowClasses() {
         return this.overflowClasses;
     }
@@ -159,6 +163,11 @@ export default class BombFinder {
         }
         if (!events) {
             return;
+        }
+        if (events.events.includes("keydown")) {
+            if (events.keys.includes("f")) {
+                this.setMarkInput(this.inputMode === InputMode.TOGGLE);
+            }
         }
         if (events.events.includes("mousemove")) {
             this.grid.forEach((cell) => {

@@ -86,7 +86,7 @@ class GameBoard extends Component<Props, State> {
         this.context2D = this.canvas.getContext("2d")!;
 
         const inputId = this.input.start(this.canvas!, ["mousemove", "mousedown",
-            "contextmenu", "touchstart", "touchmove", "touchend"]);
+            "contextmenu", "touchstart", "touchmove", "touchend", "keydown"]);
 
         // TODO: Add error handling
         this.canvas!.width = this.gameState!.gameBoardWidth;
@@ -160,7 +160,9 @@ class GameBoard extends Component<Props, State> {
                         : null
                     }
                 </div>
-                <GameFooter flagToggle={this.changeInputMode} />
+                <GameFooter
+                    isSwitchChecked={!this.gameState!.isInputModeToggle}
+                    flagToggle={this.changeInputMode} />
             </div>
         );
     }
@@ -175,6 +177,9 @@ class GameBoard extends Component<Props, State> {
         
         if (events) {
             this.gameState!.handleEvents(events);
+            if (events.keys.length > 0) {
+                this.forceUpdate();
+            }
         }
         this.gameState!.update(elapsedTime);
         // TODO: calcuate playing area and send it to draw

@@ -38,13 +38,14 @@ export interface EventState {
     touch?: TouchEvent;
 }
 
-type Events = "mousedown" | "mouseup" | "mousemove" | "touch"
+type Events = "mousedown" | "mouseup" | "mousemove" | "touch" | "keydown"
 
 export interface SimpleEventState {
     leftClick: boolean;
     middleClick: boolean;
     rightClick: boolean;
     pos: Point2d;
+    keys: string[];
     events: Array<Events>
 }
 

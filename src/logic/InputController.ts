@@ -36,9 +36,14 @@ export default class InputController {
 
         events.forEach((event) => {
             const pointer = this.getFunctionPointer(event);
-            this.listeners[id].element.addEventListener(event, pointer as any, {
-                passive: event !== "contextmenu"
-            });
+            if (event === "keydown") {
+                window.addEventListener(event, pointer as any);
+            }
+            else {
+                this.listeners[id].element.addEventListener(event, pointer as any, {
+                    passive: event !== "contextmenu",
+                });
+            }
             this.listeners[id].listeningTo.push(event);
         });
 
@@ -79,7 +84,11 @@ export default class InputController {
 
         this.listeners[id].listeningTo.forEach(event => {
             const pointer = this.getFunctionPointer(event);
-            this.listeners[id].element.removeEventListener(event, pointer as any);
+            if (event === "keydown") {
+                window.removeEventListener(event, pointer as any);
+            } else {
+                this.listeners[id].element.removeEventListener(event, pointer as any);
+            }
         });
 
         return true;
@@ -94,6 +103,7 @@ export default class InputController {
             case "touchstart": return this.touchEvent;
             case "touchmove": return this.touchEvent;
             case "touchend": return this.touchEvent;
+            case "keydown": return this.keydownEvent;
         }
     }
 
@@ -116,6 +126,7 @@ export default class InputController {
                 x: event.pageX,
                 y: event.pageY,
             },
+            keys: (this.state) ? this.state!.keys : [],
             events: [event.type as any]
         };
     }
@@ -152,10 +163,29 @@ export default class InputController {
                 middleClick: false,
                 rightClick: this.touchTimer > this.touchThreshold,
                 pos: this.touchPoint!,
+                keys: (this.state) ? this.state!.keys : [],
                 events: ["touch"]
             }
             this.touchPoint = undefined;
             this.touchTimer = 0;
+        }
+    }
+
+    private keydownEvent = (event: KeyboardEvent) => {
+        if(this.state) {
+            this.state.events.push(event.type as any);
+        }
+        if (this.state) {
+            this.state.keys.push(event.key);
+        } else {
+            this.state = {
+                leftClick: false,
+                middleClick: false,
+                rightClick: false,
+                pos: { x: -1, y: -1 },
+                keys: [event.key],
+                events: [event.type as any]
+            };
         }
     }
 

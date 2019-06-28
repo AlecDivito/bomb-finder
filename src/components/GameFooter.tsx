@@ -6,10 +6,12 @@ import "./Footer.css"
 import Switch from './Switch';
 
 interface Props {
+    isSwitchChecked?: boolean;
     flagToggle: (value: boolean) => void;
 }
 
 const GameFooter: React.FC<Props> = (props: Props) => {
+    const isChecked = (props.isSwitchChecked) ? true : false;
     return (
         <footer className="footer footer--game">
             <Link to="/how-to-play">
@@ -17,7 +19,9 @@ const GameFooter: React.FC<Props> = (props: Props) => {
             </Link>
             <div className="footer__text">
                 <span>Clear</span>
-                <Switch onChange={(event: any) => props.flagToggle(event.target.checked) }/>
+                <Switch
+                    checked={isChecked}
+                    onChange={(event: any) => props.flagToggle(event.target.checked) }/>
                 <span>Flag</span>
             </div>
             <Link to="/settings">
