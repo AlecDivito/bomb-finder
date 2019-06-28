@@ -47,6 +47,7 @@ export default class Stats extends Component<{}, State> {
             </div>
         }
         const { index, stats } = this.state
+        const stat = stats![index];
         return (
             <div className="stats">
                 <h1 className="stats__header">Stats!</h1>
@@ -55,9 +56,7 @@ export default class Stats extends Component<{}, State> {
                     items={stats.map(s => s.name)}
                     onChange={this.changeStatistics}/>
                 <ul>
-                    <li>
-                        Games Played: <strong>{stats![index].gamesPlayed}</strong>
-                    </li>
+                    <li className="center"><strong>{stat.gamesPlayed}</strong> Games Played</li>
                     <li className="stats--chart">
                         <PieChart
                             animate={true}
@@ -67,37 +66,27 @@ export default class Stats extends Component<{}, State> {
                                 fill: '#121212'
                             }}
                             data={[
-                                { value: stats![index].wins, color: this.getColor(0, 3) },
-                                { value: stats![index].losses, color: this.getColor(1, 3) },
-                                { value: stats![index].inprogress, color: this.getColor(2, 3) },
+                                { value: stat.wins, color: this.getColor(0, 3) },
+                                { value: stat.losses, color: this.getColor(1, 3) },
+                                { value: stat.inprogress, color: this.getColor(2, 3) },
                             ]}/>
                         <ul>
                             <li style={{backgroundColor: this.getColor(0, 3)}}>
-                                Wins ({stats![index].wins})
+                                Wins ({stat.wins})
                             </li>
                             <li style={{backgroundColor: this.getColor(1, 3)}}>
-                                Losses ({stats![index].losses})
+                                Losses ({stat.losses})
                             </li>
                             <li style={{backgroundColor: this.getColor(2, 3)}}>
-                                In Progress ({stats![index].inprogress})
+                                In Progress ({stat.inprogress})
                             </li>
                         </ul>
                     </li>
-                    <li>
-                        Average Moves: <strong>{stats![index].averageMoves}</strong>
-                    </li>
-                    <li>
-                        Best Times: <strong>{stats![index].bestTime}</strong>
-                    </li>
-                    <li>
-                        Worst Time: <strong>{stats![index].worstTime}</strong>
-                    </li>
-                    <li>
-                        Average Times: <strong>{toHHMMSS(stats![index].averageTime)}</strong>
-                    </li>
-                    <li>
-                        Total Time Played: <strong>{toHHMMSS(stats![index].totalTimePlayed)}</strong>
-                    </li>
+                    <li>Average Moves: <strong>{stat.averageMoves}</strong></li>
+                    <li>Best Times: <strong>{stat.bestTime}</strong></li>
+                    <li>Worst Time: <strong>{toHHMMSS(stat.worstTime)}</strong></li>
+                    <li>Average Times: <strong>{toHHMMSS(stat.averageTime)}</strong></li>
+                    <li>Total Time Played: <strong>{toHHMMSS(stat.totalTimePlayed)}</strong></li>
                 </ul>
             </div>
         );

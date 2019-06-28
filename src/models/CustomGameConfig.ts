@@ -113,8 +113,8 @@ export default class CustomGameConfig implements ICustomGameConfig {
                 case 'bombs':
                     if (config.bombs > (config.width * config.height) - 1) {
                         errors.bombs = `Too many bombs! (Max: ${(config.width * config.height) - 1})`;
-                    } else if (config.bombs < 5) {
-                        errors.bombs = "Too few bombs! (Min: 5)";
+                    } else if (config.bombs < 1) {
+                        errors.bombs = "Too few bombs! (Min: 1)";
                     }
                     break;
                 case 'name':

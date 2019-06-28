@@ -4,10 +4,12 @@ import Games from "../models/Games";
 import Loading from "../components/Loading";
 import "./game-won.css";
 import "../components/Button.css"
+import hourglass from "../assets/hourglass.svg";
 import BombFinderPieceRenderer from "../logic/BombFinderPieceRenderer";
 import Button from "../components/Button";
 import { IPreferences } from "../models/Preferences";
 import toHHMMSS from "../util/toHHMMSS";
+import Statistics from "../models/Statistics";
 
 interface ParamProps {
     id: string;
@@ -18,6 +20,7 @@ type Props = RouteComponentProps<ParamProps>;
 type State = {
     loading: boolean,
     dimentions: number;
+    winningText: string;
     moves?: number,
     time?: number,
     difficulty?: string,
@@ -32,25 +35,38 @@ export default class GameWon extends Component<Props, State> {
     private canvas?: HTMLCanvasElement;
     private context2D?: CanvasRenderingContext2D;
     private game?: Games;
+    private stats?: Statistics;
     private pieceRenderer?: BombFinderPieceRenderer;
 
     constructor(props: Props) {
         super(props);
-        this.state = {loading: true, dimentions: 0};
+        this.state = {
+            loading: true,
+            dimentions: 0,
+            winningText: "",
+        };
     }
 
     async componentDidMount() {
         // TODO: Handle Error when game doesn't exist
         this.game = await Games.GetById(this.props.match.params.id);
+        this.stats = await Statistics.GetStats(this.game.difficulty);
         const settings: IPreferences = {
             defaultCellSize: 120,
             gridGapSize: 5,
             spinningCubes: 7,
             simpleRender: false,
             timestamp: new Date(),
+        };
+        let winningText = "You win!";
+        if (this.game.time < this.stats.bestTime) {
+            winningText = "New High Score!";
+        } else if (this.game.time > this.stats.worstTime) {
+            winningText = "New Low Score!";
         }
         this.setState({
             loading: false,
+            winningText,
             moves: this.game.totalMoves,
             time: this.game.time,
             difficulty: this.game.difficulty,
@@ -86,23 +102,25 @@ export default class GameWon extends Component<Props, State> {
         if (this.state.gameId) {
             return <Redirect to={`/game/${this.state.gameId}`} />
         }
+        const { difficulty, bombs, width, height } = this.game!;
         return (
             <div className="game-won">
-                <h1>
-                    You Won!
-                    <small className="game-won--caption">
-                        {this.state.difficulty}
-                    </small>
-                </h1>
                 <canvas id="piece-canvas"
                     width={this.state.dimentions}
                     height={this.state.dimentions}>
                     This Device doesn't support the canvas element!
                 </canvas>
+                <div className="game-won--statement">{this.state.winningText}</div>
+                <div className="game-won--statement">{difficulty} ({width}x{height}:{bombs})</div>
+                <div className="divider" />
                 <ul className="game-won__stats">
-                    <li>moves: {this.state.moves}</li>
-                    <li>time: {toHHMMSS(this.state.time!)}</li>
+                    <li className="game-won__stats__item">Moves <br/>{this.state.moves}</li>
+                    <li className="game-won__stats__item">Time <br/>{toHHMMSS(this.state.time!)}</li>
+                    <li className="game-won__stats__item--icon"><img src={hourglass} alt="watch" /></li>
+                    <li className="game-won__stats__item">Best <br/>{toHHMMSS(this.stats!.bestTime)}</li>
+                    <li className="game-won__stats__item">Worst <br/>{toHHMMSS(this.stats!.worstTime)}</li>
                 </ul>
+                <div className="divider" />
                 <div className="game-won__options">
                     <Button className="game-won__options__item link-button"
                         type="button"

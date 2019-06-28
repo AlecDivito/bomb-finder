@@ -7,12 +7,11 @@
     align-items: center;
 }
 
-.game-won--caption {
+.game-won--statement {
     width: 100%;
-    display: block;
     text-align: center;
-    font-weight: normal;
     font-size: 1rem;
+    margin-top: .5rem;
 }
 
 .game-won__options {
@@ -21,7 +20,23 @@
 }
 
 .game-won__stats {
-    margin: 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.game-won__stats__item {
+    display: block;
+    text-align: center;
+}
+
+.game-won__stats__item--icon {
+    text-align: center;
+    font-size: 1rem;
+}
+.game-won__stats__item--icon img {
+    width: 50px;
 }
 
 .game-won__options__item {
@@ -42,7 +57,7 @@
 
 @media only screen and (min-width: 768px) {
     .game-won {
-        width: 600px;
+        width: 500px;
         height: 100%;
         margin: auto;
     }
