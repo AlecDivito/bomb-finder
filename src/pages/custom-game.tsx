@@ -62,7 +62,7 @@ export default class CustomGameForm extends React.Component<{}, State> {
         }
         let { width, height, bombs, name } = this.state;
         if (!name) {
-            name = "custom";
+            name = "Unnamed Game Config";
         }
         // TODO: Add error handling (add in Games first)
         const game = await Games.Create(name, width, height, bombs);
