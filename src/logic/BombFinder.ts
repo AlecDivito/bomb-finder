@@ -388,6 +388,8 @@ export default class BombFinder {
     }
 
     public draw(ctx: CanvasRenderingContext2D, canvasWindow: CanvasWindow) {
+        // TODO: futher optimizations 
+        // TODO: Render screen differences only, not the whole new state.
         this.drawBackground(ctx);
         this.drawBoard(ctx, canvasWindow);
     }

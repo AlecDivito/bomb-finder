@@ -17,7 +17,7 @@
 
 @media only screen and (min-width: 768px) {
     .custom {
-        width: 800px;
+        width: 500px;
         height: 100%;
         margin: auto;
 
@@ -25,5 +25,9 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+    }
+
+    .custom__form {
+        width: 500px;
     }
 }

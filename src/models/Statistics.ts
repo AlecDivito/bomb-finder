@@ -1,4 +1,4 @@
-import { Table, Field, Query } from "../logic/MetaDataStorage";
+import { IDBTable, Table, Field, Query } from "../logic/MetaDataStorage";
 import Games from "./Games";
 
 export interface IStatistics {
@@ -18,7 +18,7 @@ export interface IStatistics {
 }
 
 @Table()
-export default class Statistics implements IStatistics {
+export default class Statistics implements IStatistics, IDBTable {
 
     // Game Difficulty
     @Field(true)
@@ -90,14 +90,13 @@ export default class Statistics implements IStatistics {
 
     public static async GetStats(id: string): Promise<Statistics> {
         const statistics = new Statistics();
-        const cacheStats: IStatistics = await Query.getById(statistics, Query.sanitizeId(id));
+        const cacheStats = await Query.getById(statistics, Query.sanitizeId(id));
         // not undefined
-        if (cacheStats) {
-            const stats = Object.assign(statistics, cacheStats);
-            return stats;
+        if (cacheStats === undefined) {
+            return statistics;
         }
         else {
-            return statistics;
+            return Object.assign(statistics, cacheStats);
         }
     }
 

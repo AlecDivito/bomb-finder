@@ -1,4 +1,4 @@
-import { Table, Field, Query } from "../logic/MetaDataStorage";
+import { Table, Field, Query, IDBTable } from "../logic/MetaDataStorage";
 import uuid from "../util/uuid";
 import { FormError } from "./Types";
 
@@ -41,7 +41,7 @@ const DEFAULT_TEMPLATES: ICustomGameConfig[] = [
 ];
 
 @Table()
-export default class CustomGameConfig implements ICustomGameConfig {
+export default class CustomGameConfig implements ICustomGameConfig, IDBTable {
 
     @Field(true)
     public id: string = "";
@@ -95,7 +95,8 @@ export default class CustomGameConfig implements ICustomGameConfig {
     }
 
     static async getById(id: string) {
-        return await Query.getById(new CustomGameConfig(), id);
+        // TODO: Error handling
+        return await Query.getById(new CustomGameConfig(), id)!;
     }
     
     static validate(config: ICustomGameConfig) {

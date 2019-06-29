@@ -1,3 +1,4 @@
+import { isObject } from "util";
 
 type TableMetaData = {
     table: string,
@@ -66,21 +67,25 @@ export class MetaDataStorage {
 
 enum StorageOption {
     INDEXDB,
-    LOCAL_STORAGE,
     MEMORY,
-} 
+}
+
+export interface IDBTable {
+    id: string;
+}
 
 export class Query {
 
     private static instance: Query;
+    private static storageType: StorageOption;
+    private static memoryDb: any = {};
     private database?: IDBDatabase;
-    private storageType: StorageOption;
 
     private constructor() {
         if (window.indexedDB) {
-            this.storageType = StorageOption.INDEXDB;
+            Query.storageType = StorageOption.INDEXDB;
         } else {
-            this.storageType = StorageOption.MEMORY;
+            Query.storageType = StorageOption.MEMORY;
         }
     }
 
@@ -98,7 +103,15 @@ export class Query {
     // TODO: object should extend an object with id garenteed on the object
     //       that way we can sanitize the id
     //       There should be sanitization for every id
-    static async save<T extends Object>(obj: T): Promise<boolean> {
+    static async save<T extends IDBTable>(obj: T): Promise<boolean> {
+        if (Query.storageType === StorageOption.MEMORY) {
+            console.log(Query.memoryDb[obj.constructor.name]);
+            if (!isObject(Query.memoryDb[obj.constructor.name])) {
+                Query.memoryDb[obj.constructor.name] = {};
+            }
+            Query.memoryDb[obj.constructor.name][obj.id] = obj;
+            return true;
+        }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
@@ -130,8 +143,17 @@ export class Query {
         });
     }
 
-    static async getAll<T extends Object>(type: T, filter?: (record: T) => boolean ): Promise<T[]> {
+    static async getAll<T extends IDBTable>(type: T, filter?: (record: T) => boolean ): Promise<T[]> {
         const data: any = [];
+        if (Query.storageType === StorageOption.MEMORY) {
+            console.log(Query.memoryDb[type.constructor.name]);
+            if (!isObject(Query.memoryDb[type.constructor.name])) {
+                return data;
+            }
+            return Object.keys(Query.memoryDb[type.constructor.name])
+                .map(id => Query.memoryDb[type.constructor.name][id])
+                .filter(t => (filter) ? filter(t) : true);
+        }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
@@ -165,7 +187,14 @@ export class Query {
         });
     }
 
-    static async getById<T extends Object>(type: T, id: string | number): Promise<T> {
+    static async getById<T extends IDBTable>(type: T, id: string): Promise<T | undefined> {
+        if (Query.storageType === StorageOption.MEMORY) {
+            console.log(Query.memoryDb[type.constructor.name]);
+            if (!isObject(Query.memoryDb[type.constructor.name])) {
+                return undefined;
+            }
+            return Query.memoryDb[type.constructor.name][id];
+        }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
@@ -180,7 +209,7 @@ export class Query {
                     .objectStore(type.constructor.name)
                     .get(id);
                 request.onerror = (event) => {
-                    reject();
+                    reject(undefined);
                 };
                 request.onsuccess = (event) => {
                     resolve(request.result);
@@ -189,7 +218,17 @@ export class Query {
         });
     }
 
-    static async remove<T extends Object>(type: T): Promise<boolean> {
+    static async remove<T extends IDBTable>(type: T): Promise<boolean> {
+        if (Query.storageType === StorageOption.MEMORY) {
+            console.log(Query.memoryDb[type.constructor.name]);
+            if (!isObject(Query.memoryDb[type.constructor.name])) {
+                return true;
+            }
+            if (isObject(Query.memoryDb[type.constructor.name][type.id])) {
+                delete Query.memoryDb[type.constructor.name][type.id];
+            }
+            return true;
+        }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
@@ -218,7 +257,7 @@ export class Query {
         const request = await window.indexedDB.open(window.location.hostname, version);
         return new Promise((resolve, reject) => {
             request.onerror = (event) => {
-                this.storageType = StorageOption.MEMORY;
+                Query.storageType = StorageOption.MEMORY;
                 reject();
             }
 

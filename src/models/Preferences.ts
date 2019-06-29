@@ -1,4 +1,4 @@
-import { Table, Field, Query } from "../logic/MetaDataStorage";
+import { Table, Field, Query, IDBTable } from "../logic/MetaDataStorage";
 
 export interface IPreferences {
     // soundVolume: number;
@@ -12,10 +12,10 @@ export interface IPreferences {
 }
 
 @Table()
-export default class Preferences implements IPreferences {
+export default class Preferences implements IPreferences, IDBTable {
     
     @Field(true)
-    public readonly preferences: string = "preferences";
+    public readonly id: string = "preferences";
 
     @Field()
     public defaultCellSize: number = 35;
@@ -34,13 +34,12 @@ export default class Preferences implements IPreferences {
 
     static async GetPreferences(): Promise<IPreferences> {
         const preferences = new Preferences();
-        const cachedSettings: IPreferences = await Query.getById(preferences, preferences.preferences);
+        const cachedSettings = await Query.getById(preferences, preferences.id);
         // not defined
-        if (cachedSettings) {
-            return cachedSettings;
-        }
-        else {
+        if (cachedSettings === undefined) {
             return preferences;
+        } else {
+            return cachedSettings;
         }
     }
 

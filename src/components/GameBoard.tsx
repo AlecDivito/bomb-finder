@@ -34,6 +34,7 @@ class GameBoard extends Component<Props, State> {
 
     private container?: HTMLDivElement;
     private canvas?: HTMLCanvasElement;
+    // TODO: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas#Turn_off_transparency
     private context2D?: CanvasRenderingContext2D;
     private gameState?: BombFinder;
     private input?: InputController;
@@ -70,7 +71,8 @@ class GameBoard extends Component<Props, State> {
     }
 
     public async createGame() {
-        const games = await Games.GetById(this.props.id);
+        // TODO: GetById error handling
+        const games = await Games.GetById(this.props.id)!;
         const preferences = await Preferences.GetPreferences();
         const page = document.getElementById("page") as HTMLDivElement;
         if (games.result === "won") {

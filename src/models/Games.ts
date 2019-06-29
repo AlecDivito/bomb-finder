@@ -1,4 +1,4 @@
-import { Table, Field, Query } from '../logic/MetaDataStorage';
+import { Table, Field, Query, IDBTable } from '../logic/MetaDataStorage';
 import { GameDifficulty, GameProgress } from './GameTypes';
 import { Cell } from './GameBoardTypes';
 import uuid from '../util/uuid';
@@ -21,7 +21,7 @@ export interface IGames {
 }
 
 @Table()
-export default class Games implements IGames {
+export default class Games implements IGames, IDBTable {
     // Initial Game data
     @Field(true)
     public id: string = "";
@@ -131,7 +131,7 @@ export default class Games implements IGames {
     }
 
     static async GetById(id: string): Promise<Games> {
-        const result: IGames = await Query.getById(new Games(), id);
+        const result = await Query.getById(new Games(), id);
         if (result === undefined) {
             // TODO: better error message
             throw new Error("Game does not exist, This shouldn't be called");
