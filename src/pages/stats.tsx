@@ -55,39 +55,59 @@ export default class Stats extends Component<{}, State> {
                     value={stats[index].name}
                     items={stats.map(s => s.name)}
                     onChange={this.changeStatistics}/>
-                <ul>
-                    <li className="center"><strong>{stat.gamesPlayed}</strong> Games Played</li>
-                    <li className="stats--chart">
-                        <PieChart
-                            animate={true}
-                            labelStyle={{
-                                fontSize: '5px',
-                                fontFamily: 'sans-serif',
-                                fill: '#121212'
-                            }}
-                            data={[
-                                { value: stat.wins, color: this.getColor(0, 3) },
-                                { value: stat.losses, color: this.getColor(1, 3) },
-                                { value: stat.inprogress, color: this.getColor(2, 3) },
-                            ]}/>
-                        <ul>
-                            <li style={{backgroundColor: this.getColor(0, 3)}}>
-                                Wins ({stat.wins})
-                            </li>
-                            <li style={{backgroundColor: this.getColor(1, 3)}}>
-                                Losses ({stat.losses})
-                            </li>
-                            <li style={{backgroundColor: this.getColor(2, 3)}}>
-                                In Progress ({stat.inprogress})
-                            </li>
-                        </ul>
-                    </li>
-                    <li>Average Moves: <strong>{stat.averageMoves}</strong></li>
-                    <li>Best Times: <strong>{stat.bestTime}</strong></li>
-                    <li>Worst Time: <strong>{toHHMMSS(stat.worstTime)}</strong></li>
-                    <li>Average Times: <strong>{toHHMMSS(stat.averageTime)}</strong></li>
-                    <li>Total Time Played: <strong>{toHHMMSS(stat.totalTimePlayed)}</strong></li>
-                </ul>
+                <div className="stats__caption center">
+                    <strong>{stat.gamesPlayed}</strong> Games Played
+                </div>
+                <div className="stats__chart">
+                    <PieChart
+                        animate={true}
+                        labelStyle={{
+                            width: '200px',
+                            fontSize: '5px',
+                            fontFamily: 'sans-serif',
+                            fill: '#121212'
+                        }}
+                        data={[
+                            { value: stat.wins, color: this.getColor(0, 3) },
+                            { value: stat.losses, color: this.getColor(1, 3) },
+                            { value: stat.inprogress, color: this.getColor(2, 3) },
+                        ]}/>
+                    <ul className="stats__chart__list">
+                        <li style={{backgroundColor: this.getColor(0, 3)}}>
+                            Wins ({stat.wins})
+                        </li>
+                        <li style={{backgroundColor: this.getColor(1, 3)}}>
+                            Losses ({stat.losses})
+                        </li>
+                        <li style={{backgroundColor: this.getColor(2, 3)}}>
+                            In Progress ({stat.inprogress})
+                        </li>
+                    </ul>
+                </div>
+                <table className="stats__table">
+                    <tbody>
+                        <tr>
+                            <td>Average Moves</td>
+                            <td>{stat.averageMoves}</td>
+                        </tr>
+                        <tr>
+                            <td>Best Times</td>
+                            <td>{stat.bestTime}</td>
+                        </tr>
+                        <tr>
+                            <td>Worst Time</td>
+                            <td>{toHHMMSS(stat.worstTime)}</td>
+                        </tr>
+                        <tr>
+                            <td>Average Times</td>
+                            <td>{toHHMMSS(stat.averageTime)}</td>
+                        </tr>
+                        <tr>
+                            <td>Total Time Played</td>
+                            <td>{toHHMMSS(stat.totalTimePlayed)}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         );
     }
