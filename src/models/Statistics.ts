@@ -126,7 +126,7 @@ export default class Statistics implements IStatistics, IDBTable {
             
             // best times per game type
             if (s.bestTime >= game.time || s.bestTime === 0) { // best time doesn't exist for difficulty
-                if (s.bestTime === 0 && !(s.bestTime >= game.time)) {
+                if (Math.floor(game.time) === 0) {
                     s.bestTime = 1;
                 } else {
                     s.bestTime = Math.floor(game.time);

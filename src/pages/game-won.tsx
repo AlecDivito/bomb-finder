@@ -69,7 +69,7 @@ export default class GameWon extends Component<Props, State> {
                 this.stats.worstTime = Math.floor(this.game.time);
             }
         }
-        if (Math.floor(this.game.time) <= this.stats.bestTime) {
+        if (Math.floor(this.game.time) <= this.stats.bestTime || this.stats.bestTime === 0) {
             winningText = "New High Score!";
             if (Math.floor(this.game.time) === 0) {
                 switchGameTimeToOne = true;

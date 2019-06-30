@@ -263,7 +263,7 @@ export default class BombFinder {
         const neighbor = this.getNeighbors(index);
         const count = neighbor.reduce((pre, index) => {
             const cell = this.grid[index];
-            if (cell.state === CellState.BOMB && cell.visibility === Visibility.MARKED) {
+            if (cell.visibility === Visibility.MARKED) {
                 return pre + 1;
             }
             return pre;

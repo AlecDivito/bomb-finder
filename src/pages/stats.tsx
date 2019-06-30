@@ -23,7 +23,6 @@ export default class Stats extends Component<{}, State> {
 
     async componentDidMount() {
         let stats = await Statistics.GetAllStatistics();
-        console.log(stats); 
         this.setState({stats, loading: false});
     }
 
@@ -48,6 +47,7 @@ export default class Stats extends Component<{}, State> {
         }
         const { index, stats } = this.state
         const stat = stats![index];
+        console.log(stat);
         return (
             <div className="stats">
                 <h1 className="stats__header">Stats!</h1>
@@ -92,7 +92,7 @@ export default class Stats extends Component<{}, State> {
                         </tr>
                         <tr>
                             <td>Best Times</td>
-                            <td>{stat.bestTime}</td>
+                            <td>{toHHMMSS(stat.bestTime)}</td>
                         </tr>
                         <tr>
                             <td>Worst Time</td>
