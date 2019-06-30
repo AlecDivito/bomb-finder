@@ -1,3 +1,33 @@
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('assets/fonts/RobotoMono-Regular.eot');
+    src: url('assets/fonts/RobotoMono-Regular.eot?#iefix') format('embedded-opentype'),
+        url('assets/fonts/RobotoMono-Regular.woff2') format('woff2'),
+        url('assets/fonts/RobotoMono-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('assets/fonts/RobotoMono-Bold.eot');
+    src: url('assets/fonts/RobotoMono-Bold.eot?#iefix') format('embedded-opentype'),
+        url('assets/fonts/RobotoMono-Bold.woff2') format('woff2'),
+        url('assets/fonts/RobotoMono-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('assets/fonts/RobotoMono-Italic.eot');
+    src: url('assets/fonts/RobotoMono-Italic.eot?#iefix') format('embedded-opentype'),
+        url('assets/fonts/RobotoMono-Italic.woff2') format('woff2'),
+        url('assets/fonts/RobotoMono-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+}
+
 body, html {
     padding: 0;
     margin: 0;
@@ -7,7 +37,12 @@ body, html {
 }
 
 * {
-    font-family: "Arial Black", Gadget, sans-serif;
+    /* font-family: "Arial Black", Gadget, sans-serif; */
+    /* font-family: 'B612 Mono', monospace; */
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 400;
+    font-style: normal;
+
     color: #FFFFFF;
 }
 
