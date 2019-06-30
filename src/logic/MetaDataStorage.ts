@@ -105,7 +105,6 @@ export class Query {
     //       There should be sanitization for every id
     static async save<T extends IDBTable>(obj: T): Promise<boolean> {
         if (Query.storageType === StorageOption.MEMORY) {
-            console.log(Query.memoryDb[obj.constructor.name]);
             if (!isObject(Query.memoryDb[obj.constructor.name])) {
                 Query.memoryDb[obj.constructor.name] = {};
             }
@@ -146,7 +145,6 @@ export class Query {
     static async getAll<T extends IDBTable>(type: T, filter?: (record: T) => boolean ): Promise<T[]> {
         const data: any = [];
         if (Query.storageType === StorageOption.MEMORY) {
-            console.log(Query.memoryDb[type.constructor.name]);
             if (!isObject(Query.memoryDb[type.constructor.name])) {
                 return data;
             }
@@ -189,7 +187,6 @@ export class Query {
 
     static async getById<T extends IDBTable>(type: T, id: string): Promise<T | undefined> {
         if (Query.storageType === StorageOption.MEMORY) {
-            console.log(Query.memoryDb[type.constructor.name]);
             if (!isObject(Query.memoryDb[type.constructor.name])) {
                 return undefined;
             }
@@ -220,7 +217,6 @@ export class Query {
 
     static async remove<T extends IDBTable>(type: T): Promise<boolean> {
         if (Query.storageType === StorageOption.MEMORY) {
-            console.log(Query.memoryDb[type.constructor.name]);
             if (!isObject(Query.memoryDb[type.constructor.name])) {
                 return true;
             }
@@ -284,7 +280,6 @@ export class Query {
                         unique: false
                     });
                 }
-                console.log(objectStore);
                 // currently assuming everything went hunky dory
                 // if this exits successfully, trigger onsuccess callback
             }

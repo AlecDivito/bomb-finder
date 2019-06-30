@@ -102,7 +102,6 @@ export default class Statistics implements IStatistics, IDBTable {
 
     public static async AddGame(id: string) {
         const s = await Statistics.GetStats(Query.sanitizeId(id));
-        console.log('creating new game');
         s.inprogress += 1;
         s.name = id;
         s.id = Query.sanitizeId(id);
@@ -139,7 +138,6 @@ export default class Statistics implements IStatistics, IDBTable {
                     s.worstTime = Math.floor(game.time);
                 }
             }
-            console.log(s);
         }
         // losses
         else {

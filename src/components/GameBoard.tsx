@@ -113,11 +113,9 @@ class GameBoard extends Component<Props, State> {
     }
 
     public tryAgain = async () => {
-        console.log('trying');
         if (this.state.ready && !this.state.newGameId) {
             try {
                 const newGameId = await this.gameState!.reset();
-                console.log('lets go')
                 this.setState({ ready: false, newGameId });
             } catch (e) {
                 console.warn("erorr " + e);

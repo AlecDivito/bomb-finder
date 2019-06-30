@@ -47,7 +47,6 @@ export default class Stats extends Component<{}, State> {
         }
         const { index, stats } = this.state
         const stat = stats![index];
-        console.log(stat);
         return (
             <div className="stats">
                 <h1 className="stats__header">Stats!</h1>

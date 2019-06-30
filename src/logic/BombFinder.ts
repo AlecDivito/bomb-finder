@@ -149,7 +149,6 @@ export default class BombFinder {
             });
             this.games.board = this.grid;
             if (this.games.result === "lost") {
-                console.log('fuck')
                 this.games.result = "lost";
                 this.games.logAndDestroy();
             }
