@@ -40,28 +40,30 @@ const DEFAULT_TEMPLATES: ICustomGameConfig[] = [
     }
 ];
 
-@Table()
+@Table("cgc")
 export default class CustomGameConfig implements ICustomGameConfig, IDBTable {
 
-    @Field(true)
+    public tableName = "cgc";
+
+    @Field("cgc", true)
     public id: string = "";
 
-    @Field()
+    @Field("cgc")
     public name?: string = undefined;
 
-    @Field()
+    @Field("cgc")
     public width: number = 8;
 
-    @Field()
+    @Field("cgc")
     public height: number = 8;
 
-    @Field()
+    @Field("cgc")
     public bombs: number = 10;
 
-    @Field()
+    @Field("cgc")
     public isDeleted: boolean = false;
 
-    @Field()
+    @Field("cgc")
     public createdAt: Date = new Date();
 
     public save: boolean = false;

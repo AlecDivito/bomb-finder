@@ -131,11 +131,29 @@ export default class GameWon extends Component<Props, State> {
                 <div className="game-won--statement">{difficulty} ({width}x{height}:{bombs})</div>
                 <div className="divider" />
                 <ul className="game-won__stats">
-                    <li className="game-won__stats__item">Moves <br/>{this.state.moves}</li>
-                    <li className="game-won__stats__item">Score <br/>{toHHMMSS(this.state.time!)}</li>
-                    <li className="game-won__stats__item--icon"><img src={hourglass} alt="watch" /></li>
-                    <li className="game-won__stats__item">Best <br/>{toHHMMSS(this.stats!.bestTime)}</li>
-                    <li className="game-won__stats__item">Worst <br/>{toHHMMSS(this.stats!.worstTime)}</li>
+                    <li className="game-won__stats__item">
+                        <span>Moves</span>
+                        <br/>
+                        <span>{this.state.moves}</span>
+                    </li>
+                    <li className="game-won__stats__item">
+                        <span>Score</span>
+                        <br/>
+                        <span>{toHHMMSS(this.state.time!)}</span>
+                    </li>
+                    <li className="game-won__stats__item--icon">
+                        <img src={hourglass} alt="watch" />
+                    </li>
+                    <li className="game-won__stats__item">
+                        <span>Best</span>
+                        <br/>
+                        <span>{toHHMMSS(this.stats!.bestTime)}</span>
+                    </li>
+                    <li className="game-won__stats__item">
+                        <span>Worst</span>
+                        <br/>
+                        <span>{toHHMMSS(this.stats!.worstTime)}</span>
+                    </li>
                 </ul>
                 <div className="divider" />
                 <div className="game-won__options">

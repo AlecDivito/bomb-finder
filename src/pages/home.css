@@ -55,8 +55,9 @@
     color: #333;
 }
 
-.home__list__item > a {
+.home__list__item > a, .home__list__item > span {
     display: block;
     width: 100%;
     color: inherit;
+    cursor: pointer;
 }

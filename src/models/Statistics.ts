@@ -17,41 +17,43 @@ export interface IStatistics {
     averageMoves: number;
 }
 
-@Table()
+@Table("stats")
 export default class Statistics implements IStatistics, IDBTable {
 
+    public tableName = "stats";
+
     // Game Difficulty
-    @Field(true)
+    @Field("stats", true)
     public id: string = "";
 
-    @Field()
+    @Field("stats")
     public name: string = "";
 
     // best and worst
-    @Field()
+    @Field("stats")
     public bestTime: number = 0;
 
-    @Field()
+    @Field("stats")
     public worstTime: number = 0;
 
-    @Field()
+    @Field("stats")
     public averageTime: number = 0;
 
-    @Field()
+    @Field("stats")
     public totalTimePlayed: number = 0;
 
     // Games Played
-    @Field()
+    @Field("stats")
     public wins: number = 0;
 
-    @Field()
+    @Field("stats")
     public losses: number = 0;
 
-    @Field()
+    @Field("stats")
     public inprogress: number = 0;
 
     // Other
-    @Field()
+    @Field("stats")
     public averageMoves: number = 0;
 
 

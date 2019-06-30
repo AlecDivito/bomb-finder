@@ -11,25 +11,27 @@ export interface IPreferences {
     timestamp: Date;
 }
 
-@Table()
+@Table("settings")
 export default class Preferences implements IPreferences, IDBTable {
     
-    @Field(true)
+    public tableName = "settings";
+
+    @Field("settings", true)
     public readonly id: string = "preferences";
 
-    @Field()
+    @Field("settings")
     public defaultCellSize: number = 35;
 
-    @Field()
+    @Field("settings")
     public gridGapSize: number = 8.5;
 
-    @Field()
+    @Field("settings")
     public spinningCubes: number = 7;
 
-    @Field()
+    @Field("settings")
     public simpleRender: boolean = false;
     
-    @Field()
+    @Field("settings")
     public timestamp: Date = new Date();
 
     static async GetPreferences(): Promise<IPreferences> {

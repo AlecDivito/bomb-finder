@@ -20,36 +20,39 @@ export interface IGames {
     createdAt: Date;
 }
 
-@Table()
+@Table("Games")
 export default class Games implements IGames, IDBTable {
+    
+    public tableName = "Games";
+
     // Initial Game data
-    @Field(true)
+    @Field("Games", true)
     public id: string = "";
-    @Field()
+    @Field("Games")
     public time: number = 0;
-    @Field()
+    @Field("Games")
     public difficulty: GameDifficulty = "";
-    @Field()
+    @Field("Games")
     public width: number = 0;
-    @Field()
+    @Field("Games")
     public height: number = 0;
-    @Field()
+    @Field("Games")
     public bombs: number = 0;
 
     // Game being played data
-    @Field()
+    @Field("Games")
     public board: Cell[] = [];
-    @Field()
+    @Field("Games")
     public totalMoves: number = 0;
-    @Field()
+    @Field("Games")
     public invisiblePieces: number = 0;
-    @Field()
+    @Field("Games")
     public isComplete: boolean = false;
-    @Field()
+    @Field("Games")
     public result: GameProgress = "created";
-    @Field()
+    @Field("Games")
     public updatedAt: Date = new Date();
-    @Field()
+    @Field("Games")
     public createdAt: Date = new Date();
 
     private constructor() { }

@@ -32,9 +32,13 @@ export class MetaDataStorage {
         const fields = this.tableQueue
             .filter(item => item.table === table)
             .map(item => item.field);
-        const primaryKey = this.tableQueue
+        const keys = this.tableQueue
             .filter(item => item.primaryKey)
-            .filter(item => item.table === table)[0].field;
+            .filter(item => item.table === table);
+        let primaryKey = undefined; 
+        if (keys[0]) {
+            primaryKey = keys[0].field;
+        }
         const record = { table, fields, primaryKey };
         this.storage.push(record);
     }
@@ -71,6 +75,7 @@ enum StorageOption {
 }
 
 export interface IDBTable {
+    tableName: string;
     id: string;
 }
 
@@ -105,23 +110,23 @@ export class Query {
     //       There should be sanitization for every id
     static async save<T extends IDBTable>(obj: T): Promise<boolean> {
         if (Query.storageType === StorageOption.MEMORY) {
-            if (!isObject(Query.memoryDb[obj.constructor.name])) {
-                Query.memoryDb[obj.constructor.name] = {};
+            if (!isObject(Query.memoryDb[obj.tableName])) {
+                Query.memoryDb[obj.tableName] = {};
             }
-            Query.memoryDb[obj.constructor.name][obj.id] = obj;
+            Query.memoryDb[obj.tableName][obj.id] = obj;
             return true;
         }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
-                await query.connection(obj.constructor.name);
+                await query.connection(obj.tableName);
             }
-            let metaData = MetaDataStorage.getInstance().getMetaData(obj.constructor.name);
-            if (!query.database!.objectStoreNames.contains(obj.constructor.name)) {
+            let metaData = MetaDataStorage.getInstance().getMetaData(obj.tableName);
+            if (!query.database!.objectStoreNames.contains(obj.tableName)) {
                 // The database currently doesn't have our table in the database
                 // increment the version and reopen the database
-                await query.refreshDatabase(obj.constructor.name);
-                metaData = MetaDataStorage.getInstance().getMetaData(obj.constructor.name);
+                await query.refreshDatabase(obj.tableName);
+                metaData = MetaDataStorage.getInstance().getMetaData(obj.tableName);
             }
             
             const save: any = {};
@@ -130,8 +135,8 @@ export class Query {
                 .forEach(key => save[key] = (obj as any)[key]);
 
             const request = query.database!
-                .transaction(obj.constructor.name, "readwrite")
-                .objectStore(obj.constructor.name)
+                .transaction(obj.tableName, "readwrite")
+                .objectStore(obj.tableName)
                 .put(save);
             request.onerror = (event) => {
                 reject(false);
@@ -145,25 +150,25 @@ export class Query {
     static async getAll<T extends IDBTable>(type: T, filter?: (record: T) => boolean ): Promise<T[]> {
         const data: any = [];
         if (Query.storageType === StorageOption.MEMORY) {
-            if (!isObject(Query.memoryDb[type.constructor.name])) {
+            if (!isObject(Query.memoryDb[type.tableName])) {
                 return data;
             }
-            return Object.keys(Query.memoryDb[type.constructor.name])
-                .map(id => Query.memoryDb[type.constructor.name][id])
+            return Object.keys(Query.memoryDb[type.tableName])
+                .map(id => Query.memoryDb[type.tableName][id])
                 .filter(t => (filter) ? filter(t) : true);
         }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
-                await query.connection(type.constructor.name);
+                await query.connection(type.tableName);
             }
-            if (!query.database!.objectStoreNames.contains(type.constructor.name)) {
+            if (!query.database!.objectStoreNames.contains(type.tableName)) {
                 resolve(data);
             }
             else {
                 const request = query.database!
-                    .transaction([type.constructor.name], "readonly")
-                    .objectStore(type.constructor.name)
+                    .transaction([type.tableName], "readonly")
+                    .objectStore(type.tableName)
                     .openCursor();
 
                 request.onerror = (event) => {
@@ -187,23 +192,23 @@ export class Query {
 
     static async getById<T extends IDBTable>(type: T, id: string): Promise<T | undefined> {
         if (Query.storageType === StorageOption.MEMORY) {
-            if (!isObject(Query.memoryDb[type.constructor.name])) {
+            if (!isObject(Query.memoryDb[type.tableName])) {
                 return undefined;
             }
-            return Query.memoryDb[type.constructor.name][id];
+            return Query.memoryDb[type.tableName][id];
         }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
-                await query.connection(type.constructor.name);
+                await query.connection(type.tableName);
             }
-            if (!query.database!.objectStoreNames.contains(type.constructor.name)) {
+            if (!query.database!.objectStoreNames.contains(type.tableName)) {
                 resolve(undefined);
             }
             else {
                 const request = query.database!
-                    .transaction([type.constructor.name], "readonly")
-                    .objectStore(type.constructor.name)
+                    .transaction([type.tableName], "readonly")
+                    .objectStore(type.tableName)
                     .get(id);
                 request.onerror = (event) => {
                     reject(undefined);
@@ -217,28 +222,28 @@ export class Query {
 
     static async remove<T extends IDBTable>(type: T): Promise<boolean> {
         if (Query.storageType === StorageOption.MEMORY) {
-            if (!isObject(Query.memoryDb[type.constructor.name])) {
+            if (!isObject(Query.memoryDb[type.tableName])) {
                 return true;
             }
-            if (isObject(Query.memoryDb[type.constructor.name][type.id])) {
-                delete Query.memoryDb[type.constructor.name][type.id];
+            if (isObject(Query.memoryDb[type.tableName][type.id])) {
+                delete Query.memoryDb[type.tableName][type.id];
             }
             return true;
         }
         const query = Query.Instance();
         return new Promise(async (resolve, reject) => {
             if (!query.database) {
-                await query.connection(type.constructor.name);
+                await query.connection(type.tableName);
             }
-            const key = MetaDataStorage.getInstance().getPrimaryKey(type.constructor.name);
+            const key = MetaDataStorage.getInstance().getPrimaryKey(type.tableName);
             if (!key) {
                 reject(false);
                 return;
             }
             const id: string = (type as any)[key];
             const request = query.database!
-                .transaction([type.constructor.name], "readwrite")
-                .objectStore(type.constructor.name)
+                .transaction([type.tableName], "readwrite")
+                .objectStore(type.tableName)
                 .delete(id);
             request.onerror = (event) => {
                 reject(false);
@@ -250,6 +255,7 @@ export class Query {
     }
 
     private async connection(tableName: string, version?: number) {
+        console.log(tableName);
         const request = await window.indexedDB.open(window.location.hostname, version);
         return new Promise((resolve, reject) => {
             request.onerror = (event) => {
@@ -301,15 +307,15 @@ export class Query {
     }
 }
 
-export function Table() {
+export function Table(name: string) {
     return function (target: Function) {
-        MetaDataStorage.getInstance().addTable(target.name);
+        MetaDataStorage.getInstance().addTable(name);
     }
 }
 
-export function Field(isPrimary: boolean = false) {
+export function Field(tableName: string, isPrimary: boolean = false) {
     return function (target: any, propertyName: string) {
         MetaDataStorage.getInstance()
-            .addField(target.constructor.name, propertyName, isPrimary);
+            .addField(tableName, propertyName, isPrimary);
     }
 }
