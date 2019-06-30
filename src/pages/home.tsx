@@ -19,7 +19,7 @@ export default class Home extends Component<{}, State> {
         super(props);
         this.state = {
             loading: true,
-            installButton: true,
+            installButton: false,
             gameId: undefined,
         };
     }
@@ -36,8 +36,9 @@ export default class Home extends Component<{}, State> {
             // older browsers
             e.preventDefault();
             console.log("Install Prompt fired");
-            console.log(e);
+            this.installPrompt = e;
             // See if the app is already installed, in that case, do nothing
+            console.log(isInstalled());
             if (isInstalled()) {
                 return false;
             }
@@ -53,16 +54,19 @@ export default class Home extends Component<{}, State> {
         }
         console.log('we have inialization');
         this.installPrompt.prompt();
-        const outcome = await this.installPrompt.prompt.userChoice;
-        if (outcome.outcome === 'accepted') {
-            console.log("App Installed");
-        } else {
-            console.log("App not installed");
-        }
-        // Remove the event reference
-        this.installPrompt = null;
-        // Hide the button
-        this.setState({ installButton: false });
+        this.installPrompt.userChoice
+            .then((outcome: any) => {
+                console.log(outcome);
+                if (outcome.outcome == 'accepted') {
+                    console.log("App Installed");
+                } else {
+                    console.log("App not installed");
+                }
+                // Remove the event reference
+                this.installPrompt = null;
+                // Hide the button
+                this.setState({ installButton: false });
+            });
     }
 
     public render() {
