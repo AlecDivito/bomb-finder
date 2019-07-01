@@ -31,14 +31,11 @@ export default class Home extends Component<{}, State> {
         } else {
             this.setState({ loading: false });
         }
-        console.log("Listening for Install prompt");
         window.addEventListener('beforeinstallprompt', (e) => {
             // older browsers
             e.preventDefault();
-            console.log("Install Prompt fired");
             this.installPrompt = e;
             // See if the app is already installed, in that case, do nothing
-            console.log(isInstalled());
             if (isInstalled()) {
                 return false;
             }
@@ -48,19 +45,16 @@ export default class Home extends Component<{}, State> {
     }
 
     installApp = async () => {
-        console.log('installing');
         if (!this.installPrompt) {
             return false;
         }
-        console.log('we have inialization');
         this.installPrompt.prompt();
         this.installPrompt.userChoice
             .then((outcome: any) => {
-                console.log(outcome);
-                if (outcome.outcome == 'accepted') {
-                    console.log("App Installed");
+                if (outcome.outcome === 'accepted') {
+                    // TODO: Post message (install successful)
                 } else {
-                    console.log("App not installed");
+                    // TODO: Post message (install unsuccessful)
                 }
                 // Remove the event reference
                 this.installPrompt = null;

@@ -1,4 +1,4 @@
-import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable } from "../models/GameBoardTypes";
+import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable, isMarked } from "../models/GameBoardTypes";
 import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
@@ -231,7 +231,7 @@ export default class BombFinder {
         const visited: number[] = [index];
         while (neighbors.length > 0) {
             const i = neighbors.pop()!;
-            if (this.grid[i].value === 0) {
+            if (this.grid[i].value === 0 && !isMarked(this.grid[i])) {
                 const newNeighbors = this.getNeighbors(i);
                 newNeighbors.forEach((newIndex) => {
                     if (!neighbors.includes(newIndex) && !visited.includes(newIndex)) {
@@ -255,6 +255,9 @@ export default class BombFinder {
     }
 
     private setCellVisibility(index: number) {
+        if (isMarked(this.grid[index])) {
+            return;
+        }
         if (this.grid[index].value === null || this.grid[index].value === 0) {
             this.grid[index].visibility = Visibility.VISIBLE;
             return;

@@ -157,6 +157,9 @@ export default class Games implements IGames, IDBTable {
         }
         let game = games[0];
         for (let i = 1; i < games.length; i++) {
+            if (!game.updatedAt || games[i].updatedAt) {
+                continue;
+            }
             if (game.updatedAt.getTime() < games[i].updatedAt.getTime()) {
                 game = games[i];
             }

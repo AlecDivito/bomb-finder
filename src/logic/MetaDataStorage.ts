@@ -255,7 +255,6 @@ export class Query {
     }
 
     private async connection(tableName: string, version?: number) {
-        console.log(tableName);
         const request = await window.indexedDB.open(window.location.hostname, version);
         return new Promise((resolve, reject) => {
             request.onerror = (event) => {

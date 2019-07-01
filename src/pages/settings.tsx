@@ -125,6 +125,11 @@ export default class Settings extends Component<{}, IPreferences> {
                     <div className="form-input center">
                         <canvas id="preview" width={dimensions} height={dimensions}/>
                     </div>
+
+                    <CheckBox text="Viberations"
+                        name="vibration"
+                        checked={this.state.vibration}
+                        onChange={this.handleChange} />
                     
                     <Button type="submit" text="Save Changes"/>
                 </form>
