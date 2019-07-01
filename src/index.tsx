@@ -4,9 +4,12 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import "./index.css"
 import { BrowserRouter } from 'react-router-dom';
+import isInstalled from './util/isInstalled';
+
+const basename = (isInstalled()) ? "/" : "/bomb-finder";
 
 ReactDOM.render(
-    <BrowserRouter basename="/bomb-finder">
+    <BrowserRouter basename={basename}>
         <App />
     </BrowserRouter>
 , document.getElementById('root'));

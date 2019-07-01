@@ -42,6 +42,9 @@ export default class Home extends Component<{}, State> {
             // Set the state variable to make button visible
             this.setState({ installButton: true });
         });
+        window.addEventListener('appinstalled', function() { 
+            console.log('Thank you for installing our app!'); 
+        });
     }
 
     installApp = async () => {
