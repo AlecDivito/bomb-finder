@@ -95,9 +95,12 @@ export default class Statistics implements IStatistics, IDBTable {
         const cacheStats = await Query.getById(statistics, Query.sanitizeId(id));
         // not undefined
         if (cacheStats === undefined) {
+            console.log('default');
+            debugger;
             return statistics;
-        }
-        else {
+        } else {
+            console.log('actual');
+            debugger;
             return Object.assign(statistics, cacheStats);
         }
     }
@@ -112,9 +115,10 @@ export default class Statistics implements IStatistics, IDBTable {
 
     public static async AddGameResults(game: Games): Promise<boolean> {
         if (game.result === "created" || game.result === "inprogress") {
-        return Promise.resolve(false);
+            return Promise.resolve(false);
         }
         const s = await Statistics.GetStats(game.difficulty);
+        console.log('before ', Object.assign({}, s), game);
         // general stuff and averages
         s.inprogress -= 1;
         s.totalTimePlayed += game.time;
@@ -145,8 +149,9 @@ export default class Statistics implements IStatistics, IDBTable {
         else {
             s.losses += 1;
         }
-
-        return Query.save(s);
+        
+        console.log('after ', s, game);
+        return await Query.save(s);
     }
 
     private static ComputeAvg(numOfItems: number, currentAverage: number, newValue: number) {

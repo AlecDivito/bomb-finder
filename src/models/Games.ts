@@ -84,6 +84,10 @@ export default class Games implements IGames, IDBTable {
         // TODO: Add error handling (need to add in games first (down there))
         const newGame = await Games.Create(oldGame.difficulty, oldGame.width,
             oldGame.height, oldGame.bombs);
+        const logged = await oldGame.logAndDestroy();
+        if (!logged) {
+            console.log('error logging completed game');
+        }
         return newGame;
     }
 

@@ -118,6 +118,10 @@ export default class BombFinder {
         throw new Error("Had a problem saving old Game");
     }
 
+    public async logAndDestory() {
+        return await this.games.logAndDestroy();
+    }
+
     public update(delta: number) {
         if (this.games.isComplete) {
             return;
@@ -150,7 +154,7 @@ export default class BombFinder {
             this.games.board = this.grid;
             if (this.games.result === "lost") {
                 this.games.result = "lost";
-                this.games.logAndDestroy();
+                this.games.update();
             }
             else if (this.remainingPieces === 0) {
                 this.games.result = "won";

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import BombFinder from "../logic/BombFinder";
 import InputController from "../logic/InputController";
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { GameProgress } from '../models/GameTypes';
 import { CanvasWindow } from '../logic/BombFinderPieceRenderer';
 import Games from '../models/Games';
@@ -21,6 +21,8 @@ interface State {
     ready: boolean;
     gameOver: boolean;
     canVibrate: boolean;
+    canTryAgain: boolean;
+    toMainMenu: boolean;
     totalPieces: number;
     newGameId?: string;
     inputId?: number;
@@ -44,6 +46,8 @@ class GameBoard extends Component<Props, State> {
         ready: false,
         gameOver: false,
         canVibrate: false,
+        canTryAgain: false,
+        toMainMenu: false,
         totalPieces: 0,
         time: 0,
     }
@@ -53,8 +57,9 @@ class GameBoard extends Component<Props, State> {
             // new game has started without unmounting the component
             this.setState({
                 ready: false,
-                time: 0,
                 gameOver: false,
+                canTryAgain: false,
+                time: 0,
                 newGameId: undefined,
                 inputId: undefined,
             });
@@ -115,18 +120,30 @@ class GameBoard extends Component<Props, State> {
     }
 
     public tryAgain = async () => {
-        if (this.state.ready && !this.state.newGameId) {
+        if (this.state.ready && !this.state.newGameId && this.state.canTryAgain) {
             try {
                 const newGameId = await this.gameState!.reset();
                 this.setState({ ready: false, newGameId });
             } catch (e) {
-                console.warn("erorr " + e);
+                console.warn("error " + e);
                 // TODO: implement Error handling
             }
         }
     }
 
+    public goToMainMenu = async () => {
+        if (this.state.ready) {
+            const logged = await this.gameState!.logAndDestory();
+            if (logged) {
+                this.setState({toMainMenu: true});
+            }
+        }
+    }
+
     public render() {
+        if (this.state.toMainMenu) {
+            return <Redirect to="/" />;
+        }
         if (this.state.newGameId) {
             const route = `/game/${this.state.newGameId}`;
             return <Redirect to={route} />;
@@ -155,9 +172,10 @@ class GameBoard extends Component<Props, State> {
                                 type="button"
                                 text="Try Again"
                                 onClick={this.tryAgain} />
-                            <Link className="board__popup__item link-button" to="/">
-                                Main Menu
-                            </Link>
+                            <Button className="board__popup__item"
+                                type="button"
+                                text="Main Menu"
+                                onClick={this.goToMainMenu} />
                         </div>
                         : null
                     }
@@ -205,10 +223,13 @@ class GameBoard extends Component<Props, State> {
                 this.props.onGameFinished("won");
             } else {
                 if (this.state.canVibrate && navigator.vibrate) {
-                    console.log('vibrate');
                     navigator.vibrate(200);
                 }
-                this.setState({ gameOver: true, canVibrate: false });
+                this.setState({
+                    gameOver: true,
+                    canVibrate: false,
+                    canTryAgain: true,
+                });
             }
         }
 
