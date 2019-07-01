@@ -120,7 +120,7 @@ export default class HowToPlay extends Component {
                 </p>
                 <h3>Insperation</h3>
                 <p>
-                    This game was inspired by the game <a className="htp--link" href="https://proxx.app">proxx</a>,
+                    This game was inspired by the game <a rel="nofollow" className="htp--link" href="https://proxx.app">proxx</a>,
                     a mine sweeper clone that Google Chrome Labs created that
                     targeted all devices that are capable of using a web browser.
                 </p>
