@@ -402,11 +402,11 @@ export default class BombFinder {
 
     private drawBackground(ctx: CanvasRenderingContext2D) {
         ctx.save();
-        // const gradient1 = ctx.createLinearGradient(this.width / 2,
-        //     this.height, this.width / 2, 0);
-        // gradient1.addColorStop(0.05, '#333');
-        // gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 50%, 1)`);
-        ctx.fillStyle = "#333"; //gradient1;
+        const gradient1 = ctx.createLinearGradient(this.width / 2,
+            this.height, this.width / 2, 0);
+        gradient1.addColorStop(0.05, '#333');
+        gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 50%, 1)`);
+        ctx.fillStyle = gradient1;
         ctx.fillRect(0, 0, this.width, this.height);
         ctx.restore();
     }

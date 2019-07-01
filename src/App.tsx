@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Route, withRouter, RouteComponentProps, Switch } from 'react-router';
 import Loading from './components/Loading';
+import ReactGA from 'react-ga';
 
 import Home from './pages/home';
 import Footer from './components/Footer';
@@ -20,6 +21,22 @@ const ManageGameTemplates = lazy( () => import('./pages/manage-templates'));
 
 
 class App extends React.PureComponent<RouteComponentProps, {}> {
+
+    componentDidMount() {
+        ReactGA.initialize('UA-143146753-1', {
+            debug: process.env.NODE_ENV !== 'production'
+        });
+    }
+
+    componentDidUpdate(prevProps: RouteComponentProps) {
+        if (this.props.location !== prevProps.location) {
+            this.onRouteChanged();
+        }
+    }
+
+    onRouteChanged() {
+        ReactGA.pageview(this.props.location.pathname);
+    }
 
     render() {        
         let hideDefaultNavigation = true;
