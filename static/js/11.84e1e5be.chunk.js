@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[11],{59:function(e,n,t){},72:function(e,n,t){},73:function(e,n,t){"use strict";t.r(n);var a=t(0),o=t.n(a),s=(t(59),t(72),t(10));n.default=function(){return o.a.createElement("div",{className:"page-not-found"},o.a.createElement("h1",null,"404"),o.a.createElement("div",{className:"page-not-found__message"},"Looks like you've lost your way"),o.a.createElement(s.b,{to:"/",className:"link-button page-not-found__btn"},"Go Home"))}}}]);
+//# sourceMappingURL=11.84e1e5be.chunk.js.map
