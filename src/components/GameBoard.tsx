@@ -19,8 +19,9 @@ interface Props {
 
 interface State {
     ready: boolean;
-    totalPieces: number;
     gameOver: boolean;
+    canVibrate: boolean;
+    totalPieces: number;
     newGameId?: string;
     inputId?: number;
     time: number;
@@ -42,6 +43,7 @@ class GameBoard extends Component<Props, State> {
     state: Readonly<State> = {
         ready: false,
         gameOver: false,
+        canVibrate: false,
         totalPieces: 0,
         time: 0,
     }
@@ -94,7 +96,7 @@ class GameBoard extends Component<Props, State> {
         this.canvas!.width = this.gameState!.gameBoardWidth;
         this.canvas!.height = this.gameState!.gameBoardHeight;
         this.container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
-        this.setState({ ready: true, inputId: inputId });
+        this.setState({ ready: true, inputId: inputId, canVibrate: preferences.vibration });
         requestAnimationFrame(this.draw);
     }
 
@@ -198,14 +200,16 @@ class GameBoard extends Component<Props, State> {
         
         
         if (this.gameState!.isGameOver) {
-            // cancelAnimationFrame(this.state.rafId!);
             this.lastFrame = delta;
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
             } else {
-                this.setState({ gameOver: true });
+                if (this.state.canVibrate && navigator.vibrate) {
+                    console.log('vibrate');
+                    navigator.vibrate(200);
+                }
+                this.setState({ gameOver: true, canVibrate: false });
             }
-            // return;
         }
 
         if (!this.stopUpdates) {

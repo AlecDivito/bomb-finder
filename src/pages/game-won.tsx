@@ -56,6 +56,7 @@ export default class GameWon extends Component<Props, State> {
             gridGapSize: 5,
             spinningCubes: 7,
             simpleRender: false,
+            vibration: false,
             timestamp: new Date(),
         };
         let switchGameTimeToOne = false;
