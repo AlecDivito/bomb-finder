@@ -6,12 +6,12 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
+    background-color: #000;
 }
 
 .header--game {
     width: 100vw;
     box-sizing: border-box;
-    /* position: fixed; */
 }
 
 .header--hidden {

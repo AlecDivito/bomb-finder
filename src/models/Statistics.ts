@@ -95,12 +95,8 @@ export default class Statistics implements IStatistics, IDBTable {
         const cacheStats = await Query.getById(statistics, Query.sanitizeId(id));
         // not undefined
         if (cacheStats === undefined) {
-            console.log('default');
-            debugger;
             return statistics;
         } else {
-            console.log('actual');
-            debugger;
             return Object.assign(statistics, cacheStats);
         }
     }
@@ -118,10 +114,13 @@ export default class Statistics implements IStatistics, IDBTable {
             return Promise.resolve(false);
         }
         const s = await Statistics.GetStats(game.difficulty);
-        console.log('before ', Object.assign({}, s), game);
         // general stuff and averages
         s.inprogress -= 1;
-        s.totalTimePlayed += game.time;
+        if (Math.floor(game.time) === 0) {
+            s.totalTimePlayed += 1;
+        } else {
+            s.totalTimePlayed += game.time;
+        }
         
         // wins
         if (game.result === "won") {
@@ -150,7 +149,6 @@ export default class Statistics implements IStatistics, IDBTable {
             s.losses += 1;
         }
         
-        console.log('after ', s, game);
         return await Query.save(s);
     }
 

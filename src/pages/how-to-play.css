@@ -1,15 +1,84 @@
 .how-to-play {
     margin: 0px 1rem;
+    height: auto;
+}
+
+.how-to-play h3 {
+    text-decoration: underline;
+    font-weight: bold;
+    text-align: left;
+    width: 100%;
+    font-size: 1.3em;
+    margin: 12px 0px;
+}
+
+.htp--link {
+    /* color: rgb(0, 0, 238); */
+    text-align: left;
+    width: 100%;
+    text-decoration: underline;
+}
+
+.htp--center {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-content: center;
+}
+
+.htp__image {
+    height: 50px;
+    width: 180px;
+    margin: 12px 0;
+    display: inherit;
+}
+
+.htp__image--img {
+    width: 50px;
+    height: 50px;
+}
+
+.htp--image--header {
+    width: 100%;
+    height: 60px;
+}
+
+.htp--text {
+    line-height: 50px;
+    vertical-align: center;
+    margin-left: 8px;
+}
+
+.how-to-play p {
+    margin: 12px 0px;
 }
 
 @media only screen and (min-width: 768px) {
     .how-to-play {
-        width: 800px;
-        height: 100%;
+        width: 600px;
         margin: auto;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
+    }
+
+    .htp--image--header {
+        width: 400px;
+    }
+
+    .htp__image--img {
+        width: 75px;
+        height: 75px;
+    }
+
+    .htp__image {
+        height: 75px;
+        width: 210px;
+        display: inherit;
+    }
+
+    .htp--text {
+        line-height: 75px;
     }
 }

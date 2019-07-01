@@ -87,7 +87,10 @@ export default class Home extends Component<{}, State> {
                         <Link to="/stats">STATISTICS</Link>
                     </li>
                     <li className="home__list__item">
-                        <Link to="/about">ABOUT</Link>
+                        <Link to="/settings">SETTINGS</Link>
+                    </li>
+                    <li className="home__list__item">
+                        <Link to="/how-to-play">HOW TO PLAY</Link>
                     </li>
                     {
                         (this.state.installButton)

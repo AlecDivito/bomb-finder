@@ -79,6 +79,7 @@ ul {
     width: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
+    /* background: linear-gradient(180deg, rgb(131, 23, 71) 0%, rgba(51,51,51,1) 100%); */
 }
 
 .divider {
@@ -88,10 +89,6 @@ ul {
 }
 
 @media only screen and (min-width: 768px) {
-    #root {
-        margin: 0px 3.5rem;
-    }
-
     .page {
         overflow-y: auto;
     }
