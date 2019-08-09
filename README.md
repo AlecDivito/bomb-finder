@@ -1,44 +1,58 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Minesweeper and proxx.app clone
+A Minesweeper clone thats went a little over board (or maybe not enough).
+Built as a PWA with HTML, CSS, Typescript and React. Features provided by 
+the browser includes Canvas2d, Indexdb, and viberation.
 
-## Available Scripts
 
-In the project directory, you can run:
+## Project Status
+This project is at a finished stage. It is mostly completed and is fully
+usable and installable. There are still some small bugs that need to be
+fixed but the initial 1.0 release works. A polish wouldn't hurt it. ed.
 
-### `npm start`
+## Project Screen Shots
+![Screen shot of minesweeper game](https://raw.githubusercontent.com/AlecDivito/alecdivito.github.io/master/src/images/bomb-finder.png)
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Installation and Setup Instructions
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+Clone down this repository. You will need `node` and `npm` installed
+globally on your machine.
 
-### `npm test`
+Web Installation:
+`npm install`
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+To Start Server:
+`npm run start`
 
-### `npm run build`
+To Visit App:
+`localhost:3000`
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Reflections
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+Originally I wanted to build a simplier clone of Googles proxx.app but what
+was supposed to be simple steam rolled into something a little bigger then
+I first envisioned. The projected became bigger and bigger as I started adding
+new features in the game like game templates, settings, and statistics.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This projects main goal was to experiment with PWA's and reacts implmentation
+of them. As well as gain some experince working the some of the browser's
+internal API's like canvas2d and indexDB. 
 
-### `npm run eject`
+One of the main challenges I came across was using indexDB for saving games
+and other items. There were issues were I couldn't update the store without
+deleting it first as well as a poor implementation of a super class to handle
+the reading and writing of data. I probably spent 5 days playing with the
+implmentation of it. It's currently implmentation isn't bad but could be better.
+I removed it as being a super class and changed it to a singlton. It works well
+for creating the database from sratch and I haven't encountered anymore issues with it
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+At the end of the day this project is a completed project that I'm really proud
+to show people. I learnt alot about chrome dev tools and profiling my perforamce
+code. It was a lot of fun creating the animations and working with canvas2d. Using
+react's "create react app" helped a lot to quickly get the project running. I 
+can't wait till I have the time to fully polish the game off to how I want it to be.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Resources
+Google's Minesweeper game (for insperation):
+- https://proxx.app
+Codepen for UI element designs
+- https://codepen.io
