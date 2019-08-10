@@ -3,14 +3,13 @@ A Minesweeper clone thats went a little over board (or maybe not enough).
 Built as a PWA with HTML, CSS, Typescript and React. Features provided by 
 the browser includes Canvas2d, Indexdb, and viberation.
 
+[Play The Game Now!!!](https://alecdivito.github.io/bomb-finder/)
+
 
 ## Project Status
 This project is at a finished stage. It is mostly completed and is fully
 usable and installable. There are still some small bugs that need to be
 fixed but the initial 1.0 release works. A polish wouldn't hurt it. ed.
-
-## Project Screen Shots
-![Screen shot of minesweeper game](https://raw.githubusercontent.com/AlecDivito/alecdivito.github.io/master/src/images/bomb-finder.png)
 
 ## Installation and Setup Instructions
 
@@ -50,6 +49,25 @@ to show people. I learnt alot about chrome dev tools and profiling my perforamce
 code. It was a lot of fun creating the animations and working with canvas2d. Using
 react's "create react app" helped a lot to quickly get the project running. I 
 can't wait till I have the time to fully polish the game off to how I want it to be.
+
+## Project Screen Shots
+![Screen shot of minesweeper game home](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--home.png)
+
+![Screen shot of minesweeper game games](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--game-template.png)
+
+![Screen shot of minesweeper game playing](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--in-progress.png)
+
+![Screen shot of minesweeper game winning](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--winning.png)
+
+![Screen shot of minesweeper game settings](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--settings.png)
+
+![Screen shot of minesweeper game stats](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--stats.png)
+
+![Screen shot of minesweeper game how to play](https://raw.githubusercontent.com/AlecDivito/web-resume/master/src/data/images/bomb-finder--how-to-play.png)
+
+
+
+
 
 ## Resources
 Google's Minesweeper game (for insperation):
