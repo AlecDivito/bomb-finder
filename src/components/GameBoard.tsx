@@ -192,7 +192,7 @@ class GameBoard extends Component<Props, State> {
         );
     }
 
-    private draw = (delta: number) => {
+    private draw = () => {
         if (!this.state.ready) {
             // TODO: do we need this ready check for the game?????
             return;
