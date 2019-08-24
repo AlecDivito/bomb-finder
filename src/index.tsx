@@ -6,7 +6,7 @@ import "./index.css"
 import { BrowserRouter } from 'react-router-dom';
 import isInstalled from './util/isInstalled';
 
-const basename = (isInstalled()) ? "/bomb-finder" : "/";
+const basename = (isInstalled()) ? "/" : "/bomb-finder";
 
 ReactDOM.render(
     <BrowserRouter basename={basename}>
