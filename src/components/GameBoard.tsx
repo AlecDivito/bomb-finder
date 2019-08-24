@@ -116,6 +116,7 @@ class GameBoard extends Component<Props, State> {
 
     public changeInputMode = (markFlag: boolean) => {
         this.gameState!.setMarkInput(markFlag);
+        this.forceUpdate();
         // this.gameState!.draw(this.context2D!);
     }
 
