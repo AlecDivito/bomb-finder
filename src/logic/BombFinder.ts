@@ -138,7 +138,6 @@ export default class BombFinder {
             , this.games.totalPieces);
             this.updateRemainingPiecesCount = false;
             this.games.invisiblePieces = this.remainingPieces;
-            this.games.totalMoves++;
             this.games.update();
         }
         if (!this.games.isComplete && (this.games.result === "lost" || this.remainingPieces === 0)) {
@@ -189,6 +188,7 @@ export default class BombFinder {
             }
             const cell = this.grid[index];
             if (this.inputMode === InputMode.TOGGLE && events.leftClick && cell.visibility === Visibility.INVISIBLE) {
+                this.games.totalMoves++;
                 if (isBomb(cell.value)) {
                     this.games.result = "lost";
                 }
@@ -197,6 +197,7 @@ export default class BombFinder {
                 }
                 this.setCellVisibility(index);
             } else if (events.rightClick || (events.leftClick && this.inputMode === InputMode.MARK)) {
+                this.games.totalMoves++;
                 if (isMarkable(cell.visibility)) {
                     cell.visibility = (cell.visibility === Visibility.MARKED)
                         ? Visibility.INVISIBLE
