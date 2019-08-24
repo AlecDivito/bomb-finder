@@ -24,6 +24,7 @@ interface State {
     canTryAgain: boolean;
     toMainMenu: boolean;
     totalPieces: number;
+    remainingAvailablePiece: number;
     newGameId?: string;
     inputId?: number;
     time: number;
@@ -49,6 +50,7 @@ class GameBoard extends Component<Props, State> {
         canTryAgain: false,
         toMainMenu: false,
         totalPieces: 0,
+        remainingAvailablePiece: 0,
         time: 0,
     }
 
@@ -89,7 +91,11 @@ class GameBoard extends Component<Props, State> {
         // TODO: Remove magic number
         this.gameState = new BombFinder(games, preferences, page.clientWidth, page.clientHeight - 120);
         this.input = new InputController();
-        this.setState({ ready: true, totalPieces: games.totalPieces });
+        this.setState({
+            ready: true,
+            totalPieces: games.totalPieces,
+            remainingAvailablePiece: this.gameState.getRemainingAvailablePiece
+        });
         this.canvas = document.getElementById("board") as HTMLCanvasElement;
         this.container = document.getElementById("board-container") as HTMLDivElement;
         this.context2D = this.canvas.getContext("2d")!;
@@ -102,6 +108,7 @@ class GameBoard extends Component<Props, State> {
         this.canvas!.height = this.gameState!.gameBoardHeight;
         this.container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
         this.setState({ ready: true, inputId: inputId, canVibrate: preferences.vibration });
+        console.log(this.state);
         requestAnimationFrame(this.draw);
     }
 
@@ -117,7 +124,6 @@ class GameBoard extends Component<Props, State> {
     public changeInputMode = (markFlag: boolean) => {
         this.gameState!.setMarkInput(markFlag);
         this.forceUpdate();
-        // this.gameState!.draw(this.context2D!);
     }
 
     public tryAgain = async () => {
@@ -134,7 +140,7 @@ class GameBoard extends Component<Props, State> {
 
     public goToMainMenu = async () => {
         if (this.state.ready) {
-            const logged = await this.gameState!.logAndDestory();
+            const logged = await this.gameState!.logAndDestroy();
             if (logged) {
                 this.setState({toMainMenu: true});
             }
@@ -160,7 +166,7 @@ class GameBoard extends Component<Props, State> {
         return (
             <div className="board">
                 <GameHeader time={this.gameState!.getTime}
-                    left={this.gameState!.getRemainingAvailablePiece}
+                    left={this.state.remainingAvailablePiece}
                     pieces={this.state.totalPieces}/>
                 <div className={canvasBoardClass} id="board-container">
                     <canvas id="board"
@@ -203,7 +209,7 @@ class GameBoard extends Component<Props, State> {
             }
         }
         this.gameState!.update(elapsedTime);
-        // TODO: calcuate playing area and send it to draw
+        // TODO: calculate playing area and send it to draw
         const viewport: CanvasWindow = {
             x: this.container!.scrollLeft, y: this.container!.scrollTop,
             width: this.container!.clientWidth, height: this.container!.clientHeight
@@ -227,6 +233,7 @@ class GameBoard extends Component<Props, State> {
                     navigator.vibrate(200);
                 }
                 this.setState({
+                    remainingAvailablePiece: this.gameState!.getRemainingAvailablePiece,
                     gameOver: true,
                     canVibrate: false,
                     canTryAgain: true,
@@ -238,7 +245,14 @@ class GameBoard extends Component<Props, State> {
             this.rafId = requestAnimationFrame(this.draw);
             this.lastFrame = delta;
             if (this.state.time !== this.gameState!.getTime) {
-                this.setState({ time: this.gameState!.getTime });
+                this.setState({
+                    remainingAvailablePiece: this.gameState!.getRemainingAvailablePiece,
+                    time: this.gameState!.getTime
+                });
+            } else if (this.state.remainingAvailablePiece !== this.gameState!.getRemainingAvailablePiece) {
+                this.setState({
+                    remainingAvailablePiece: this.gameState!.getRemainingAvailablePiece
+                });
             }
         }
     }

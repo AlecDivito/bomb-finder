@@ -118,7 +118,7 @@ export default class BombFinder {
         throw new Error("Had a problem saving old Game");
     }
 
-    public async logAndDestory() {
+    public async logAndDestroy() {
         return await this.games.logAndDestroy();
     }
 
@@ -133,15 +133,11 @@ export default class BombFinder {
             this.games.time += calcDelta;
         }
         if (this.updateRemainingPiecesCount) {
-            let counter = this.games.totalPieces;
-            this.grid.forEach((cell) =>
-                (isVisible(cell.visibility) && !isBomb(cell.value))
-                    ? counter--
-                    : counter
-            );
-            this.remainingPieces = counter;
+            this.remainingPieces = this.grid.reduce((total, cell) =>
+                (isVisible(cell.visibility) && !isBomb(cell.value)) ? total - 1 : total
+            , this.games.totalPieces);
             this.updateRemainingPiecesCount = false;
-            this.games.invisiblePieces = this.getRemainingAvailablePiece;
+            this.games.invisiblePieces = this.remainingPieces;
             this.games.totalMoves++;
             this.games.update();
         }
@@ -220,7 +216,7 @@ export default class BombFinder {
     }
 
     protected init() {
-        this.remainingPieces = this.games.totalPieces;
+        this.remainingPieces = this.games.invisiblePieces;
         if (this.games.board.length === 0) {
             this.grid = this.constructGrid();
             this.games.board = this.grid;
