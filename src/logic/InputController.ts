@@ -114,10 +114,29 @@ export default class InputController {
         if (this.state && this.state.events.includes("touch")) {
             return;
         }
+
+        // because state already exists, we need to add new data types
+        // this is because if a mousemove happens first then a mousedown event
+        // happens, the left, middle, and right click events won't update
         if (this.state) {
             this.state.events.push(event.type as any);
+        }
+        // state has been initialized so just update the values inside of it
+        if (this.state && event.type === "mousemove") {
+            this.state.pos = {
+                x: event.pageX,
+                y: event.pageY,
+            };
             return;
         }
+        // state has been initialized so just update the values inside of it
+        if (this.state && event.type === "mousedown") {
+            this.state.leftClick = [1, 3, 5, 7].includes(event.buttons);
+            this.state.middleClick = [4, 5, 6, 7].includes(event.buttons);
+            this.state.rightClick = [2, 3, 6, 7].includes(event.buttons);
+            return;
+        }
+        // state has not been initialized so create it.
         this.state = {
             leftClick: [1, 3, 5, 7].includes(event.buttons),
             middleClick: [4, 5, 6, 7].includes(event.buttons),
@@ -126,7 +145,7 @@ export default class InputController {
                 x: event.pageX,
                 y: event.pageY,
             },
-            keys: (this.state) ? this.state!.keys : [],
+            keys: [],
             events: [event.type as any]
         };
     }

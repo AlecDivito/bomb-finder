@@ -1,4 +1,4 @@
-import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable, isMarked } from "../models/GameBoardTypes";
+import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable, isMarked, incrementCellValue } from "../models/GameBoardTypes";
 import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
@@ -6,6 +6,7 @@ import Games from "../models/Games";
 import { IPreferences } from "../models/Preferences";
 import AnimationTimer from "./Animation";
 import BombFinderPieceRenderer, { CanvasWindow } from "./BombFinderPieceRenderer";
+import RandInRange from "../util/Random";
 
 export default class BombFinder {
 
@@ -118,7 +119,7 @@ export default class BombFinder {
         throw new Error("Had a problem saving old Game");
     }
 
-    public async logAndDestory() {
+    public async logAndDestroy() {
         return await this.games.logAndDestroy();
     }
 
@@ -129,20 +130,15 @@ export default class BombFinder {
         this.pieceRenderer.update(delta);
         this.backgroundAnimation.update(delta);
         if (this.games.gameHasStarted && this.remainingPieces !== this.games.totalPieces) {
-            const calcDelta = delta / 1000;
+            const calcDelta = delta;
             this.games.time += calcDelta;
         }
         if (this.updateRemainingPiecesCount) {
-            let counter = this.games.totalPieces;
-            this.grid.forEach((cell) =>
-                (isVisible(cell.visibility) && !isBomb(cell.value))
-                    ? counter--
-                    : counter
-            );
-            this.remainingPieces = counter;
+            this.remainingPieces = this.grid.reduce((total, cell) =>
+                (isVisible(cell.visibility) && !isBomb(cell.value)) ? total - 1 : total
+            , this.games.totalPieces);
             this.updateRemainingPiecesCount = false;
-            this.games.invisiblePieces = this.getRemainingAvailablePiece;
-            this.games.totalMoves++;
+            this.games.invisiblePieces = this.remainingPieces;
             this.games.update();
         }
         if (!this.games.isComplete && (this.games.result === "lost" || this.remainingPieces === 0)) {
@@ -193,7 +189,12 @@ export default class BombFinder {
             }
             const cell = this.grid[index];
             if (this.inputMode === InputMode.TOGGLE && events.leftClick && cell.visibility === Visibility.INVISIBLE) {
-                if (isBomb(cell.value)) {
+                this.games.totalMoves++;
+                if (isBomb(cell.value) && this.remainingPieces === this.games.totalPieces) {
+                    // it is impossible to lose on the first move, so move the
+                    // bomb somewhere else
+                    this.repositionBombCell(index);
+                } else if (isBomb(cell.value)) {
                     this.games.result = "lost";
                 }
                 if (cell.value === 0) {
@@ -201,6 +202,7 @@ export default class BombFinder {
                 }
                 this.setCellVisibility(index);
             } else if (events.rightClick || (events.leftClick && this.inputMode === InputMode.MARK)) {
+                this.games.totalMoves++;
                 if (isMarkable(cell.visibility)) {
                     cell.visibility = (cell.visibility === Visibility.MARKED)
                         ? Visibility.INVISIBLE
@@ -219,8 +221,59 @@ export default class BombFinder {
         }
     }
 
+    /**
+     * Bomb was clicked on the first turn, therefore we need to re-position the
+     * bomb and calculate the index pieces value
+     * 
+     * @param index position of cell inside grid
+     */
+    private repositionBombCell(index: number) {
+        // reposition bomb
+        // check the density of bombs on the board. if the board is too dense
+        // place the new bomb at the first non-bomb tile
+        let newIndex = 0;
+        if ((this.games.bombs / this.games.area) > 0.75) {
+            while (isBomb(this.grid[newIndex].value)) { newIndex++; }
+        } else {
+            do {
+                newIndex = RandInRange(0, this.grid.length - 1);
+            // we don't need to check if the piece is already visible because
+            // no pieces on the board are currently visible
+            } while (isBomb(this.grid[newIndex].value));
+        }
+        this.grid[newIndex] = {
+            hover: false,
+            visibility: Visibility.INVISIBLE,
+            state: CellState.BOMB,
+            value: null
+        };
+        const neighbors = this.getNeighbors(index);
+        // update all the neighbors that are not bombs
+        neighbors.forEach( cellIndex => {
+            if (isBomb(this.grid[cellIndex].value)) {
+                return;
+            }
+            let value = incrementCellValue(this.grid[cellIndex].value);
+            this.grid[cellIndex] = {
+                ...this.grid[cellIndex],
+                ...{value: incrementCellValue(value)}
+            };
+        });
+        // create the new cell
+        const pieces = this.getNeighbors(index);
+        const bombs = pieces.reduce((bombs, index) =>
+            isBomb(this.grid[index].value) ? bombs + 1 : bombs
+            , 0);
+        this.grid[index] = {
+            hover: false,
+            visibility: Visibility.INVISIBLE,
+            state: CellState.CLEAN,
+            value: bombs as CellValue
+        };
+    }
+
     protected init() {
-        this.remainingPieces = this.games.totalPieces;
+        this.remainingPieces = this.games.invisiblePieces;
         if (this.games.board.length === 0) {
             this.grid = this.constructGrid();
             this.games.board = this.grid;
