@@ -18,6 +18,7 @@ export default class InputController {
     private idCounter: number = 0;
 
     private state?: SimpleEventState;
+    private previousState?: SimpleEventState;
 
     /**
      * Place event listeners on a html element
@@ -74,6 +75,7 @@ export default class InputController {
      * @returns {void} 
      */
     public flush() {
+        this.previousState = this.state;
         this.state = undefined;
     }
 
@@ -108,7 +110,8 @@ export default class InputController {
     }
 
     private mouseEvent = (event: MouseEvent) => {
-        if (this.touchPoint) { // this means touch is active
+        if (this.previousState && this.previousState.events.includes("touch")) {
+            // this means touch is active
             return;
         }
         if (this.state && this.state.events.includes("touch")) {
@@ -138,9 +141,9 @@ export default class InputController {
         }
         // state has not been initialized so create it.
         this.state = {
-            leftClick: [1, 3, 5, 7].includes(event.buttons),
+            leftClick:   [1, 3, 5, 7].includes(event.buttons),
+            rightClick:  [2, 3, 6, 7].includes(event.buttons),
             middleClick: [4, 5, 6, 7].includes(event.buttons),
-            rightClick: [2, 3, 6, 7].includes(event.buttons),
             pos: {
                 x: event.pageX,
                 y: event.pageY,
