@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "6a5567ff1f28195d4f1869e6ebf5c783",
+    "revision": "720adcabaf48fa52a9764c7a87371188",
     "url": "/bomb-finder/index.html"
   },
   {
@@ -40,7 +40,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/bomb-finder/static/css/9.2ab5e747.chunk.css"
   },
   {
-    "revision": "b8ae3639cde1ef75b83b",
+    "revision": "ddd2234cb390e4a09919",
     "url": "/bomb-finder/static/css/main.222dee6b.chunk.css"
   },
   {
@@ -88,8 +88,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/bomb-finder/static/js/9.7612cd31.chunk.js"
   },
   {
-    "revision": "b8ae3639cde1ef75b83b",
-    "url": "/bomb-finder/static/js/main.34f99890.chunk.js"
+    "revision": "ddd2234cb390e4a09919",
+    "url": "/bomb-finder/static/js/main.28755852.chunk.js"
   },
   {
     "revision": "8ef8a22286f78cbded53",

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/bomb-finder/precache-manifest.a7f94190a29b32c9e95bdf3a54ff2979.js"
+  "/bomb-finder/precache-manifest.fe33cc1ed6e43d16513f0dfbf3c59e59.js"
 );
 
 self.addEventListener('message', (event) => {
