@@ -1,4 +1,4 @@
-import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable, isMarked, incrementCellValue } from "../models/GameBoardTypes";
+import { Cell, CellState, CellValue, Visibility, isVisible, isBomb, isMarkable, isMarked, incrementCellValue, decrementCellValue } from "../models/GameBoardTypes";
 import { SimpleEventState } from "../models/EventTypes";
 import InSquare from "../util/InSquare";
 import { Point2d, InputMode } from "../models/GameTypes";
@@ -187,13 +187,15 @@ export default class BombFinder {
             if (index === null || index >= this.grid.length) {
                 return;
             }
-            const cell = this.grid[index];
+            let cell = this.grid[index];
             if (this.inputMode === InputMode.TOGGLE && events.leftClick && cell.visibility === Visibility.INVISIBLE) {
                 this.games.totalMoves++;
-                if (isBomb(cell.value) && this.remainingPieces === this.games.totalPieces) {
+                if (isBomb(cell.value) && this.remainingPieces === this.games.totalPieces
+                    && this.settings.firstMoveHandicap) {
                     // it is impossible to lose on the first move, so move the
                     // bomb somewhere else
                     this.repositionBombCell(index);
+                    cell = this.grid[index];
                 } else if (isBomb(cell.value)) {
                     this.games.result = "lost";
                 }
@@ -224,7 +226,7 @@ export default class BombFinder {
     /**
      * Bomb was clicked on the first turn, therefore we need to re-position the
      * bomb and calculate the index pieces value
-     * 
+     *
      * @param index position of cell inside grid
      */
     private repositionBombCell(index: number) {
@@ -247,29 +249,40 @@ export default class BombFinder {
             state: CellState.BOMB,
             value: null
         };
-        const neighbors = this.getNeighbors(index);
+        const neighbors = this.getNeighbors(newIndex);
         // update all the neighbors that are not bombs
         neighbors.forEach( cellIndex => {
             if (isBomb(this.grid[cellIndex].value)) {
                 return;
             }
-            let value = incrementCellValue(this.grid[cellIndex].value);
+            console.log(`incrementing ${cellIndex} from ${this.grid[cellIndex].value} to ${incrementCellValue(this.grid[cellIndex].value)}`)
             this.grid[cellIndex] = {
                 ...this.grid[cellIndex],
-                ...{value: incrementCellValue(value)}
+                ...{ value: incrementCellValue(this.grid[cellIndex].value)}
             };
         });
         // create the new cell
         const pieces = this.getNeighbors(index);
         const bombs = pieces.reduce((bombs, index) =>
             isBomb(this.grid[index].value) ? bombs + 1 : bombs
-            , 0);
+        , 0);
         this.grid[index] = {
             hover: false,
             visibility: Visibility.INVISIBLE,
             state: CellState.CLEAN,
             value: bombs as CellValue
         };
+        // we also need to decrement all of the neighbors
+        pieces.forEach( cellIndex => {
+            if (isBomb(this.grid[cellIndex].value)) {
+                return;
+            }
+            console.log(`decrementing ${cellIndex} from ${this.grid[cellIndex].value} to ${decrementCellValue(this.grid[cellIndex].value)}`)
+            this.grid[cellIndex] = {
+                ...this.grid[cellIndex],
+                ...{ value: decrementCellValue(this.grid[cellIndex].value) }
+            }
+        });
     }
 
     protected init() {

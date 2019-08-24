@@ -15,7 +15,7 @@ const Header: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
                 <img src={back} alt="Back" />
             </div>
             <h3>
-                BombFinder
+                <Link to="/">BombFinder</Link>
             </h3>
             <Link to="/" className="header__link">
                 <img src={home} alt="Home" />
