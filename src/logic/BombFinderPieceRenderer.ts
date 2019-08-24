@@ -151,6 +151,9 @@ export default class BombFinderPieceRenderer {
             ctx.drawImage(this.invisiblePieceCanvas, x, y);
             if (cell.hover) {
                 this.drawHover(ctx, x + 1, y + 1);
+                // add this as a debug feature cause its actually cool
+                // const index = this.getIndexByCell(cell);
+                // ctx.drawImage(this.staticPieceCanvas[index], x, y);
             }
         } else if (cell.visibility === Visibility.MARKED) {
             ctx.drawImage(this.invisibleMarkedPieceCanvas, x, y);
