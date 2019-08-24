@@ -6,7 +6,7 @@ export default function toHHMMSS(time: number) {
     let timeString = "";
 
     if (hours > 0) {
-        timeString += (hours < 10) ? `0${hours}` : `${hours}`;
+        timeString += (hours < 10) ? `0${hours}:` : `${hours}:`;
     }
     timeString += (minutes < 10) ? `0${minutes}:` : `${minutes}:`;
     timeString += (seconds < 10) ? `0${seconds}` : `${seconds}`;

@@ -23,9 +23,11 @@ const ManageGameTemplates = lazy( () => import('./pages/manage-templates'));
 class App extends React.PureComponent<RouteComponentProps, {}> {
 
     componentDidMount() {
-        ReactGA.initialize('UA-143146753-1', {
-            debug: process.env.NODE_ENV !== 'production'
-        });
+        if (process.env.NODE_ENV === 'production') {
+            ReactGA.initialize('UA-143146753-1', {
+                debug: process.env.NODE_ENV !== 'production'
+            });
+        }
     }
 
     componentDidUpdate(prevProps: RouteComponentProps) {
@@ -35,7 +37,9 @@ class App extends React.PureComponent<RouteComponentProps, {}> {
     }
 
     onRouteChanged() {
-        ReactGA.pageview(this.props.location.pathname);
+        if (process.env.NODE_ENV === "production") {
+            ReactGA.pageview(this.props.location.pathname);
+        }
     }
 
     render() {        
