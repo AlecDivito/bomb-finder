@@ -19,7 +19,7 @@ type Props = RouteComponentProps<ParamProps>;
 
 type State = {
     loading: boolean,
-    dimentions: number;
+    dimensions: number;
     winningText: string;
     moves?: number,
     time?: number,
@@ -42,7 +42,7 @@ export default class GameWon extends Component<Props, State> {
         super(props);
         this.state = {
             loading: true,
-            dimentions: 0,
+            dimensions: 0,
             winningText: "",
         };
     }
@@ -56,6 +56,7 @@ export default class GameWon extends Component<Props, State> {
             gridGapSize: 5,
             spinningCubes: 7,
             simpleRender: false,
+            firstMoveHandicap: true,
             vibration: false,
             timestamp: new Date(),
         };
@@ -89,7 +90,7 @@ export default class GameWon extends Component<Props, State> {
             time: this.game.time,
             difficulty: this.game.difficulty,
             lastFrame: 0,
-            dimentions: settings.defaultCellSize + 1
+            dimensions: settings.defaultCellSize + 1
         });
         this.canvas = document.getElementById("piece-canvas") as HTMLCanvasElement;
         this.context2D = this.canvas.getContext('2d')!;
@@ -124,8 +125,8 @@ export default class GameWon extends Component<Props, State> {
         return (
             <div className="game-won">
                 <canvas id="piece-canvas"
-                    width={this.state.dimentions}
-                    height={this.state.dimentions}>
+                    width={this.state.dimensions}
+                    height={this.state.dimensions}>
                     This Device doesn't support the canvas element!
                 </canvas>
                 <div className="game-won--statement">{this.state.winningText}</div>
@@ -175,7 +176,7 @@ export default class GameWon extends Component<Props, State> {
         const elapsedTime = delta - this.state.lastFrame!;
         this.pieceRenderer!.update(elapsedTime);
         this.context2D!.fillStyle = "#333";
-        this.context2D!.fillRect(0, 0, this.state.dimentions, this.state.dimentions);
+        this.context2D!.fillRect(0, 0, this.state.dimensions, this.state.dimensions);
         this.pieceRenderer!.drawPlaceHolder(this.context2D!, 0, 0);
         if (this.keepUpdating) {
             this.setState({

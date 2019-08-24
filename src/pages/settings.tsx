@@ -126,6 +126,11 @@ export default class Settings extends Component<{}, IPreferences> {
                         <canvas id="preview" width={dimensions} height={dimensions}/>
                     </div>
 
+                    <CheckBox text="Can't lose on first move"
+                        name="firstMoveHandicap"
+                        checked={this.state.firstMoveHandicap}
+                        onChange={this.handleChange} />
+
                     <CheckBox text="Viberations"
                         name="vibration"
                         checked={this.state.vibration}

@@ -190,7 +190,8 @@ export default class BombFinder {
             let cell = this.grid[index];
             if (this.inputMode === InputMode.TOGGLE && events.leftClick && cell.visibility === Visibility.INVISIBLE) {
                 this.games.totalMoves++;
-                if (isBomb(cell.value) && this.remainingPieces === this.games.totalPieces) {
+                if (isBomb(cell.value) && this.remainingPieces === this.games.totalPieces
+                    && this.settings.firstMoveHandicap) {
                     // it is impossible to lose on the first move, so move the
                     // bomb somewhere else
                     this.repositionBombCell(index);
