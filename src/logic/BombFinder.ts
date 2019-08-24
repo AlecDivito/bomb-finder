@@ -130,7 +130,7 @@ export default class BombFinder {
         this.pieceRenderer.update(delta);
         this.backgroundAnimation.update(delta);
         if (this.games.gameHasStarted && this.remainingPieces !== this.games.totalPieces) {
-            const calcDelta = delta / 1000;
+            const calcDelta = delta;
             this.games.time += calcDelta;
         }
         if (this.updateRemainingPiecesCount) {

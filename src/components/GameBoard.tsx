@@ -34,7 +34,6 @@ class GameBoard extends Component<Props, State> {
 
     private stopUpdates: boolean = false;
     private rafId?: number;
-    private lastFrame: number = 0;
 
     private container?: HTMLDivElement;
     private canvas?: HTMLCanvasElement;
@@ -198,7 +197,7 @@ class GameBoard extends Component<Props, State> {
             // TODO: do we need this ready check for the game?????
             return;
         }
-        const elapsedTime = delta - this.lastFrame;
+        const elapsedTime = 0.0167;
         const events = this.input!.pollEvents(this.state.inputId!);
         
         if (events) {
@@ -224,7 +223,6 @@ class GameBoard extends Component<Props, State> {
         
         
         if (this.gameState!.isGameOver) {
-            this.lastFrame = delta;
             if (this.gameState!.isGameWon) {
                 this.props.onGameFinished("won");
             } else {
@@ -242,7 +240,6 @@ class GameBoard extends Component<Props, State> {
 
         if (!this.stopUpdates) {
             this.rafId = requestAnimationFrame(this.draw);
-            this.lastFrame = delta;
             if (this.state.time !== this.gameState!.getTime) {
                 this.setState({
                     remainingAvailablePiece: this.gameState!.getRemainingAvailablePiece,
