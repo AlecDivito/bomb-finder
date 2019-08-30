@@ -100,7 +100,7 @@ class GameBoard extends Component<Props, State> {
         this.context2D = this.canvas.getContext("2d")!;
 
         const inputId = this.input.start(this.canvas!, ["mousemove", "mousedown",
-            "contextmenu", "touchstart", "touchmove", "touchend", "keydown"]); 
+            "contextmenu", "touchstart", "touchmove", "touchend", "keydown", "dblclick"]); 
         // TODO: Add error handling
         this.canvas!.width = this.gameState!.gameBoardWidth;
         this.canvas!.height = this.gameState!.gameBoardHeight;

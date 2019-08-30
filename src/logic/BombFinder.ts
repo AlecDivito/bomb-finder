@@ -167,10 +167,8 @@ export default class BombFinder {
         if (!events) {
             return;
         }
-        if (events.events.includes("keydown")) {
-            if (events.keys.includes("f")) {
-                this.setMarkInput(this.inputMode === InputMode.TOGGLE);
-            }
+        if (events.events.includes("dblclick") || (events.events.includes("keydown") && events.keys.includes("f"))) {
+            this.setMarkInput(this.inputMode === InputMode.TOGGLE);
         }
         if (events.events.includes("mousemove")) {
             this.grid.forEach((cell) => {

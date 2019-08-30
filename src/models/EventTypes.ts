@@ -38,7 +38,7 @@ export interface EventState {
     touch?: TouchEvent;
 }
 
-type Events = "mousedown" | "mouseup" | "mousemove" | "touch" | "keydown"
+type Events = "mousedown" | "mouseup" | "mousemove" | "touch" | "keydown" | "dblclick"
 
 export interface SimpleEventState {
     leftClick: boolean;

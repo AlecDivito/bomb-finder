@@ -106,6 +106,7 @@ export default class InputController {
             case "touchmove": return this.touchEvent;
             case "touchend": return this.touchEvent;
             case "keydown": return this.keydownEvent;
+            case "dblclick": return this.doubleClickEvent;
         }
     }
 
@@ -208,6 +209,24 @@ export default class InputController {
                 keys: [event.key],
                 events: [event.type as any]
             };
+        }
+    }
+
+    /**
+     * This only gets triggered when 
+     */
+    private doubleClickEvent = (event: MouseEvent) => {
+        if (this.state) {
+            this.state.events.push(event.type as any)
+        } else {
+            this.state = {
+                leftClick: false,
+                middleClick: false,
+                rightClick: false,
+                pos: { x: -1, y: -1},
+                keys: [],
+                events: [event.type as any]
+            }
         }
     }
 
