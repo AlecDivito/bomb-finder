@@ -42,7 +42,8 @@ export default class BombFinderPieceRenderer {
     private invisiblePieceCanvas: HTMLCanvasElement;
     private invisibleMarkedPieceCanvas: HTMLCanvasElement;
     private staticPieceCanvas: HTMLCanvasElement[] = [];
-    private pieceAnimations: AnimationTimer[] = [];
+    // private pieceAnimations: AnimationTimer[] = [];
+    private pieceAnimations: number[] = [];
 
     private lineWidth: number;
     private pieceLength: number;
@@ -131,8 +132,8 @@ export default class BombFinderPieceRenderer {
     setSpinningCubes(value: number) {
         this.pieceAnimations = [];
         for (let i = value + 1; i >= 1; i--) {
-            this.pieceAnimations.push(
-                new AnimationTimer(90 * i, Math.pow(i + 1, i * .035) - 1, LoopOptions.ALTERNATE));
+            this.pieceAnimations.push(0);
+                // new AnimationTimer(90 * i, Math.pow(i + 1, i * .035) - 1, LoopOptions.ALTERNATE));
         }
     }
 
@@ -144,18 +145,46 @@ export default class BombFinderPieceRenderer {
         this.simpleRender = value;
     }
 
+    private reverseTiming: boolean = false;
     /**
      * Update dynamic pieces (spinning cubes)
      * return early if simple render is on
      * @param delta elapsed seconds
      */
     update(delta: number) {
-        if (this.simpleRender) {
+        if (this.simpleRender || this.pieceAnimations.length === 0) {
             return;
         }
+        let reverse: boolean[] = [];
         for (let i = 0; i < this.pieceAnimations.length; i++) {
-            this.pieceAnimations[i].update(delta);
+            let index = i;
+            if (this.reverseTiming) {
+                index = this.pieceAnimations.length - i;
+            }
+            const oldTime = this.pieceAnimations[index]
+            const newTime = this.pieceAnimations[index] + (delta * (index) * 1);
+            if (this.reverseTiming) {
+                if (Math.sin(newTime) < Math.sin(oldTime)) {
+                    this.pieceAnimations[index] = newTime;
+                    reverse.push(false);
+                } else {
+                    reverse.push(true);
+                }
+            } else {
+                if (Math.sin(newTime) > Math.sin(oldTime)) {
+                    this.pieceAnimations[index] = newTime;
+                    reverse.push(true);
+                } else {
+                    reverse.push(false);
+                }
+            }
         }
+        const allSame = reverse.every(b => b === reverse[0]);
+        if (allSame) {
+            this.reverseTiming = !this.reverseTiming;
+        }
+        console.log(this.pieceAnimations[0])
+
         // get context
         const ipcContext = this.invisiblePieceCanvas.getContext('2d')!;
         const impcContext = this.invisibleMarkedPieceCanvas.getContext('2d')!;
@@ -239,14 +268,17 @@ export default class BombFinderPieceRenderer {
     private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number, overrideColor?: string) {
         if (!this.simpleRender) {
             ctx.save();
-            let s = this.pieceLength;
-            let jump = 0;
-            for (let i = 1; i < this.pieceAnimations.length; i++) {
-                const rotation = (i % 2 === 0) ? 1 : -1;
-                this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation, overrideColor);
-                jump += (s / 4) / 2;
+            let s = this.pieceLength * 0.9;
+            let offset = this.pieceLength * 0.05;
+            for (let i = 1; i < this.pieceAnimations.length + 1; i++) {
+                const rotation =Math.sin(this.pieceAnimations[i]);
+                let index = this.pieceAnimations.length - 1;
+                s += rotation * Math.pow(index, 0.25);
+                offset += (rotation * -Math.pow(index, 0.25)) / 2;
+                this.drawRotatingSquare(ctx, offset + x, y + offset, s, i, rotation, overrideColor);
+                offset += (s / 4) / 2;
                 s = (s / 4) * 3;
-            }
+            } 
             ctx.restore();
         }
         
@@ -277,17 +309,17 @@ export default class BombFinderPieceRenderer {
      * @param overrideColor color to use instead of default color (#FFF)
      */
     private drawRotatingSquare(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, cellLength: number,
-        i: number, rotationDirection: 1 | -1, overrideColor?: string) {
+        i: number, rotation: number, overrideColor?: string) {
         const radius = cellLength / this.RECTANGLE_REDIS_DEGREE;
         let totalLength = cellLength / 2 + (radius * 2);
-        let x = worldX + cellLength / 4 - (radius);
-        let y = worldY + cellLength / 4 - (radius);
+        let x = worldX + cellLength / 4 - radius;
+        let y = worldY + cellLength / 4 - radius;
 
         ctx.save();
         ctx.beginPath();
         // Draw the rotating bits inside of the circle
-        ctx.translate(x + totalLength / 2, y + totalLength / 2);
-        ctx.rotate(this.pieceAnimations[i].getValue() *  Math.PI / 180);
+        ctx.translate(x + + (totalLength / 2), y + totalLength / 2);
+        ctx.rotate(rotation);
         ctx.translate((x + totalLength / 2) * -1, (y + totalLength / 2) * -1);
         this.drawSquare(ctx, x, y, radius, totalLength);
         let lineWidth = this.pieceLength / this.ROTATING_LINE_WIDTH_DEGREE;

@@ -26,7 +26,6 @@ type State = {
     difficulty?: string,
     gameId?: string,
     rafId?: number,
-    lastFrame?: number,
 }
 
 export default class GameWon extends Component<Props, State> {
@@ -89,8 +88,7 @@ export default class GameWon extends Component<Props, State> {
             moves: this.game.totalMoves,
             time: this.game.time,
             difficulty: this.game.difficulty,
-            lastFrame: 0,
-            dimensions: settings.defaultCellSize + 1
+            dimensions: settings.defaultCellSize + 5
         });
         this.canvas = document.getElementById("piece-canvas") as HTMLCanvasElement;
         this.context2D = this.canvas.getContext('2d')!;
@@ -173,15 +171,14 @@ export default class GameWon extends Component<Props, State> {
     }
 
     private draw = (delta: number) => {
-        const elapsedTime = delta - this.state.lastFrame!;
+        const elapsedTime = 0.0167;
         this.pieceRenderer!.update(elapsedTime);
         this.context2D!.fillStyle = "#333";
         this.context2D!.fillRect(0, 0, this.state.dimensions, this.state.dimensions);
-        this.pieceRenderer!.drawPlaceHolder(this.context2D!, 0, 0);
+        this.pieceRenderer!.drawPlaceHolder(this.context2D!, 2.5, 2.5);
         if (this.keepUpdating) {
             this.setState({
                 rafId: requestAnimationFrame(this.draw),
-                lastFrame: delta,
             })
         }
     } 

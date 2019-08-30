@@ -10,7 +10,6 @@ import "./settings.css";
 export default class Settings extends Component<{}, IPreferences> {
 
     private keepUpdating: boolean = true;
-    private lastFrame: number = 0; 
     private rafId: number = 0;
     private canvas?: HTMLCanvasElement;
     private ctx?: CanvasRenderingContext2D;
@@ -65,7 +64,7 @@ export default class Settings extends Component<{}, IPreferences> {
     }
 
     draw = (delta: number) => {
-        const elapsedTime = delta - this.lastFrame!;
+        const elapsedTime = 0.0167;
         // clear board
         const size = (this.state.defaultCellSize * 2) + this.state.gridGapSize;
         this.ctx!.fillStyle = "#333";
@@ -80,7 +79,6 @@ export default class Settings extends Component<{}, IPreferences> {
         });
         if (this.keepUpdating) {
             this.rafId = requestAnimationFrame(this.draw);
-            this.lastFrame = delta;
         }
     }
 
@@ -111,8 +109,8 @@ export default class Settings extends Component<{}, IPreferences> {
 
                     <Slider text="Spinning Cubes"
                         name="spinningCubes"
-                        max={10}
-                        min={0}
+                        max={8}
+                        min={1}
                         value={this.state.spinningCubes}
                         onChange={this.handleChange} />
 
