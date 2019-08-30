@@ -129,7 +129,12 @@ export default class Settings extends Component<{}, IPreferences> {
                         checked={this.state.firstMoveHandicap}
                         onChange={this.handleChange} />
 
-                    <CheckBox text="Viberations"
+                    <CheckBox text="Vibrant Colors"
+                        name="vibrantColors"
+                        checked={this.state.vibrantColors}
+                        onChange={this.handleChange} />
+
+                    <CheckBox text="Vibrations"
                         name="vibration"
                         checked={this.state.vibration}
                         onChange={this.handleChange} />

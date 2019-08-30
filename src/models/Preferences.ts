@@ -8,6 +8,7 @@ export interface IPreferences {
     spinningCubes: number;   // slider
     simpleRender: boolean;   // checkbox
     // fullScreen: boolean; // checkbox, don't save
+    vibrantColors: boolean;
     firstMoveHandicap: boolean;
     vibration: boolean;
     timestamp: Date;
@@ -35,6 +36,9 @@ export default class Preferences implements IPreferences, IDBTable {
 
     @Field("settings")
     public firstMoveHandicap: boolean = true;
+
+    @Field("settings")
+    public vibrantColors: boolean = false;
 
     @Field("settings")
     public vibration: boolean = false;

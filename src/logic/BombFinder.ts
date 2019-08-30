@@ -253,7 +253,6 @@ export default class BombFinder {
             if (isBomb(this.grid[cellIndex].value)) {
                 return;
             }
-            console.log(`incrementing ${cellIndex} from ${this.grid[cellIndex].value} to ${incrementCellValue(this.grid[cellIndex].value)}`)
             this.grid[cellIndex] = {
                 ...this.grid[cellIndex],
                 ...{ value: incrementCellValue(this.grid[cellIndex].value)}
@@ -275,7 +274,6 @@ export default class BombFinder {
             if (isBomb(this.grid[cellIndex].value)) {
                 return;
             }
-            console.log(`decrementing ${cellIndex} from ${this.grid[cellIndex].value} to ${decrementCellValue(this.grid[cellIndex].value)}`)
             this.grid[cellIndex] = {
                 ...this.grid[cellIndex],
                 ...{ value: decrementCellValue(this.grid[cellIndex].value) }
@@ -467,7 +465,11 @@ export default class BombFinder {
         const gradient1 = ctx.createLinearGradient(this.width / 2,
             this.height, this.width / 2, 0);
         gradient1.addColorStop(0.05, '#333');
-        gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 50%, 1)`);
+        if (this.settings.vibrantColors) {
+            gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 50%, 1)`);
+        } else {
+            gradient1.addColorStop(1, `hsla(${360 - this.backgroundAnimation.getValue()}, 100%, 64%, .8)`);
+        }
         ctx.fillStyle = gradient1;
         ctx.fillRect(0, 0, this.width, this.height);
         ctx.restore();

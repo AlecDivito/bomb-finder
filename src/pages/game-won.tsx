@@ -56,6 +56,7 @@ export default class GameWon extends Component<Props, State> {
             spinningCubes: 7,
             simpleRender: false,
             firstMoveHandicap: true,
+            vibrantColors: false,
             vibration: false,
             timestamp: new Date(),
         };

@@ -1,4 +1,3 @@
-import AnimationTimer, { LoopOptions } from "./Animation";
 import { Cell, Visibility, isBomb, CellValue } from "../models/GameBoardTypes";
 import RandInRange from "../util/Random";
 import { IPreferences } from "../models/Preferences";
@@ -183,7 +182,6 @@ export default class BombFinderPieceRenderer {
         if (allSame) {
             this.reverseTiming = !this.reverseTiming;
         }
-        console.log(this.pieceAnimations[0])
 
         // get context
         const ipcContext = this.invisiblePieceCanvas.getContext('2d')!;

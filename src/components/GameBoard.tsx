@@ -105,6 +105,7 @@ class GameBoard extends Component<Props, State> {
         this.canvas!.width = this.gameState!.gameBoardWidth;
         this.canvas!.height = this.gameState!.gameBoardHeight;
         this.container.scrollLeft = (this.gameState!.gameBoardWidth - window.innerWidth) / 2;
+        this.container.scrollTop = (this.gameState!.gameBoardHeight - window.innerHeight) / 2;
         this.setState({ ready: true, inputId: inputId, canVibrate: preferences.vibration });
         requestAnimationFrame(this.draw);
     }
