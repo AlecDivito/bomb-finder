@@ -74,8 +74,8 @@ export default class Settings extends Component<{}, IPreferences> {
         this.pieceRenderer!.update(elapsedTime);
         [0, 0, 1, 1].forEach((c, i) => {
             const index = (i % 2);
-            const x = 1 + (index * this.state.defaultCellSize) + (this.state.gridGapSize * index);
-            const y = 1 + (c * this.state.defaultCellSize) + (this.state.gridGapSize * c);
+            const x = 3 + (index * this.state.defaultCellSize) + (this.state.gridGapSize * index);
+            const y = 3 + (c * this.state.defaultCellSize) + (this.state.gridGapSize * c);
             this.pieceRenderer!.drawPlaceHolder(this.ctx!, x, y, i);
         });
         if (this.keepUpdating) {
@@ -88,7 +88,7 @@ export default class Settings extends Component<{}, IPreferences> {
         if (!this.state) {
             return <Loading />;
         }
-        const dimensions = (this.state.defaultCellSize * 2) + this.state.gridGapSize + 2;
+        const dimensions = (this.state.defaultCellSize * 2) + this.state.gridGapSize * 2;
         return (
             <div className="settings">
                 <h1>Settings</h1>
@@ -105,7 +105,7 @@ export default class Settings extends Component<{}, IPreferences> {
                     <Slider text="Piece Gap"
                         name="gridGapSize"
                         max={50}
-                        min={5}
+                        min={0}
                         value={this.state.gridGapSize}
                         onChange={this.handleChange} />
 

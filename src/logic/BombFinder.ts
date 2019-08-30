@@ -458,8 +458,6 @@ export default class BombFinder {
     }
 
     public draw(ctx: CanvasRenderingContext2D, canvasWindow: CanvasWindow) {
-        // TODO: futher optimizations 
-        // TODO: Render screen differences only, not the whole new state.
         this.drawBackground(ctx);
         this.drawBoard(ctx, canvasWindow);
     }
@@ -497,14 +495,8 @@ export default class BombFinder {
                 const y = this.offsetHeight + this.calculateBoardSize(row);
                 const index = this.getIndex(row, col);
                 const cell = this.grid[index];
-
-                /**
-                 * This is what I want to be able to call
-                 */
-                if (cell) {
-                    this.pieceRenderer.drawPiece(ctx, cell, x, y);
-                }
-            }    
+                this.pieceRenderer.drawPiece(ctx, cell, x, y);
+            }
         }
     }
 

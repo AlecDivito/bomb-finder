@@ -18,6 +18,13 @@ export interface CanvasWindow {
  * details and it will be drawn
  */
 export default class BombFinderPieceRenderer {
+    /**
+     * Constants
+     */
+    private readonly RECTANGLE_REDIS_DEGREE = 6;
+    private readonly LINE_WIDTH_DEGREE = 20;
+    private readonly ROTATING_LINE_WIDTH_DEGREE = 60;
+    private readonly PIECE_MARKED_COLOR = "#3396ff";
 
     /**
      * Invisible
@@ -37,45 +44,54 @@ export default class BombFinderPieceRenderer {
     private staticPieceCanvas: HTMLCanvasElement[] = [];
     private pieceAnimations: AnimationTimer[] = [];
 
+    private lineWidth: number;
     private pieceLength: number;
     private gapSize: number;
     private simpleRender: boolean;
     private exampleCellValue = RandInRange(0, 8);
 
     constructor(settings: IPreferences) {
-        this.pieceLength = settings.defaultCellSize;
+        this.lineWidth = settings.defaultCellSize / this.LINE_WIDTH_DEGREE;
+        this.pieceLength = settings.defaultCellSize - this.lineWidth * 2;
         this.gapSize = settings.gridGapSize;
         this.simpleRender = settings.simpleRender;
         this.setSpinningCubes(settings.spinningCubes);
         // set up canvas
         this.invisiblePieceCanvas = document.createElement("canvas");
-        this.invisiblePieceCanvas.height = this.pieceLength + 2;
-        this.invisiblePieceCanvas.width = this.pieceLength + 2;
-        this.drawInvisiblePiece(this.invisiblePieceCanvas.getContext('2d')!, 1, 1);
+        this.invisiblePieceCanvas.height = settings.defaultCellSize;
+        this.invisiblePieceCanvas.width =  settings.defaultCellSize;
+        this.drawInvisiblePiece(this.invisiblePieceCanvas.getContext('2d')!, this.lineWidth, this.lineWidth);
+
         this.invisibleMarkedPieceCanvas = document.createElement("canvas");
-        this.invisibleMarkedPieceCanvas.height = this.pieceLength + 2;
-        this.invisibleMarkedPieceCanvas.width = this.pieceLength + 2;
-        this.drawInvisiblePiece(this.invisibleMarkedPieceCanvas.getContext('2d')!, 1, 1, "#3396ff");
+        this.invisibleMarkedPieceCanvas.height = settings.defaultCellSize;
+        this.invisibleMarkedPieceCanvas.width = settings.defaultCellSize;
+        this.drawInvisiblePiece(this.invisibleMarkedPieceCanvas.getContext('2d')!, this.lineWidth, this.lineWidth, this.PIECE_MARKED_COLOR);
+
         for (let i = 0; i < 18; i++) {
             this.staticPieceCanvas[i] = document.createElement("canvas");
-            this.staticPieceCanvas[i].width = this.pieceLength + 2;
-            this.staticPieceCanvas[i].height = this.pieceLength + 2;
+            this.staticPieceCanvas[i].width = settings.defaultCellSize;
+            this.staticPieceCanvas[i].height = settings.defaultCellSize;
             const ctx = this.staticPieceCanvas[i].getContext('2d')!;
             if (i < 8) {
-                this.drawVisibleCell(ctx, 1, 1.5, (i + 1 as CellValue));
+                this.drawVisibleCell(ctx, this.lineWidth, this.lineWidth, (i + 1 as CellValue));
             } else if (i < 16) {
                 const num: CellValue = (i % 8) + 1 as CellValue;
-                this.drawVisibleCell(ctx, 1, 1.5, num, "#3396ff");
+                this.drawVisibleCell(ctx, this.lineWidth, this.lineWidth, num, this.PIECE_MARKED_COLOR);
             } else if (i < 17) {
-                this.drawVisibleCell(ctx, 1, 1.5, 0);
+                this.drawVisibleCell(ctx, this.lineWidth, this.lineWidth, 0);
             } else {
-                this.drawVisibleCell(ctx, 1, 1.5, undefined);
+                this.drawVisibleCell(ctx, this.lineWidth, this.lineWidth, undefined);
             }
         }
     }
 
+    /**
+     * Update the size of a cells width and height
+     * @param value height and width to set the piece
+     */
     setCellSize(value: number) {
-        this.pieceLength = value;
+        this.lineWidth = value / this.LINE_WIDTH_DEGREE;
+        this.pieceLength = value - this.lineWidth * 2;
         // hard code invis
         this.invisiblePieceCanvas.height = value;
         this.invisiblePieceCanvas.width = value;
@@ -91,7 +107,7 @@ export default class BombFinderPieceRenderer {
                 this.drawVisibleCell(ctx, 0, 0, (i + 1 as CellValue));
             } else if (i < 16) {
                 const num: CellValue = (i % 8) + 1 as CellValue;
-                this.drawVisibleCell(ctx, 0, 0, num, "#3396ff");
+                this.drawVisibleCell(ctx, 0, 0, num, this.PIECE_MARKED_COLOR);
             } else if (i < 17) {
                 this.drawVisibleCell(ctx, 0, 0, 0);
             } else {
@@ -100,10 +116,18 @@ export default class BombFinderPieceRenderer {
         }
     }
 
+    /**
+     * Set the gab size found between pieces
+     * @param value size of gap in pixels
+     */
     setGapSize(value: number) {
         this.gapSize = value;
     }
 
+    /**
+     * Set the number of cubes that spin inside of invisible pieces
+     * @param value number of spinning cubes found on invisible pieces
+     */
     setSpinningCubes(value: number) {
         this.pieceAnimations = [];
         for (let i = value + 1; i >= 1; i--) {
@@ -112,10 +136,19 @@ export default class BombFinderPieceRenderer {
         }
     }
 
+    /**
+     * Toggle simple render option
+     * @param value property to toggle simple render to
+     */
     setSimpleRender(value: boolean) {
         this.simpleRender = value;
     }
 
+    /**
+     * Update dynamic pieces (spinning cubes)
+     * return early if simple render is on
+     * @param delta elapsed seconds
+     */
     update(delta: number) {
         if (this.simpleRender) {
             return;
@@ -127,30 +160,46 @@ export default class BombFinderPieceRenderer {
         const ipcContext = this.invisiblePieceCanvas.getContext('2d')!;
         const impcContext = this.invisibleMarkedPieceCanvas.getContext('2d')!;
         // clear canvas
-        ipcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
-        impcContext.clearRect(0, 0, this.pieceLength, this.pieceLength);
+        const length = this.pieceLength + (this.lineWidth * 2)
+        ipcContext.clearRect(0, 0, length, length);
+        impcContext.clearRect(0, 0, length, length);
         // draw canvas
-        this.drawInvisiblePiece(ipcContext, 1, 1);
-        this.drawInvisiblePiece(impcContext, 1, 1, "#3396ff");
+        this.drawInvisiblePiece(ipcContext, this.lineWidth, this.lineWidth);
+        this.drawInvisiblePiece(impcContext, this.lineWidth, this.lineWidth, this.PIECE_MARKED_COLOR);
     }
 
+    /**
+     * Create graphical gird cell without actually providing one
+     * @param ctx canvas context
+     * @param x x position
+     * @param y y position
+     * @param visibility Cell visibility
+     */
     drawPlaceHolder(ctx: CanvasRenderingContext2D, x: number, y: number, visibility: Visibility = Visibility.INVISIBLE) {
         ctx.save();
         switch (visibility) {
             case Visibility.INVISIBLE: this.drawInvisiblePiece(ctx, x, y); break;
-            case Visibility.MARKED: this.drawInvisiblePiece(ctx, x, y, "#3396ff"); break;
+            case Visibility.MARKED: this.drawInvisiblePiece(ctx, x, y, this.PIECE_MARKED_COLOR); break;
             case Visibility.VISIBLE: this.drawVisibleCell(ctx, x, y, this.exampleCellValue as CellValue); break;
             case Visibility.VISIBLY_SATISFIED:
-                this.drawVisibleCell(ctx, x, y, this.exampleCellValue as CellValue, "#3396ff"); break;
+                this.drawVisibleCell(ctx, x, y, this.exampleCellValue as CellValue, this.PIECE_MARKED_COLOR); break;
         }
         ctx.restore();
     }
 
+    /**
+     * Create graphical grid cell
+     * @param ctx canvas
+     * @param cell grid cell
+     * @param x x position
+     * @param y y position
+     */
     drawPiece(ctx: CanvasRenderingContext2D, cell: Cell, x: number, y: number) {
         if (cell.visibility === Visibility.INVISIBLE) {
             ctx.drawImage(this.invisiblePieceCanvas, x, y);
             if (cell.hover) {
-                this.drawHover(ctx, x + 1, y + 1);
+                const offset = this.lineWidth / 2;
+                this.drawHover(ctx, x + offset, y + offset);
                 // add this as a debug feature cause its actually cool
                 // const index = this.getIndexByCell(cell);
                 // ctx.drawImage(this.staticPieceCanvas[index], x, y);
@@ -163,6 +212,10 @@ export default class BombFinderPieceRenderer {
         }
     }
 
+    /**
+     * get the index of the cached canvas that matches the cell's state
+     * @param cell Cell
+     */
     private getIndexByCell(cell: Cell) {
         if (isBomb(cell.value)) {
             return 17;
@@ -176,7 +229,28 @@ export default class BombFinderPieceRenderer {
         }
     }
 
+    /**
+     * Draw an invisible piece
+     * @param ctx canvas
+     * @param x x position
+     * @param y y pixel position
+     * @param overrideColor color to use instead of default color (#FFF)
+     */
     private drawInvisiblePiece(ctx: CanvasRenderingContext2D, x: number, y: number, overrideColor?: string) {
+        if (!this.simpleRender) {
+            ctx.save();
+            let s = this.pieceLength;
+            let jump = 0;
+            for (let i = 1; i < this.pieceAnimations.length; i++) {
+                const rotation = (i % 2 === 0) ? 1 : -1;
+                this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation, overrideColor);
+                jump += (s / 4) / 2;
+                s = (s / 4) * 3;
+            }
+            ctx.restore();
+        }
+        
+
         ctx.save();
         ctx.beginPath();
         if (overrideColor) {
@@ -184,32 +258,27 @@ export default class BombFinderPieceRenderer {
         } else {
             ctx.strokeStyle = "#FFF";
         }
-        this.drawRectangle(ctx, x, y, this.pieceLength / 8, this.pieceLength);
+        this.drawSquare(ctx, x, y, this.pieceLength / this.RECTANGLE_REDIS_DEGREE, this.pieceLength);
 
-        ctx.lineWidth = 2;
+        ctx.lineWidth = this.lineWidth;
         ctx.stroke();
         ctx.closePath();
         ctx.restore();
-
-        if (this.simpleRender) {
-            return;
-        }
-
-        ctx.save();
-        let s = this.pieceLength;
-        let jump = 0;
-        for (let i = 1; i < this.pieceAnimations.length; i++) {
-            const rotation = (i % 2 === 0) ? 1 : -1;
-            this.drawRotatingSquare(ctx, jump + x, jump + y, s, i, rotation, overrideColor);
-            jump += (s / 4) / 2;
-            s = (s / 4) * 3;
-        }
-        ctx.restore();
     }
 
+    /**
+     * Draw one rotating cube
+     * @param ctx canvas
+     * @param worldX x pixel position
+     * @param worldY y pixel position
+     * @param cellLength spinning cube width
+     * @param i index
+     * @param rotationDirection direction to rotate
+     * @param overrideColor color to use instead of default color (#FFF)
+     */
     private drawRotatingSquare(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, cellLength: number,
         i: number, rotationDirection: 1 | -1, overrideColor?: string) {
-        const radius = cellLength / 8;
+        const radius = cellLength / this.RECTANGLE_REDIS_DEGREE;
         let totalLength = cellLength / 2 + (radius * 2);
         let x = worldX + cellLength / 4 - (radius);
         let y = worldY + cellLength / 4 - (radius);
@@ -220,12 +289,16 @@ export default class BombFinderPieceRenderer {
         ctx.translate(x + totalLength / 2, y + totalLength / 2);
         ctx.rotate(this.pieceAnimations[i].getValue() *  Math.PI / 180);
         ctx.translate((x + totalLength / 2) * -1, (y + totalLength / 2) * -1);
-        this.drawRectangle(ctx, x, y, radius, totalLength);
-        ctx.lineWidth = 2;
+        this.drawSquare(ctx, x, y, radius, totalLength);
+        let lineWidth = this.pieceLength / this.ROTATING_LINE_WIDTH_DEGREE;
+        if (lineWidth < 1) {
+            lineWidth = 1;
+        }
+        ctx.lineWidth = lineWidth;
         if (overrideColor) {
             ctx.strokeStyle = overrideColor;
         } else {
-            ctx.strokeStyle = "gray";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
         }
 
         ctx.closePath();
@@ -233,7 +306,15 @@ export default class BombFinderPieceRenderer {
         ctx.restore();
     }
 
-    private drawRectangle(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, length: number) {
+    /**
+     * Draw a square on the canvas
+     * @param ctx canvas
+     * @param x x pixel position
+     * @param y y pixel position
+     * @param radius border radius
+     * @param length width and height of rectangle
+     */
+    private drawSquare(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, length: number) {
         // start
         ctx.moveTo(x + radius, y);
         // top
@@ -250,26 +331,45 @@ export default class BombFinderPieceRenderer {
         ctx.quadraticCurveTo(x, y, x + radius, y);
     }
     
+    /**
+     * Draw multiple squares at different alpha values to give the appearance of 
+     * a gradient
+     * @param ctx canvas
+     * @param x x pixel position
+     * @param y y pixel position
+     */
     private drawHover(ctx: CanvasRenderingContext2D, x: number, y: number) {
         ctx.save()
+        const gapSize = (this.gapSize / 2)
         let alpha = 1.0;
-        for (let i = 1; i <= (this.gapSize / 2); i++) {
+        let step = 1 / gapSize;
+        x += (1 + this.lineWidth) / 2;
+        y += (1 + this.lineWidth) / 2;
+        for (let i = 1; i <= gapSize; i++) {
             ctx.beginPath();
             ctx.strokeStyle = `rgba(255,255,255, ${alpha})`;
-            this.drawRectangle(ctx, x - i, y - i, (this.pieceLength) / 8,
+            this.drawSquare(ctx, x - i, y - i, (this.pieceLength) / this.RECTANGLE_REDIS_DEGREE,
                 this.pieceLength + (i * 2));
             if ((i + 1) >= (this.gapSize / 2)) {
                 ctx.lineWidth = 1;
             } else {
                 ctx.lineWidth = 2;
             }
-            alpha -= 0.1;
+            alpha -= step;
             ctx.stroke();
             ctx.closePath();
         }
         ctx.restore();
     }
 
+    /**
+     * Draw a visible cell that matches the cell value
+     * @param ctx canvas
+     * @param x x pixel position
+     * @param y y pixel position
+     * @param cellValue bomb state value
+     * @param overrideColor color to use instead of default color
+     */
     private drawVisibleCell(ctx: CanvasRenderingContext2D, x: number, y: number, cellValue?: CellValue, overrideColor?: string) {
         ctx.save();
         ctx.beginPath();
@@ -312,8 +412,8 @@ export default class BombFinderPieceRenderer {
             ctx.restore();
 
         } else if (cellValue === 0) {
-            this.drawRectangle(ctx, x, y, this.pieceLength / 8, this.pieceLength);
-            ctx.lineWidth = 3;
+            this.drawSquare(ctx, x, y, this.pieceLength / this.RECTANGLE_REDIS_DEGREE, this.pieceLength);
+            ctx.lineWidth = this.lineWidth;
             ctx.strokeStyle = "gray";
         } else {
             if (overrideColor) {
@@ -326,13 +426,13 @@ export default class BombFinderPieceRenderer {
             // http://www.ckollars.org/canvas-text-centering.html
             ctx.font = `normal ${this.pieceLength}px sans-serif`;
             // const measurements = ctx.measureText(String(cell.value));
-            const offset = (this.pieceLength / 2) + 2;
+            const offset = (this.pieceLength / 2) + (this.lineWidth * 1.5);
             const ypos = y + (this.pieceLength / 2) + offset;// + this.pieceLength;
             const xpos = x + (this.pieceLength / 2);
             ctx.textAlign = "center";
             ctx.textBaseline = "bottom";
             ctx.arc(x + length / 2, y + length / 2, length / 2, 0, 2 * Math.PI);
-            ctx.lineWidth = 2;
+            ctx.lineWidth = this.lineWidth;
             ctx.fillText(String(cellValue), xpos, ypos);
         }
         ctx.closePath();
