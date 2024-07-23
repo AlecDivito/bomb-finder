@@ -75,7 +75,7 @@ class ManageTemplates extends Component<{}, State> {
                         (n.key === "createdAt")
                             ? <td key={`${item.id}-${n.key}`}
                             data-column={n.name}>
-                                {(item[n.key] as Date).toLocaleDateString("default", dateOptions)}
+                                {(item[n.key] as any).toLocaleDateString("default", dateOptions)}
                             </td>
                             : <td key={`${item.id}-${n.key}`}
                             data-column={n.name}>

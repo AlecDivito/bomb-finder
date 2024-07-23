@@ -1,5 +1,5 @@
 import { Table, Field, Query, IDBTable } from '../logic/MetaDataStorage';
-import { GameDifficulty, GameProgress } from './GameTypes';
+import * as GameTypes from './GameTypes';
 import { Cell } from './GameBoardTypes';
 import uuid from '../util/uuid';
 import Statistics from './Statistics';
@@ -7,7 +7,7 @@ import Statistics from './Statistics';
 export interface IGames {
     id: string;
     time: number;
-    difficulty: GameDifficulty;
+    difficulty: GameTypes.GameDifficulty;
     width: number;
     height: number;
     bombs: number;
@@ -15,7 +15,7 @@ export interface IGames {
     totalMoves: number;
     invisiblePieces: number;
     isComplete: boolean;
-    result: GameProgress;
+    result: GameTypes.GameProgress;
     updatedAt: Date;
     createdAt: Date;
 }
@@ -31,7 +31,7 @@ export default class Games implements IGames, IDBTable {
     @Field("Games")
     public time: number = 0;
     @Field("Games")
-    public difficulty: GameDifficulty = "";
+    public difficulty: GameTypes.GameDifficulty = "";
     @Field("Games")
     public width: number = 0;
     @Field("Games")
@@ -49,7 +49,7 @@ export default class Games implements IGames, IDBTable {
     @Field("Games")
     public isComplete: boolean = false;
     @Field("Games")
-    public result: GameProgress = "created";
+    public result: GameTypes.GameProgress = "created";
     @Field("Games")
     public updatedAt: Date = new Date();
     @Field("Games")
@@ -69,7 +69,7 @@ export default class Games implements IGames, IDBTable {
         return this.width * this.height;
     }
 
-    public set setResult(result: GameProgress) {
+    public set setResult(result: GameTypes.GameProgress) {
         if (this.result !== "lost" && this.result !== "won") {
             this.result = result;
         }
@@ -103,7 +103,7 @@ export default class Games implements IGames, IDBTable {
     }
 
     static async Create(
-        difficulty: GameDifficulty,
+        difficulty: GameTypes.GameDifficulty,
         width: number,
         height: number,
         bombs: number,

@@ -2,7 +2,7 @@
   "name": "bomb-finder",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://alecdivito.github.io/bomb-finder",
+  "homepage": "https://minesweeper.alecdivito.com",
   "devDependencies": {
     "@types/jest": "24.0.13",
     "@types/node": "12.0.2",
@@ -12,7 +12,7 @@
     "gh-pages": "^2.0.1",
     "react-scripts": "3.0.1",
     "source-map-explorer": "^2.0.1",
-    "typescript": "3.4.5"
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "react": "^16.9.0",
